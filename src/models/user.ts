@@ -1,5 +1,6 @@
 import Role from 'src/enums/role';
 import UserStatus from 'src/enums/user_status';
+import { Point } from './route';
 
 export class User {
   _id: string;
@@ -9,8 +10,15 @@ export class User {
   title: string;
   phone_number: string;
   password: string;
-  create_at: Date;
+  created_at: Date;
   updated_at: Date;
   status: UserStatus;
   role: Role;
+  customer_details: CustomerDetails;
+}
+export class CustomerDetails {
+  _id: string;
+  company: string;
+  address: string;
+  location: Point;
 }

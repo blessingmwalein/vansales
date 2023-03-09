@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import Role from 'src/enums/role';
 import UserStatus from 'src/enums/user_status';
+import { PointSchema } from './route';
 
 export const UserSchema = new mongoose.Schema({
   first_name: { type: String, required: true },
@@ -20,4 +21,21 @@ export const UserSchema = new mongoose.Schema({
     type: String,
     enum: Object.values(Role),
   },
+  customer_details: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CustomerDetails'
+},
 });
+
+export const CustomerDetailsSchema = new mongoose.Schema({
+  company: { type: String, required: false },
+  address: { type: String, required: false },
+  location: {
+    type: PointSchema,
+    required: true
+  },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+});
+
+

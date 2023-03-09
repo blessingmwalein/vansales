@@ -126,21 +126,17 @@ export class StockService {
 
     async updateTaxCode(id: string, taxCode: CreateTaxCodeDto): Promise<TaxCode> {
         return this.taxCodeModel.findByIdAndUpdate(id, taxCode, { new: true });
-
     }
 
     async deleteTaxCode(id: string): Promise<TaxCode> {
         return this.taxCodeModel.findByIdAndRemove(id);
     }
 
-
-
     //helper methods
     //create method to reduce stock quantity
     async updateStockQuantity(id: string, quantity: number, increase: boolean): Promise<boolean> {
         const product: Product = await this.findOneProduct(id);
         console.log('this'+ product.units_on_hand);
-
         if ((product.units_on_hand < quantity) && (!increase)) {
             return false;
         }

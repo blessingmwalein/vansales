@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { ApiProperty } from "@nestjs/swagger";
 import { Point } from "src/models/route";
 
@@ -6,11 +7,11 @@ export class CreateRouteDto {
     name: string;
     @ApiProperty()
     code: string;
-    @ApiProperty()
+    @Type(() => Point)
     origin: Point;
-    @ApiProperty()
+    @Type(() => Point)
     destination: Point;
-    @ApiProperty()
+    @Type(() => Point)
     waypoints: Point[];
     @ApiProperty()
     average_distance: number;

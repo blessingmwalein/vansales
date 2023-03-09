@@ -1,3 +1,5 @@
+import { InvoiceModule } from './invoice/invoice.module';
+import { SheetModule } from './sheet/sheet.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose/dist/mongoose.module';
 import { AppService } from './app.service';
@@ -12,6 +14,8 @@ import { TruckModule } from './truck/truck.module';
 
 @Module({
   imports: [
+        InvoiceModule, 
+    SheetModule,
     MongooseModule.forRoot(
       'mongodb+srv://code-academy:password23@cluster0.tbocvfg.mongodb.net/van-sales?retryWrites=true&w=majority',
     ),
@@ -21,7 +25,7 @@ import { TruckModule } from './truck/truck.module';
     StockModule,
     StockAllocationModule,
     RouteModule,
-    TruckModule,
+    TruckModule
   ],
   controllers: [],
   providers: [AppService],

@@ -3,7 +3,7 @@ import UserStatus from 'src/enums/user_status';
 import { AuthDto } from './../dto/auth';
 import { Body, Controller, Post, Res, Request, Param, Get, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/dto/user';
+import { CreateUserDto, CustomerDetailsDto } from 'src/dto/user';
 import { successResponse } from 'src/response/success';
 import { UsersService } from './users.service';
 import { errorResponse } from 'src/response/error';
@@ -18,12 +18,9 @@ import { Roles } from 'src/decorators/role';
 export class UsersController {
 
     constructor(private usersService: UsersService) {
-
     }
-
-
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.Admin)
+    // @UseGuards(JwtAuthGuard, RolesGuard)
+    // @Roles(Role.Admin)
     @Post('create')
     async createNewUser(@Body() createUserDto: CreateUserDto, @Res() res) {
         return successResponse(res, 201, "User created", await this.usersService.createNewUser(createUserDto));
@@ -85,7 +82,10 @@ export class UsersController {
         return successResponse(res, 201, "Users fetched", await this.usersService.filterUsersByStatus(status));
     }
 
-    
-
-
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    @Post('addCustomerDetails/:userId')
+    async addCustomerDetails(@Body() customerDetailsDto:CustomerDetailsDto,@Res() res, @Param('userId') userId: string) {
+        return successResponse(res, 201, "Customer Details Updated", await this.usersService.addCustomerDetails(userId,customerDetailsDto));
+    }
 }

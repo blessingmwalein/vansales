@@ -1,19 +1,23 @@
 import { AuthService } from './../auth/auth.service';
 import { AuthDto } from './../dto/auth';
 import UserStatus from 'src/enums/user_status';
-import { User } from './../models/user';
+import { CustomerDetails, User } from './../models/user';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { HttpException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from 'src/dto/user';
+import { CreateUserDto, CustomerDetailsDto } from 'src/dto/user';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
     AppUrl: any;
     users: any;
-    constructor(@InjectModel("User") private readonly userModel: Model<User>, private jwtService: JwtService) {
+    constructor(
+        @InjectModel("User") private readonly userModel: Model<User>,
+        @InjectModel("CustomerDetails") private readonly customerModel: Model<CustomerDetails>
+    
+    , private jwtService: JwtService) {
 
     }
 
@@ -55,6 +59,20 @@ export class UsersService {
         return result;
     }
 
+    //create function to add customer details
+    async addCustomerDetails(userId: string, customer: CustomerDetailsDto): Promise<User> {
+        const result = await this.customerModel.create(customer);
+        //check if user already has customer details
+        const user = await this.findUserById(userId);
+        if (user.customer_details) {
+            await this.customerModel.findByIdAndUpdate(user.customer_details, customer);
+            return this.findUserById(userId);
+        }else{
+            this.userModel.findByIdAndUpdate(userId, { customer_details: result._id });
+            return this.findUserById(userId);
+        }
+    }
+
     async deleteUser(id: string): Promise<User> {
         const result = await this.userModel.findByIdAndDelete(id);
         return result;
@@ -92,6 +110,8 @@ export class UsersService {
         }
         return false;
     }
+
+    //customer functions
 
     decodeToken(token: string) {
         return this.jwtService.decode(token);

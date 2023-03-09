@@ -43,9 +43,4 @@ export class RouteController {
     async getOneRoute(@Res() res, @Param('id') id: string) {
         return successResponse(res, 201, "Route", await this.routeService.findOne(id));
     }
-
-
-
-
-
 }
