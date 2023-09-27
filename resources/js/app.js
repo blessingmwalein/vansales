@@ -5,6 +5,9 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
+import 'flowbite';
+import "vue3-snackbar/styles";
+import { SnackbarService, Vue3Snackbar } from "vue3-snackbar";
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -15,6 +18,8 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .use(SnackbarService)
+            .component("vue3-snackbar", Vue3Snackbar)
             .mount(el);
     },
     progress: {

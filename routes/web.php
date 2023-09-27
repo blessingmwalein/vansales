@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,4 +35,19 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
 });
+
+
+//route prefix for admin
+Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->group(function () {
+    Route::resource('/users/roles', RoleController::class);
+    Route::resource('/users/permissions', PermissionController::class);
+});
+
+
+Route::get('/unauthorizes', function () {
+    return Inertia::render('Unauthorizes');
+})->name('unauthorized');
+
+
