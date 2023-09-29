@@ -29,7 +29,6 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 v-model="form.name">
                             <InputError class="mt-2" :message="form.errors.name" />
-
                         </div>
                     </form>
                 </div>
@@ -75,7 +74,7 @@ export default {
         },
 
         createRole() {
-            this.form.post('/admin/users/roles', {
+            this.form.post('/admin/roles', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -84,7 +83,7 @@ export default {
         },
 
         updateRole() {
-            this.form.put(`/admin/users/roles/${this.role.id}`, {
+            this.form.put(`/admin/roles/${this.role.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

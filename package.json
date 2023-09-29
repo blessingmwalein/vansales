@@ -20,6 +20,7 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "vue-multiselect": "^3.0.0-beta.2",
         "vue3-snackbar": "^2.2.0"
     }
 }

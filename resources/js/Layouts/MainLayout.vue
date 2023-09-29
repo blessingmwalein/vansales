@@ -1,4 +1,4 @@
-<script >
+<script>
 
 import { Head, Link, router } from '@inertiajs/vue3';
 
@@ -10,17 +10,20 @@ import globalMixin from "@/Mixins/global.js";
 
 
 export default {
+
+
     components: {
         NavTop,
         SideNav,
         Footer,
     },
     mixins: [globalMixin],
-    
+    data() {
+        return {
 
-    mounted() {
-
+        }
     },
+
     methods: {
         logout() {
             this.$post(route('logout'));

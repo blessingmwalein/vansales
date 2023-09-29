@@ -5,8 +5,10 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Inertia\Middleware;
 
-class IsAdmin
+
+class IsAdmin extends Middleware
 {
     /**
      * Handle an incoming request.

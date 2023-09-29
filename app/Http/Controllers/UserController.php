@@ -14,7 +14,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('User/Index', [
+            'users' => User::with('roles')->paginate(10),
+            'roles' => Role::all(),
+        ]);
     }
 
     /**
@@ -30,7 +33,22 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $userData = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'phone_number' => 'required:unique:users,phone_number',
+            'email' => 'required|unique:users,email',
+            'password' => 'required|confirmed',
+        ]);
+        $roleData = $request->validate([
+            'role_id' => 'required',
+        ]);
+        $userData['password'] = bcrypt($userData['password']);
+        $user = User::create($userData);
+        $role = Role::find($roleData['role_id']);
+        $user->assignRole($role);
+
+        return redirect()->back()->with('success', 'User created successfully');
     }
 
     /**
@@ -54,7 +72,21 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+        $data  = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'phone_number' => 'required',
+            'email' => 'required',
+            'role_id' => 'required',
+        ]);
+
+        //check if password is set
+        if ($request->password) {
+            $data['password'] = bcrypt($request->password);
+        }
+        $user->update($data);
+
+        return redirect()->back()->with('success', 'User updated successfully');
     }
 
     /**
@@ -62,7 +94,12 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        //detach all roles
+        $user->roles()->detach();
+
+        //delete user
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User deleted successfully');
     }
-    
 }

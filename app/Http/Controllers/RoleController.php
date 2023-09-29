@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\vc;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -17,6 +18,7 @@ class RoleController extends Controller
 
         return Inertia::render('User/Roles', [
             'roles' => Role::with('permissions')->paginate(5),
+            'permissions_data' => Permission::all(),
         ]);
     }
 
@@ -36,6 +38,8 @@ class RoleController extends Controller
         $data = $request->validate([
             'name' => 'required|unique:roles,name',
         ]);
+        $data['guard_name'] = 'web';
+
         $role = Role::create($data);
 
         return redirect()->back()->with('success', 'Role created successfully');

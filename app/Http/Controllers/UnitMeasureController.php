@@ -2,17 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\UtilityRepositoryInterface;
 use App\Models\UnitMeasure;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class UnitMeasureController extends Controller
 {
+    private UtilityRepositoryInterface $utilityRepository;
+
+    public function __construct(UtilityRepositoryInterface $utilityRepository)
+    {
+        $this->utilityRepository = $utilityRepository;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return Inertia::render('Stock/Utilities', [
+            'unitOfMeasurements' => $this->utilityRepository->getAllUnitMeasuresPaginated(5),
+            'taxs' => $this->utilityRepository->getAllTaxsPaginated(5),
+        ]);
     }
 
     /**
@@ -28,7 +39,13 @@ class UnitMeasureController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $data = $request->validate([
+            'name' => 'required|unique:unit_measures,name'
+        ]);
+
+        $this->utilityRepository->createUnitMeasure($data);
+        return redirect()->back()->with('success', 'Unit measure created.');
     }
 
     /**
@@ -52,7 +69,12 @@ class UnitMeasureController extends Controller
      */
     public function update(Request $request, UnitMeasure $unitMeasure)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required'
+        ]);
+
+        $this->utilityRepository->updateUnitMeasure($data, $unitMeasure->id);
+        return redirect()->back()->with('success', 'Unit measure updated.');
     }
 
     /**
@@ -60,6 +82,7 @@ class UnitMeasureController extends Controller
      */
     public function destroy(UnitMeasure $unitMeasure)
     {
-        //
+        $this->utilityRepository->deleteUnitMeasure($unitMeasure->id);
+        return redirect()->back()->with('success', 'Unit measure deleted.');
     }
 }

@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class LoadSheetDetail extends Model
 {
     use HasFactory;
+    protected $guarded;
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:00',
+    ];
 }

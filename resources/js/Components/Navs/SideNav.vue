@@ -28,12 +28,11 @@
 
                         <li v-for="(item, index) in navItems">
                             <button v-if="canAccess(item.feature) && item.children.length > 0" type="button"
-                                class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
-                                :aria-controls="`dropdown-layouts${index}`"
-                                :data-collapse-toggle="`dropdown-layouts${index}`">
+                                @click="toggleSidebarMenu(item)"
+                                class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
 
                                 <i :class="item.icon"
-                                    class=" flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"></i>
+                                    class="flex-shrink-0 w-6 h-6  text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"></i>
                                 <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item>{{ item.name
                                 }}</span>
                                 <svg v-if="item.children.length > 0" sidebar-toggle-item class="w-6 h-6" fill="currentColor"
@@ -44,12 +43,12 @@
                                 </svg>
                             </button>
                             <Link v-if="canAccess(item.feature) && item.children.length <= 0" :href="item?.route"
-                                class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
+                                class="flex items-center w-full p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
                             <i :class="item.icon"
-                                class=" flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"></i>
+                                class="ml-1 flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"></i>
                             <span class="ml-3" sidebar-toggle-item>{{ item.name }}</span>
                             </Link>
-                            <ul :id="`dropdown-layouts${index}`" class="hidden py-2 space-y-2"
+                            <ul :id="`dropdown-layouts${item.name}`" class="py-2 space-y-2 hidden"
                                 v-if="item.children.length > 0">
                                 <li v-for="child in item.children">
                                     <Link :href="child?.route" v-if="canAccess(child?.feature)"
@@ -57,12 +56,9 @@
                                     {{
                                         child.name }}</Link>
                                 </li>
-
                             </ul>
                         </li>
-
                     </ul>
-
                 </div>
             </div>
             <div class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white lg:flex dark:bg-gray-800"
@@ -109,13 +105,35 @@ export default {
         return {
             permissions: this.$page.props.permissions,
             navItems: NavItems,
+            selectedMenu: null,
         }
     },
 
     methods: {
         canAccess(permission) {
             return this.permissions.includes(permission);
-        }
+        },
+
+        //function to toggle sidebar menu
+        toggleSidebarMenu(item) {
+            if (document.getElementById(`dropdown-layouts${item.name}`).classList.contains('hidden')) {
+                document.getElementById(`dropdown-layouts${item.name}`).classList.remove('hidden');
+            } else {
+                document.getElementById(`dropdown-layouts${item.name}`).classList.add('hidden');
+                this.selectedMenu = null;
+            }
+
+        },
+
+        //function to check if sidebar menu is active
+        checkIsActive(item) {
+            if (this.selectedMenu == item.name) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
     }
 }
 </script>

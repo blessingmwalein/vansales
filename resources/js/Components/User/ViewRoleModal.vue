@@ -44,8 +44,21 @@
                 </div>
                 <!-- Modal footer -->
                 <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-                    <button data-modal-hide="defaultModal" type="button"
-                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Attach
+                    <div>
+                        <label for="category"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Permission</label>
+                        <select id="category" v-model="form.permission_id"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option :value="permission.id" v-for="permission in permissions_data">{{ permission.name }}
+                            </option>
+
+                        </select>
+                        <InputError class="mt-2" :message="form.errors.permission_id" />
+
+                    </div>
+                    <button type="button" @click.prevent="submitForm()" :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing"
+                        class="mt-7 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Attach
                         Permission</button>
                 </div>
             </div>
@@ -59,56 +72,35 @@ import { Modal } from 'flowbite';
 
 export default {
     components: { InputError },
-    props: ['role'],
+    props: ['role', 'permissions_data'],
     mounted() {
-
 
     },
     data() {
         return {
             form: useForm({
-                name: this.role?.name || '',
-                id: this.role?.id || null,
+                permission_id: null,
+                role_id: this.role?.id ?? null,
             })
         }
     },
 
     methods: {
         submitForm() {
-            if (this.role) {
-                this.updateRole();
-            } else {
-                this.createRole();
-            }
-
-        },
-
-        createRole() {
-            this.form.post('/admin/users/roles', {
+            this.form.post('/admin/assign-role-permission', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
                 }
             });
         },
-
-        updateRole() {
-            this.form.put(`/admin/users/roles/${this.role.id}`, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    this.$emit('save');
-                }
-            });
-        }
     },
 
     watch: {
         // Watch the 'role' prop for changes
         role: {
             handler(newValue) {
-                // Update the 'form' data when 'role' prop changes
-                this.form.name = newValue?.name || '';
-                this.form.id = newValue?.id || null;
+                this.form.role_id = newValue?.id ?? null;
             },
             immediate: true, // This ensures the watcher runs immediately when the component is mounted
         },

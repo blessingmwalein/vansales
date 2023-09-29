@@ -1,12 +1,8 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+
 
 defineProps({
     canResetPassword: Boolean,
@@ -74,9 +70,10 @@ const submit = () => {
                         class="ml-auto text-sm text-primary-700 hover:underline dark:text-primary-500">Lost
                     Password?</Link>
                 </div>
-              
+
                 <button type="sumit" :class="{ 'opacity-25': form.processing }" :disabled="form.processing"
-                    class=" px-5 py-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Log In</button>
+                    class=" px-5 py-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Log
+                    In</button>
                 <!-- <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
                     Not registered? <a class="text-primary-700 hover:underline dark:text-primary-500">Create account</a>
                 </div> -->

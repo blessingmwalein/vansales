@@ -6,6 +6,7 @@ use App\Models\vc;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionController extends Controller
 {
@@ -36,6 +37,8 @@ class PermissionController extends Controller
         $data = $request->validate([
             'name' => 'required|unique:permissions,name',
         ]);
+        $data['guard_name'] = 'web';
+
         $role = Permission::create($data);
 
         return redirect()->back()->with('success', 'Permission created successfully');
@@ -80,5 +83,17 @@ class PermissionController extends Controller
         $role->delete();
 
         return redirect()->back()->with('success', 'Permission deleted successfully');
+    }
+
+    public function assignRolePermission(Request $request)
+    {
+        $data = $request->validate([
+            'role_id' => 'required',
+            'permission_id' => 'required',
+        ]);
+        $role = Role::find($data['role_id']);
+        $permission = Permission::find($data['permission_id']);
+        $role->givePermissionTo($permission);
+        return redirect()->back()->with('success', 'Permission assigned successfully');
     }
 }

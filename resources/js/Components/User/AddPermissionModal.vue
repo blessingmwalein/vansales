@@ -74,7 +74,7 @@ export default {
         },
 
         create() {
-            this.form.post('/admin/users/permissions', {
+            this.form.post('/admin/permissions', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -83,7 +83,7 @@ export default {
         },
 
         update() {
-            this.form.put(`/admin/users/permissions/${this.permission.id}`, {
+            this.form.put(`/admin/permissions/${this.permission.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
