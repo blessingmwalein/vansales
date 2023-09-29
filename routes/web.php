@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RouteController;
 use App\Http\Controllers\TaxController;
+use App\Http\Controllers\TruckController;
 use App\Http\Controllers\UnitMeasureController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
@@ -58,8 +61,13 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->gro
     Route::get('/utilities', [UnitMeasureController::class, 'index'])->name('utilities.index');
 
     Route::resource('/products', ProductController::class)->except(['update']);
+    Route::resource('/trucks', TruckController::class);
+    Route::resource('/customers', CustomerController::class);
+    Route::resource('/routes', RouteController::class);
     Route::post('/update-product/{product}', [ProductController::class, 'update']);
     Route::post('/products-search', [ProductController::class, 'searchByCodeName'])->name('products.search');
+    Route::post('/trucks-search', [TruckController::class, 'searchTruckByLicenceModel'])->name('trucks.search');
+    Route::post('/customers-search', [CustomerController::class, 'searchCustomerByNameEmailPhoneNumber'])->name('customers.search');
     Route::post('/upload-excel-products', [ProductController::class, 'uploadExcelProducts'])->name('products.upload');
     Route::post('/save-excel-products', [ProductController::class, 'saveExcelProducts'])->name('products.save');
     Route::post('/allocate-stock', [WarehouseController::class, 'allocateStock'])->name('warehouse.allocate');

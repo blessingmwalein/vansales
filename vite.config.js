@@ -14,7 +14,14 @@ export default defineConfig({
                     base: null,
                     includeAbsolute: false,
                 },
-            },
+            }
         }),
+
     ],
+    optimizeDeps: {
+        include: [
+            "@fawmi/vue-google-maps",
+            "fast-deep-equal",
+        ],
+    },
 });

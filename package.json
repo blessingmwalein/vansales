@@ -20,6 +20,7 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "@fawmi/vue-google-maps": "^0.9.79",
         "vue-multiselect": "^3.0.0-beta.2",
         "vue3-snackbar": "^2.2.0"
     }

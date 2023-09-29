@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\TruckRepositoryInterface;
 use App\Models\Truck;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class TruckController extends Controller
 {
+    private TruckRepositoryInterface $truckRepository;
+
+    public function __construct(TruckRepositoryInterface $truckRepository)
+    {
+        $this->truckRepository = $truckRepository;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return Inertia::render('Trucks/Index', [
+            'trucks' => $this->truckRepository->getPaginated(),
+        ]);
     }
 
     /**
@@ -28,7 +38,17 @@ class TruckController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'make_model' => 'required',
+            'license_plate' => 'required|unique:trucks,license_plate',
+            'color' => 'required',
+            'start_mileage' => 'required',
+            'is_available' => 'required',
+        ]);
+
+        $this->truckRepository->create($data);
+
+        return redirect()->back()->with('success', 'Truck created.');
     }
 
     /**
@@ -52,7 +72,19 @@ class TruckController extends Controller
      */
     public function update(Request $request, Truck $truck)
     {
-        //
+        $data = $request->validate(
+            [
+                'make_model' => 'required',
+                'license_plate' => 'required',
+                'color' => 'required',
+                'start_mileage' => 'required',
+                'is_available' => 'required',
+            ]
+        );
+
+        $this->truckRepository->update($data, $truck->id);
+
+        return redirect()->back()->with('success', 'Truck updated.');
     }
 
     /**
@@ -60,6 +92,17 @@ class TruckController extends Controller
      */
     public function destroy(Truck $truck)
     {
-        //
+        $this->truckRepository->delete($truck->id);
+
+        return redirect()->back()->with('success', 'Truck deleted.');
+    }
+
+    public function searchTruckByLicenceModel(Request $request)
+    {
+        $search = $request->search;
+
+        $trucks = $this->truckRepository->searchTruck($search);
+
+        return $trucks;
     }
 }

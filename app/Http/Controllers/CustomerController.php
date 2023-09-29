@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\CustomerRepositoryInterface;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CustomerController extends Controller
 {
+    private CustomerRepositoryInterface $customerRepository;
+
+    public function __construct(CustomerRepositoryInterface $customerRepository)
+    {
+        $this->customerRepository = $customerRepository;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return Inertia::render('Customers/Index', [
+            'customers' => $this->customerRepository->getPaginated(),
+        ]);
     }
 
     /**
@@ -28,7 +38,17 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $data = $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'address' => 'required',
+            'phone_number' => 'required',
+        ]);
+
+        $this->customerRepository->create($data);
+
+        return redirect()->back()->with('success', 'Customer created.');
     }
 
     /**
@@ -52,7 +72,16 @@ class CustomerController extends Controller
      */
     public function update(Request $request, Customer $customer)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'address' => 'required',
+            'phone_number' => 'required',
+        ]);
+
+        $this->customerRepository->update($data, $customer->id);
+
+        return redirect()->back()->with('success', 'Customer updated.');
     }
 
     /**
@@ -60,6 +89,19 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer)
     {
-        //
+        $this->customerRepository->delete($customer->id);
+
+        return redirect()->back()->with('success', 'Customer deleted.');
+    }
+
+    public function searchCustomerByNameEmailPhoneNumber(Request $request)
+    {
+        $data = $request->validate([
+            'search' => 'required',
+        ]);
+
+        $customers = $this->customerRepository->searchCustomerByNameEmailPhoneNumber($data['search']);
+
+        return $customers;
     }
 }

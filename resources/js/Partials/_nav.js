@@ -70,7 +70,34 @@ const NavItems = [
                 feature: 'role_permission_management',
             },
         ]
-    }
+    },
+    {
+        name: 'Trucks',
+        icon: 'bi bi-truck',
+        feature: 'truck_management',
+        route: '/admin/trucks',
+        children: [
+
+        ]
+    },
+    {
+        name: 'Customers',
+        icon: 'bi bi-people-fill',
+        feature: 'customer_management',
+        route: '/admin/customers',
+        children: [
+
+        ]
+    },
+    {
+        name: 'Routes',
+        icon: 'bi bi-pin-map-fill',
+        feature: 'route_management',
+        route: '/admin/routes',
+        children: [
+
+        ]
+    },
 ]
 
 export default NavItems;

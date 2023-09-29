@@ -110,7 +110,7 @@
                                                             {{ product[3] }}</td>
                                                         <td
                                                             class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                            ${{ product[2] }}</td>
+                                                            {{ product[2] }}</td>
 
 
                                                         <td

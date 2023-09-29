@@ -26,13 +26,25 @@ class ProductRepository implements ProductRepositoryInterface
     {
         $record = Product::find($id);
         //check if datra has image
-        if (isset($data['image'])) {
+
+        //check if datra has image or if image is not empty string
+        if ($data['image'] != "") {
             //delete old image
             if ($record->image) {
                 unlink(public_path('storage/' . $record->image));
             }
             $data['image'] = $this->uploadImage($data['image']);
+        } else {
+            $data['image'] = $record->image;
         }
+
+        // if (isset($data['image'])) {
+        //     //delete old image
+        //     if ($record->image) {
+        //         unlink(public_path('storage/' . $record->image));
+        //     }
+        //     $data['image'] = $this->uploadImage($data['image']);
+        // }
         return $record->update($data);
     }
 

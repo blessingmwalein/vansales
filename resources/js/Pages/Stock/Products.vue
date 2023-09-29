@@ -128,7 +128,14 @@ export default {
         },
     },
 
-
+    watch: {
+        products: {
+            handler(newValue) {
+                this.products_data = newValue;
+            },
+            deep: true
+        }
+    }
 }
 </script>
 

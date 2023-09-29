@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\RouteRepositoryInterface;
 use App\Models\Route;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class RouteController extends Controller
 {
+    private RouteRepositoryInterface $routeRepository;
+
+    public function __construct(RouteRepositoryInterface $routeRepository)
+    {
+        $this->routeRepository = $routeRepository;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return Inertia::render('Routes/Index', [
+            'routes' => $this->routeRepository->getPaginated(10),
+        ]);
     }
 
     /**
@@ -28,7 +38,18 @@ class RouteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $data = $request->validate([
+            'name' => 'required',
+            'number_centers' => 'required',
+            'start_lat' => 'required',
+            'start_lon' => 'required',
+            'nodes' => 'nullable|array',
+        ]);
+
+        $this->routeRepository->create($data);
+
+        return redirect()->back()->with('success', 'Route created.');
     }
 
     /**
@@ -37,6 +58,9 @@ class RouteController extends Controller
     public function show(Route $route)
     {
         //
+        return Inertia::render('Routes/Show', [
+            'route' => $route,
+        ]);
     }
 
     /**

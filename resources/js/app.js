@@ -9,6 +9,7 @@ import 'flowbite';
 import "vue3-snackbar/styles";
 import { SnackbarService, Vue3Snackbar } from "vue3-snackbar";
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+import VueGoogleMaps from '@fawmi/vue-google-maps'
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -18,6 +19,12 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .use(SnackbarService)
+            .use(VueGoogleMaps, {
+                load: {
+                    key: 'AIzaSyD2aMS3Zy5ru63unlPgw1uV4v-fa7iRDfU',
+                    libraries: 'places',
+                },
+            })
             .component("vue3-snackbar", Vue3Snackbar)
             .mount(el);
     },

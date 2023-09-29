@@ -1,67 +1,62 @@
 <script >
 import BreadCrumb from '@/Components/BreadCrumb.vue';
+import CopyButton from '@/Components/CopyButton.vue';
 import ConfirmDeleteDialog from '@/Components/ConfirmDeleteDialog.vue';
 import Pagination from '@/Components/Pagination.vue';
 import TableActionButtons from '@/Components/TableActionButtons.vue';
-import AddRoleModal from '@/Components/User/AddRoleModal.vue';
-import ViewRoleModal from '@/Components/User/ViewRoleModal.vue';
-import MainLayout from '@/Layouts/MainLayout.vue';
 import TableLayout from '@/Components/TableLayout.vue';
-
+import AddRouteModal from '@/Components/Route/AddRouteModal.vue';
+import MainLayout from '@/Layouts/MainLayout.vue';
+import globalMixin from "@/Mixins/global.js";
 export default {
     components: {
         BreadCrumb,
         ConfirmDeleteDialog,
         Pagination,
         TableActionButtons,
-        AddRoleModal,
+        AddRouteModal,
         MainLayout,
-        ViewRoleModal,
+        CopyButton,
         TableLayout
     },
+    mixins: [globalMixin],
 
-    props: ['roles', 'permissions_data'],
+    props: ['routes'],
     data() {
         return {
-            selectedRole: null,
-            addRoleModal: null,
+            selectedRoute: null,
+            addRouteModal: null,
             deleteModal: null,
-            viewRoleModal: null,
+            search: '',
+            routes_data: this.routes,
 
         }
     },
     mounted() {
-        const $targetEl = document.getElementById('add-role-modal');
-        this.addRoleModal = new Modal($targetEl);
+        const $targetEl = document.getElementById('add-route-modal');
+        this.addRouteModal = new Modal($targetEl);
 
-        const $deleteModalEl = document.getElementById('delete-role-modal');
+        const $deleteModalEl = document.getElementById('delete-route-modal');
         this.deleteModal = new Modal($deleteModalEl);
 
-        const $viewRoleModalEl = document.getElementById('view-role-modal');
-        this.viewRoleModal = new Modal($viewRoleModalEl);
     },
 
 
     methods: {
-        openAddRoleModal() {
-            this.selectedRole = null;
-            this.addRoleModal.show();
+        openAddRoutekModal() {
+            this.selectedRoute = null;
+            this.addRouteModal.show();
         },
-        openViewRoleModal(role) {
-            this.selectedRole = role;
-            this.viewRoleModal.show();
-        },
-        closeAddRoleModal() {
-            this.addRoleModal.hide();
+
+        closeAddRouteModal() {
+            this.addRouteModal.hide();
         },
         closeDeleteModal() {
             this.deleteModal.hide();
         },
-        closeViewRoleModal() {
-            this.viewRoleModal.hide();
-        },
-        deleteRole() {
-            this.$inertia.delete(`/admin/roles/${this.selectedRole.id}`, {
+
+        deleteRoute() {
+            this.$inertia.delete(`/admin/routes/${this.selectedRoute.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -79,18 +74,54 @@ export default {
                 return `${day}/${month}/${year} ${hours}:${minutes}`;
             }
         },
-        selectRole(event, role) {
-            this.selectedRole = role;
-            this.addRoleModal.show();
+        selectRoute(event, route) {
+            this.selectedRoute = route;
+            this.addRouteModal.show();
         },
-        confirmDeleteDialog(event, role) {
-            this.selectedRole = role;
+        confirmDeleteDialog(event, route) {
+            this.selectedRoute = route;
             this.deleteModal.show();
-        }
+        },
+        submitSearch() {
+            // this.$inertia.post(`/admin/products-search`, {
+            //     search: this.search
+            // },
+            //     {
+            //         preserveScroll: true,
+            //         onSuccess: (page) => {
+            //             // console.log(page);
+            //             this.products_data = page;
+            //         }
+            //     });
+            //use axios
+            axios.post(`/admin/routes-search`, {
+                search: this.search
+            })
+                .then((response) => {
+                    console.log(response);
+                    this.routes_data = response.data;
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        },
+        openSingleRoute(route) {
+            this.$inertia.visit(`/admin/routes/${route.id}`)
+        },
+
     },
 
+    watch: {
+        routes: {
+            handler(newValue) {
+                this.routes_data = newValue;
+            },
+            deep: true
+        }
+    }
 
-};
+
+}
 </script>
 
 <template>
@@ -100,8 +131,8 @@ export default {
             class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
             <div class="w-full mb-1">
                 <div class="mb-4">
-                    <BreadCrumb :title="'Users/Roles'" />
-                    <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Roles</h1>
+                    <BreadCrumb :title="'Routes'" />
+                    <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Routes</h1>
                 </div>
                 <div class="sm:flex">
                     <div
@@ -109,14 +140,24 @@ export default {
                         <form class="lg:pr-3" action="#" method="GET">
                             <label for="users-search" class="sr-only">Search</label>
                             <div class="relative mt-1 lg:w-64 xl:w-96">
-                                <input type="text" name="email" id="users-search"
+                                <input type="text" name="email" id="users-search" v-model="search"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Search for roles">
+                                    placeholder="Search for routes by make, model or licence plate">
                             </div>
                         </form>
+                        <div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0">
+                            <button type="button" @click="submitSearch()"
+                                class="inline-flex p-2 items-center text-sm font-medium text-center text-white text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 20 20">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="flex items-center ml-auto space-x-2 sm:space-x-3">
-                        <button type="button" @click="openAddRoleModal()"
+                        <button type="button" @click="openAddRoutekModal()"
                             class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                             <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -124,7 +165,7 @@ export default {
                                     d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            Add Role
+                            Add Route
                         </button>
                     </div>
                 </div>
@@ -134,7 +175,7 @@ export default {
             <div class="overflow-x-auto">
                 <div class="inline-block min-w-full align-middle">
                     <div class="overflow-hidden shadow">
-                        <TableLayout :hasData="roles.data.length > 0 ? true : false">
+                        <TableLayout :hasData="routes_data.data.length > 0 ? true : false">
                             <template v-slot:table>
                                 <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
                                     <thead class="bg-gray-100 dark:bg-gray-700">
@@ -146,17 +187,22 @@ export default {
                                                     <label for="checkbox-all" class="sr-only">checkbox</label>
                                                 </div>
                                             </th>
+
                                             <th scope="col"
                                                 class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
                                                 Name
                                             </th>
                                             <th scope="col"
                                                 class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                Guard Name
+                                                Number Centers
                                             </th>
                                             <th scope="col"
                                                 class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                Created At
+                                                Location
+                                            </th>
+                                            <th scope="col"
+                                                class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                Nodes
                                             </th>
 
                                             <th scope="col"
@@ -167,30 +213,48 @@ export default {
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
 
-                                        <tr class="hover:bg-gray-100 dark:hover:bg-gray-700" v-for="role in roles.data">
+                                        <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            v-for="route in routes_data.data">
                                             <td class="w-4 p-4">
                                                 <div class="flex items-center">
-                                                    <input :id="`checkbox-${role.id}`" aria-describedby="checkbox-1"
+                                                    <input :id="`checkbox-${route.id}`" aria-describedby="checkbox-1"
                                                         type="checkbox"
                                                         class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
-                                                    <label :for="`checkbox-${role.id}`" class="sr-only">checkbox</label>
+                                                    <label :for="`checkbox-${route.id}`" class="sr-only">checkbox</label>
                                                 </div>
                                             </td>
 
+
                                             <td
                                                 class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                                                {{ role.name }}</td>
+                                                {{ route.name }}</td>
+                                            <td
+                                                class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                                                {{ route.number_centers }}</td>
+                                            <td
+                                                class="flex p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <span
+                                                    class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
+                                                    Lat: {{ route.start_lat }} Lat: {{ route.start_lon }}
+                                                </span>
+                                                <CopyButton
+                                                    @click="copyToClipboard(`${route.start_lat} ${route.start_lon}`)" />
+                                            </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                {{ role.guard_name }}</td>
-                                            <td
-                                                class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                {{ formartDate(role.created_at) }}</td>
+
+                                                <span
+                                                    class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                    {{ route.nodes.length }}</span>
+                                            </td>
+
+
 
                                             <td class="p-4 space-x-2 whitespace-nowrap">
-                                                <TableActionButtons :type="'role'" :has_view="true"
-                                                    @delete="confirmDeleteDialog($event, role)"
-                                                    @edit="selectRole($event, role)" @view="openViewRoleModal(role)" />
+                                                <TableActionButtons :type="'route'" :has_view="true"
+                                                    @view="openSingleRoute(route)"
+                                                    @delete="confirmDeleteDialog($event, route)"
+                                                    @edit="selectRoute($event, route)" />
                                             </td>
                                         </tr>
 
@@ -198,7 +262,7 @@ export default {
                                 </table>
                             </template>
                             <template v-slot:action-button>
-                                <button @click="openAddRoleModal()"
+                                <button @click="openAddRoutekModal()"
                                     class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600 dark:hover:bg-blue-500 dark:bg-blue-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -206,7 +270,7 @@ export default {
                                             d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
 
-                                    <span>Add Role</span>
+                                    <span>Add Route</span>
                                 </button>
                             </template>
                         </TableLayout>
@@ -215,16 +279,13 @@ export default {
                 </div>
             </div>
         </div>
-        <div v-if="roles.data.length > 0"
+        <div v-if="routes_data.data.length > 0"
             class="sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 sm:flex sm:justify-between dark:bg-gray-800 dark:border-gray-700">
-            <Pagination :from="roles.from" :to="roles.to" :total="roles.total" :next_page_url="roles.next_page_url"
-                :prev_page_url="roles.prev_page_url" />
+            <Pagination :from="routes_data.from" :to="routes_data.to" :total="routes_data.total"
+                :next_page_url="routes_data.next_page_url" :prev_page_url="routes_data.prev_page_url" />
         </div>
 
-        <AddRoleModal :role="selectedRole" @save="closeAddRoleModal()" />
-        <ConfirmDeleteDialog @cancel="closeDeleteModal" @yes="deleteRole" :type="'role'" />
-        <ViewRoleModal :role="selectedRole" @close="closeViewRoleModal()" :permissions_data="permissions_data"
-            @save="closeViewRoleModal" />
-
+        <AddRouteModal :route="selectedRoute" @save="closeAddRouteModal()" />
+        <ConfirmDeleteDialog @cancel="closeDeleteModal" @yes="deleteRoute" :type="'route'" />
     </MainLayout>
 </template>
