@@ -29,6 +29,7 @@ class ProductResource extends JsonResource
             'image' => $this->image,
             'wholesale_unit_price' => $this->wholesale_unit_price,
             'reorder_level' => $this->reorder_level,
+            'available_quantity' => $this->getTotalStockQuantity(),
             // get created_at in format: 2021-01-01 00:00
             'created_at' => $this->created_at->format('Y-m-d H:i'),
             // 'created_at' => $this->created_at,

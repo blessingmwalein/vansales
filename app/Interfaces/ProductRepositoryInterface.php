@@ -19,4 +19,7 @@ interface ProductRepositoryInterface
     public function getByCategory($category_id);
 
     public function searchByCodeName($search);
+
+    //filter function
+    public function filter($code, $description, $categories, $taxs, $unitMeasures, $from, $to);
 }

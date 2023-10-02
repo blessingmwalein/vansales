@@ -11,6 +11,7 @@ import globalMixin from "@/Mixins/global.js";
 import UserCircleAvartar from '@/Components/UserCircleAvartar.vue';
 import AddLoadSheetModal from '@/Components/Loadsheet/AddLoadSheetModal.vue';
 import ConfirmLoadSheetModal from '@/Components/Loadsheet/ConfirmLoadSheetModal.vue';
+import AddCustomerStopModal from '@/Components/Loadsheet/AddCustomerStopModal.vue';
 
 import TableLayout from '@/Components/TableLayout.vue';
 export default {
@@ -26,7 +27,8 @@ export default {
         UpdateAddStockDetailStock,
         UserCircleAvartar,
         AddLoadSheetModal,
-        ConfirmLoadSheetModal
+        ConfirmLoadSheetModal,
+        AddCustomerStopModal
 
     },
     mixins: [globalMixin],
@@ -40,6 +42,7 @@ export default {
             confirmLoadSheetModal: null,
             editSheetModal: null,
             deleteModal: null,
+            deleteCustomerStopModal: null,
             activeTab: 'details',
             selectedDetail: null,
             isShowLoadSheet: false,
@@ -48,7 +51,8 @@ export default {
             isShowCancelSheet: false,
             isShowCompleteSheet: false,
             canRemoveStock: true,
-            confirmType: 'confirm'
+            confirmType: 'confirm',
+            selectedCustomerStop: null,
         }
     },
     mounted() {
@@ -70,11 +74,17 @@ export default {
         const $targetElStock = document.getElementById('update-add-detail-stock');
         this.updateLoadSheetDetailModal = new Modal($targetElStock);
 
+        const $deleteCustomerStopModalEl = document.getElementById('delete-customer-modal');
+        this.deleteCustomerStopModal = new Modal($deleteCustomerStopModalEl);
+
         const $deleteModalEl = document.getElementById('delete-loadsheet-modal');
         this.deleteModal = new Modal($deleteModalEl);
 
 
-        console.log(this.getLoadsheetChangedFromDescription('Loadsheet Updated fields Changes:{"user_id":8,"truck_id":6,"updated_at":"2023-10-01 22:18:59"}'))
+        const $addCustomerStop = document.getElementById('add-customer-stop-modal');
+        this.addCustomerModal = new Modal($addCustomerStop);
+
+
     },
     filters: {
         formatField(value) {
@@ -84,6 +94,12 @@ export default {
     },
 
     methods: {
+        openAddCustomerStopModal() {
+            this.addCustomerModal.show()
+        },
+        closeAddCustomerStopModal() {
+            this.addCustomerModal.hide()
+        },
         openAddLoadSheetModal() {
             this.addLoadSheetDetail.show();
         },
@@ -114,6 +130,13 @@ export default {
         closeDeleteModal() {
             this.deleteModal.hide();
         },
+        closeDeleteCustomerStopModal() {
+            this.deleteCustomerStopModal.hide();
+        },
+        openDeleteCustomerStopModal(customerStop) {
+            this.selectedCustomerStop = customerStop;
+            this.deleteCustomerStopModal.show();
+        },
 
         selectDetail(event, detail) {
             console.log(detail);
@@ -132,9 +155,15 @@ export default {
             if (id == 'details') {
                 document.getElementById('details').classList.remove('hidden');
                 document.getElementById('history').classList.add('hidden');
-            } else {
+                document.getElementById('customers').classList.add('hidden');
+            } else if (id == 'history') {
                 document.getElementById('details').classList.add('hidden');
+                document.getElementById('customers').classList.add('hidden');
                 document.getElementById('history').classList.remove('hidden');
+            } else if (id == 'customers') {
+                document.getElementById('details').classList.add('hidden');
+                document.getElementById('history').classList.add('hidden');
+                document.getElementById('customers').classList.remove('hidden');
             }
         },
 
@@ -212,6 +241,18 @@ export default {
                     }
                 });
         },
+        removeCustomerStop() {
+            this.$inertia.post(`/admin/remove-customer-stop`,
+                {
+                    customer_stop_id: this.selectedCustomerStop.id,
+                },
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        this.closeDeleteCustomerStopModal();
+                    }
+                });
+        },
 
         confirmLoadSheet() {
             if (this.confirmType == 'confirm') {
@@ -246,7 +287,9 @@ export default {
                 this.canRemoveStock = true
             }
             this.canRemoveStock = false
-        }
+        },
+
+
     },
 
     //watch for changes in loadsheet
@@ -418,6 +461,16 @@ export default {
                             </svg>
                             Load Sheet
                         </button>
+                        <button v-if="isShowLoadSheet" type="button" @click="openAddCustomerStopModal()"
+                            class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-blue-800">
+                            <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Customer Stop
+                        </button>
                         <button v-if="isShowCompleteSheet" type="button" @click="openConfirmSheetModal('complete')"
                             class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                             <i class="bi bi-check-circle w-5 h-5 mr-2 -ml-1"></i>
@@ -440,19 +493,22 @@ export default {
                 </div>
             </div>
         </div>
-
-
         <div class=" mb-4 border-b border-gray-200 dark:border-gray-700">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
                 <li class="mr-2">
                     <button class="inline-block p-4  rounded-t-lg text-base font-semibold" type="button"
-                        :class="{ 'activeTab': activeTab == 'details' }" @click="toggleTab('details')">Loadsheet
+                        :class="{ 'activeTab': activeTab == 'details' }" @click="toggleTab('details')">
                         Items</button>
                 </li>
                 <li class="mr-2">
                     <button @click="toggleTab('history')" :class="{ 'activeTab': activeTab == 'history' }"
                         class="inline-block p-4 text-base font-semibold border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                        type="button">Loadsheet History</button>
+                        type="button"> History</button>
+                </li>
+                <li class="mr-2">
+                    <button @click="toggleTab('customers')" :class="{ 'activeTab': activeTab == 'customers' }"
+                        class="inline-block p-4 text-base font-semibold border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                        type="button"> Customer Stops</button>
                 </li>
 
             </ul>
@@ -649,15 +705,144 @@ export default {
                     </li>
                 </ol>
             </div>
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="customers">
+
+
+
+                <div class="flex flex-col">
+                    <div class="overflow-x-auto">
+                        <div class="inline-block min-w-full align-middle">
+                            <div class="overflow-hidden shadow">
+                                <TableLayout :hasData="loadsheet.data?.customer_stops.length > 0 ? true : false">
+                                    <template v-slot:table>
+                                        <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
+                                            <thead class="bg-gray-100 dark:bg-gray-700">
+                                                <tr>
+                                                    <!-- <th scope="col" class="p-4">
+                                                        <div class="flex items-center">
+                                                            <input id="checkbox-all" aria-describedby="checkbox-1"
+                                                                type="checkbox"
+                                                                class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
+                                                            <label for="checkbox-all" class="sr-only">checkbox</label>
+                                                        </div>
+                                                    </th> -->
+
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Name
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Email
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Phone Number
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Address
+                                                    </th>
+
+
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Actions
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody
+                                                class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+
+                                                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                    v-for="customer in loadsheet.data?.customer_stops">
+                                                    <!-- <td class="w-4 p-4">
+                                                        <div class="flex items-center">
+                                                            <input :id="`checkbox-${customer.id}`"
+                                                                aria-describedby="checkbox-1" type="checkbox"
+                                                                class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
+                                                            <label :for="`checkbox-${customer.id}`"
+                                                                class="sr-only">checkbox</label>
+                                                        </div>
+                                                    </td> -->
+
+
+                                                    <td
+                                                        class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                                                        {{ customer.customer.name }}</td>
+                                                    <td
+                                                        class="flex p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        <span
+                                                            class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
+                                                            {{ customer.customer.email }}
+
+                                                        </span>
+                                                        <CopyButton @click="copyToClipboard(customer.customer.email)" />
+                                                    </td>
+                                                    <td
+                                                        class=" p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+
+                                                        <div class="flex">
+                                                            <span
+                                                                class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
+                                                                {{ customer.customer.phone_number }}
+
+                                                            </span>
+                                                            <CopyButton @click="copyToClipboard(customer.phone_number)" />
+                                                        </div>
+                                                    </td>
+                                                    <td
+                                                        class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        {{ customer.customer.address }}</td>
+
+
+                                                    <td class="p-4 space-x-2 whitespace-nowrap">
+                                                        <button type="button" @click="openDeleteCustomerStopModal(customer)"
+                                                            class=" items-center p-2 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                                    clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                    <template v-slot:action-button>
+                                        <button @click="openAddCustomerStopModal()"
+                                            class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600 dark:hover:bg-blue-500 dark:bg-blue-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+
+                                            <span>Add Customer Stops</span>
+                                        </button>
+                                    </template>
+                                </TableLayout>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
         <AddDetailsLoadSheet @save="closeAddStockModal" @close="closeAddStockModal" :loadsheet="loadsheet.data" />
         <UpdateAddStockDetailStock @save="closeUpdateStockModal" @close="closeUpdateStockModal" :loadsheet="loadsheet.data"
             :detail="selectedDetail" />
         <ConfirmDeleteDialog @yes="deleteDetail" :type="'loadsheet'" @cancel="closeDeleteModal" />
-        <AddLoadSheetModal :loadsheet="loadsheet.data" :trucks="trucks" :warehouses="warehouses" :categories="categories"
-            :routes="routes" :users="users" @save="closeEditSheet()" />
+        <ConfirmDeleteDialog @yes="removeCustomerStop" :type="'customer'" @cancel="closeDeleteModal" />
+        <AddLoadSheetModal :loadsheet="loadsheet.data" :trucks="trucks" :warehouses="warehouses" :routes="routes"
+            :users="users" @save="closeEditSheet()" />
         <ConfirmLoadSheetModal :loadsheet="loadsheet.data" @save="closeConfirmSheetModal()" @yes="confirmLoadSheet()"
             :type="confirmType" @close="closeConfirmSheetModal()" />
+
+        <AddCustomerStopModal :loadsheet="loadsheet.data" @save="closeAddCustomerStopModal()" :type="confirmType"
+            @close="closeAddCustomerStopModal()" />
     </MainLayout>
 </template>
 

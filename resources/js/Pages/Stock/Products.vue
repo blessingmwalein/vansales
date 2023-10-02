@@ -9,6 +9,8 @@ import AddProductModal from '@/Components/Warehouse/AddProductModal.vue';
 import UploadExcelProductsModal from '@/Components/Warehouse/UploadExcelProductsModal.vue';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import globalMixin from "@/Mixins/global.js";
+import Multiselect from 'vue-multiselect'
+
 export default {
     components: {
         BreadCrumb,
@@ -19,7 +21,8 @@ export default {
         MainLayout,
         CopyButton,
         UploadExcelProductsModal,
-        TableLayout
+        TableLayout,
+        Multiselect
     },
     mixins: [globalMixin],
 
@@ -33,9 +36,22 @@ export default {
             products_data: this.products,
             search: '',
             isLoading: false,
+            showSearchForm: true,
+            categoriesOptions: [],
+            unitMeasuresOptions: [],
+            taxsOptions: [],
+            searchForm: {
+                code: '',
+                description: '',
+                date_range: null,
+                categories: [],
+                unitMeasures: [],
+                taxs: [],
+            }
         }
     },
     mounted() {
+        this.updateOptions();
         const $targetEl = document.getElementById('add-product-modal');
         this.addProductModal = new Modal($targetEl);
 
@@ -49,6 +65,29 @@ export default {
 
 
     methods: {
+        updateOptions() {
+            this.categoriesOptions = this.categories.map((category) => {
+                return {
+                    id: category.id,
+                    name: category.name
+                }
+            });
+            this.unitMeasuresOptions = this.unitMeasures.map((unitMeasure) => {
+                return {
+                    id: unitMeasure.id,
+                    name: unitMeasure.name
+                }
+            });
+            this.taxsOptions = this.taxs.map((tax) => {
+                return {
+                    id: tax.id,
+                    name: tax.name
+                }
+            });
+        },
+        returnFormatedName({ name }) {
+            return name;
+        },
         openAddProductModal() {
             this.selectedProduct = null;
             this.addProductModal.show();
@@ -118,13 +157,18 @@ export default {
             //use axios
             this.isLoading = true;
             axios.post(`/admin/products-search`, {
-                search: this.search
+                code: this.searchForm.code,
+                description: this.searchForm.description,
+                from: this.searchForm.date_range ? this.searchForm.date_range[0] : null,
+                to: this.searchForm.date_range ? this.searchForm.date_range[1] : null,
+                categories: this.searchForm.categories ? this.searchForm.categories.map((category) => category.id) : null,
+                unitMeasures: this.searchForm.unitMeasures ? this.searchForm.unitMeasures.map((unitMeasure) => unitMeasure.id) : null,
+                taxs: this.searchForm.taxs ? this.searchForm.taxs.map((tax) => tax.id) : null,
             })
                 .then((response) => {
                     console.log(response);
                     this.products_data = response.data;
                     this.isLoading = false;
-
                 })
                 .catch((error) => {
                     console.log(error);
@@ -157,26 +201,18 @@ export default {
                 <div class="sm:flex">
                     <div
                         class="items-center hidden mb-3 sm:flex sm:divide-x sm:divide-gray-100 sm:mb-0 dark:divide-gray-700">
-                        <form class="lg:pr-3" action="#" method="GET">
-                            <label for="users-search" class="sr-only">Search</label>
-                            <div class="relative mt-1 lg:w-64 xl:w-96">
-                                <input type="text" name="email" id="users-search" v-model="search"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Search for products by code or name">
-                            </div>
-                        </form>
-                        <div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0">
-                            <button type="button" @click="submitSearch()"
-                                class="inline-flex p-2 items-center text-sm font-medium text-center text-white text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
-                            </button>
-                        </div>
+                        <span
+                            class="bg-purple-500 text-white text-medium font-medium mr-2 px-3 py-1 rounded dark:bg-purple-900 dark:text-purple-300">
+                            {{ products_data.meta.total }} records found</span>
                     </div>
                     <div class="flex items-center ml-auto space-x-2 sm:space-x-3">
+                        <button type="button" @click="showSearchForm = !showSearchForm"
+                            class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+
+                            <i class=" w-5 h-5 mr-2 -ml-1"
+                                :class="{ 'bi bi-dash-lg': showSearchForm, 'bi bi-plus-lg': !showSearchForm }"></i>
+                            Hide Search Form
+                        </button>
                         <button type="button" @click="downloadExcel()"
                             class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
                             <!-- <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
@@ -216,6 +252,65 @@ export default {
         <div class="flex flex-col">
             <div class="overflow-x-auto">
                 <div class="inline-block min-w-full align-middle">
+                    <div class="grid gap-6 sm:grid-cols-4 sm:gap-6 m-4" v-if="showSearchForm">
+
+                        <div class="w-full">
+                            <label for="brand"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="searchForm.categories" :options="categoriesOptions" :multiple="true" label="name"
+                                track-by="id" :custom-label="returnFormatedName">
+                            </multiselect>
+                        </div>
+                        <div class="w-full">
+                            <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Unit of
+                                Measures</label>
+                            <multiselect class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                :multiple="true" v-model="searchForm.unitMeasures" :options="unitMeasures"
+                                :custom-label="returnFormatedName" label="name" track-by="id">
+                            </multiselect>
+                        </div>
+                        <div class="w-full">
+                            <label for="price"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Taxes</label>
+                            <multiselect class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                :multiple="true" v-model="searchForm.taxs" :options="taxsOptions"
+                                :custom-label="returnFormatedName" label="name" track-by="id">
+                            </multiselect>
+                        </div>
+                        <div>
+                            <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date
+                                Range</label>
+                            <Datepicker placeholder="Date Range"
+                                class="z-20 block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="searchForm.date_range" range />
+                        </div>
+                        <div>
+                            <label for="item-weight"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Product Code</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.code"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+                        <div class="">
+                            <label for="description"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.description"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+
+                        <div class="">
+
+                            <button type="button" @click="submitSearch()"
+                                class="mt-7 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                <i class="bi bi-search w-5 h-5 mr-2 -ml-1"></i>
+
+                                Search
+                            </button>
+
+                        </div>
+                    </div>
+
                     <div class="overflow-hidden shadow">
                         <TableLayout :hasData="products.data.length > 0 ? true : false" :isLoading="isLoading">
                             <template v-slot:table>
@@ -235,7 +330,7 @@ export default {
                                             </th>
                                             <th scope="col"
                                                 class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                Unit Measure
+                                                Details
                                             </th>
                                             <th scope="col"
                                                 class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -249,7 +344,7 @@ export default {
 
                                             <th scope="col"
                                                 class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                Retail Price
+                                                Prices
                                             </th>
 
                                             <th scope="col"
@@ -296,10 +391,42 @@ export default {
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                {{ product.unit_measure.name }}</td>
+
+                                                <div class="flex-coulumn">
+                                                    <h1 class="text-base font-semibold">
+                                                        {{ product.unit_measure.name }}</h1>
+
+                                                    <div
+                                                        class="mt-1 flex text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                        <span class="text-xs font-medium text-gray-500">
+                                                            In Stock: <strong>{{ product.available_quantity }} </strong>
+                                                            {{ product.unit_measure.name }}
+                                                        </span>
+
+                                                    </div>
+
+
+                                                </div>
+                                            </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                ${{ product.tax.rate }}</td>
+                                                <!-- {{ product.tax.rate }}% -->
+                                                <div class="flex-coulumn">
+                                                    <h1 class="text-base font-semibold">
+                                                        {{ product.tax.name }}</h1>
+
+                                                    <div
+                                                        class="mt-1 flex text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                        <span class="text-xs font-medium text-gray-500">
+
+                                                            {{ product.tax.rate }}%
+                                                        </span>
+
+                                                    </div>
+
+
+                                                </div>
+                                            </td>
 
 
                                             <td
@@ -308,7 +435,21 @@ export default {
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                ${{ product.retail_unit_price }}
+                                                <div class="flex-coulumn">
+                                                    <h3 class="text-base font-semibold">
+                                                        Retail: ${{ product.retail_unit_price }}</h3>
+
+                                                    <div
+                                                        class="mt-1 flex text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                        <span class="text-xs font-medium text-gray-500">
+                                                            Wholesale: <strong>${{ product.wholesale_unit_price }} </strong>
+
+                                                        </span>
+
+                                                    </div>
+
+
+                                                </div>
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -356,3 +497,5 @@ export default {
         <UploadExcelProductsModal @close="closeUploadExcelModal" />
     </MainLayout>
 </template>
+
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

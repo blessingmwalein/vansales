@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\LoadSheetRepositoryInterface;
+use App\Models\CustomerStop;
 use App\Models\Loadsheet;
 use App\Models\LoadSheetDetail;
 use App\Models\Stock;
@@ -232,6 +233,43 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
             $stock->quantity = $stock->quantity + $quantity;
             $stock->save();
         }
+        return true;
+    }
+
+
+    public function addCustomerStops($loadsheet_id, $data)
+    {
+        $loadsheet = Loadsheet::find($loadsheet_id);
+        foreach ($data as $key => $value) {
+            //check if customer stop already exist
+            $stop = CustomerStop::where('loadsheet_id', $loadsheet_id)->where('customer_id', $value)->first();
+            if ($stop) {
+                continue;
+            } else {
+                $loadsheet->customerStops()->create([
+                    'customer_id' => $value,
+                ]);
+            }
+        }
+        $loadsheet->history()->create([
+            'user_id' => auth()->user()->id,
+            'status' => 'Customer Stops Added',
+            'description' => 'Customer Stops Added',
+        ]);
+        return true;
+    }
+
+
+    public function removeCustomerStop($customer_stop_id)
+    {
+        $record = CustomerStop::find($customer_stop_id);
+        $record->delete();
+        $loadsheet = Loadsheet::find($record->loadsheet_id);
+        $loadsheet->history()->create([
+            'user_id' => auth()->user()->id,
+            'status' => 'Customer Stop Deleted: ' . $record->customer->name,
+            'description' => 'Customer Stop Deleted',
+        ]);
         return true;
     }
 }

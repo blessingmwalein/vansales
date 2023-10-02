@@ -75,4 +75,9 @@ class Loadsheet extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function customerStops()
+    {
+        return $this->hasMany(CustomerStop::class, 'loadsheet_id');
+    }
 }

@@ -95,4 +95,32 @@ class ProductRepository implements ProductRepositoryInterface
             ->orWhere('description', 'like', '%' . $search . '%')
             ->paginate(10);
     }
+
+    //filter function
+    public function filter($code, $description, $categories, $taxs, $unitMeasures, $from, $to)
+    {
+        $query = Product::query();
+        if ($code) {
+            $query->where('code', 'like', '%' . $code . '%');
+        }
+        if ($description) {
+            $query->where('description', 'like', '%' . $description . '%');
+        }
+        if ($categories) {
+            $query->whereIn('product_category_id', $categories);
+        }
+        if ($taxs) {
+            $query->whereIn('tax_id', $taxs);
+        }
+        if ($unitMeasures) {
+            $query->whereIn('unit_measure_id', $unitMeasures);
+        }
+        if ($from) {
+            $query->where('created_at', '>=', $from);
+        }
+        if ($to) {
+            $query->where('created_at', '<=', $to);
+        }
+        return $query->paginate(10);
+    }
 }

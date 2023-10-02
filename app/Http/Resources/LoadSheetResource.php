@@ -24,8 +24,10 @@ class LoadSheetResource extends JsonResource
             'history' => $this->history,
             'details' => $this->details,
             'route' => $this->route,
+            'customer_stops' => $this->customerStops,
             'start_date_time' => $this->start_date_time->format('Y-m-d H:00'),
             'created_at' => $this->created_at->format('Y-m-d H:00'),
+
         ];
     }
 }

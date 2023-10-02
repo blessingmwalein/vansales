@@ -123,8 +123,15 @@ class ProductController extends Controller
     //search product by code or description
     public function searchByCodeName(Request $request)
     {
-        $search = $request->search;
-        $products = $this->productRepository->searchByCodeName($search);
+        $code = $request->code;
+        $description = $request->description;
+        $categories = $request->categories;
+        $taxs = $request->taxs;
+        $unitMeasures = $request->unitMeasures;
+        $from =$request->from;
+        $to =$request->to;
+
+        $products = $this->productRepository->filter($code, $description, $categories, $taxs, $unitMeasures, $from, $to);
         return ProductResource::collection($products);
     }
 

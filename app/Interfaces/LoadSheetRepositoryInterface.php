@@ -34,4 +34,10 @@ interface LoadSheetRepositoryInterface
     public function addLoadSheetDetail($loadsheet_id, $data);
     public function updateLoadSheetDetail($detail_id, $data);
     public function deleteLoadSheetDetail($detail_id);
+
+    //add customers stop to loadsheet
+    public function addCustomerStops($loadsheet_id, $data);
+
+    //remove customer stop from loadsheet
+    public function removeCustomerStop($customer_stop_id);
 }

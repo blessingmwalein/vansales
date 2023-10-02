@@ -50,6 +50,7 @@ Route::middleware([
 
 //route prefix for admin
 Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->group(function () {
+    Route::get('/profile', [UserController::class, 'profile'])->name('admin.profile');
     Route::resource('/users', UserController::class);
     Route::resource('/roles', RoleController::class);
     Route::resource('/permissions', PermissionController::class);
@@ -68,11 +69,13 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->gro
     Route::resource('/loadsheets', LoadsheetController::class);
     Route::post('/update-product/{product}', [ProductController::class, 'update']);
     Route::post('/products-search', [ProductController::class, 'searchByCodeName'])->name('products.search');
+    Route::get('/products-search', [ProductController::class, 'index']);
     Route::post('/products-search-warehouse', [WarehouseController::class, 'searchWareStock'])->name('products.search.warehouse');
     Route::post('/loadsheets-search', [LoadsheetController::class, 'searchByLoadsheetNumber'])->name('loadsheet.search');
     Route::post('/filter-loaadsheets-status', [LoadsheetController::class, 'filterByStatus'])->name('loadsheet.filter');
     Route::post('/filter-loadsheets-date', [LoadsheetController::class, 'searchByDateRange'])->name('loadsheet.date');
     Route::post('/filter-loadsheets', [LoadsheetController::class, 'filter'])->name('loadsheet.filter');
+    Route::get('/filter-loadsheets', [LoadsheetController::class, 'index']);
     Route::post('/trucks-search', [TruckController::class, 'searchTruckByLicenceModel'])->name('trucks.search');
     Route::post('/customers-search', [CustomerController::class, 'searchCustomerByNameEmailPhoneNumber'])->name('customers.search');
     Route::post('/upload-excel-products', [ProductController::class, 'uploadExcelProducts'])->name('products.upload');
@@ -87,6 +90,8 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->gro
     Route::post('/delete-loadsheet-detail', [LoadsheetController::class, 'deleteLoadSheetDetail'])->name('loadsheet.deleteLoadSheet');
     Route::post('/confirm-loadsheet', [LoadsheetController::class, 'confirmLoadSheetDetail'])->name('loadsheet.confirmLoadSheet');
     Route::post('/complete-loadsheet', [LoadsheetController::class, 'completeLoadSheetDetail'])->name('loadsheet.completeLoadSheet');
+    Route::post('/add-customer-stops', [LoadsheetController::class, 'addCustomerStops'])->name('loadsheet.addCustomerStops');
+    Route::post('/remove-customer-stop', [LoadsheetController::class, 'removeCustomerStop'])->name('loadsheet.removeCustomerStop');
 });
 
 Route::get('/unauthorizes', function () {

@@ -1,5 +1,5 @@
 <template>
-    <div id="add-details-loadsheet-modal" tabindex="-1"
+    <div id="add-customer-stop-modal" tabindex="-1"
         class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative w-full max-w-7xl max-h-full">
             <!-- Modal content -->
@@ -7,7 +7,7 @@
                 <!-- Modal header -->
                 <div class="flex items-center justify-between p-5 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-xl font-medium text-gray-900 dark:text-white">
-                        Add Loadsheet Items
+                        Add Customer Stops
                     </h3>
                     <button @click="$emit('close')" type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
@@ -24,11 +24,10 @@
                     <form class="" action="#">
                         <div>
                             <label for="description"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Search By Description
-                                or Code</label>
-                            <VueMultiselect :searchable="true" :options="options"
-                                :custom-label="codeWithName" :clearOnSelect="true" @search-change="searchProducts"
-                                @select="selectProduct">
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Search By name, email,
+                                phone</label>
+                            <VueMultiselect :searchable="true" :options="options" :custom-label="nameWithEmail"
+                                :clearOnSelect="true" @search-change="searchCustomer" @select="selectCustomer">
                             </VueMultiselect>
 
                         </div>
@@ -43,19 +42,32 @@
                                     <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
                                         <thead class="bg-gray-100 dark:bg-gray-700">
                                             <tr>
+                                                <th scope="col" class="p-4">
+                                                    <div class="flex items-center">
+                                                        <input id="checkbox-all" aria-describedby="checkbox-1"
+                                                            type="checkbox"
+                                                            class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
+                                                        <label for="checkbox-all" class="sr-only">checkbox</label>
+                                                    </div>
+                                                </th>
 
                                                 <th scope="col"
                                                     class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                    Product Code
+                                                    Name
                                                 </th>
                                                 <th scope="col"
                                                     class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                    Product Name
+                                                    Email
                                                 </th>
                                                 <th scope="col"
                                                     class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                    Quantity
+                                                    Phone Number
                                                 </th>
+                                                <th scope="col"
+                                                    class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                    Address
+                                                </th>
+
 
                                                 <th scope="col"
                                                     class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -67,29 +79,49 @@
                                             class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
 
                                             <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                v-for="(product, index) in selectedProducts">
+                                                v-for="customer in selectedCustomers">
+                                                <td class="w-4 p-4">
+                                                    <div class="flex items-center">
+                                                        <input :id="`checkbox-${customer.id}`" aria-describedby="checkbox-1"
+                                                            type="checkbox"
+                                                            class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
+                                                        <label :for="`checkbox-${customer.id}`"
+                                                            class="sr-only">checkbox</label>
+                                                    </div>
+                                                </td>
+
+
                                                 <td
-                                                    class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                    {{ product.productCode }}</td>
+                                                    class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                                                    {{ customer.name }}</td>
                                                 <td
-                                                    class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                    {{ product.productName }}</td>
+                                                    class="flex p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                    <span
+                                                        class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
+                                                        {{ customer.email }}
+
+                                                    </span>
+                                                    <CopyButton @click="copyToClipboard(customer.email)" />
+                                                </td>
                                                 <td
-                                                    class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                    <input type="number" id="reorder_level" v-model="product.quantity"
-                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                                    <InputError class="mt-2"
-                                                        :message="isInvalidQty(product?.available, selectedProducts[index].quantity)" />
-                                                    <p id="helper-text-explanation"
-                                                        class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
-                                                        Available Stock : {{ product?.available }} {{
-                                                            product?.unit_measure
-                                                        }}
-                                                    </p>
+                                                    class=" p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+
+                                                    <div class="flex">
+                                                        <span
+                                                            class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
+                                                            {{ customer.phone_number }}
+
+                                                        </span>
+                                                        <CopyButton @click="copyToClipboard(customer.phone_number)" />
+                                                    </div>
                                                 </td>
                                                 <td
                                                     class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                    <button type="button" @click="removeProduct(product)"
+                                                    {{ customer.address }}</td>
+
+
+                                                <td class="p-4 space-x-2 whitespace-nowrap">
+                                                    <button type="button" @click="removeCustomer(customer)"
                                                         class=" items-center p-2 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900">
                                                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -97,17 +129,11 @@
                                                                 d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
                                                                 clip-rule="evenodd"></path>
                                                         </svg>
-
                                                     </button>
                                                 </td>
-
-
                                             </tr>
-
-
                                         </tbody>
                                     </table>
-
                                 </div>
                             </div>
                         </div>
@@ -118,7 +144,8 @@
                 <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
                     <button type="button" @click="submit" :class="{ 'opacity-25': form.processing || isFormDirty }"
                         :disabled="form.processing || isFormDirty"
-                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Load</button>
+                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add
+                        Customers</button>
                 </div>
             </div>
         </div>
@@ -128,43 +155,44 @@
 import VueMultiselect from 'vue-multiselect'
 import { useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
+import CopyButton from '@/Components/CopyButton.vue';
 
 export default {
     props: ['loadsheet'],
     components: {
         VueMultiselect,
-        InputError
+        InputError,
+        CopyButton
     },
     data() {
         return {
-            selectedProducts: [],
+            selectedCustomers: [],
             options: [],
             isFormDirty: false,
             form: useForm({
                 loadsheet_id: this.loadsheet?.id || null,
-                details: [],
+                customer_stops: [],
             })
         }
     },
 
     methods: {
-        searchProducts(value, loading) {
+        searchCustomer(value, loading) {
             axios
-                .post(`/admin/products-search-warehouse`, {
-                    id: this.loadsheet.warehouse.id,
+                .post(`/admin/customers-search`, {
                     search: value
                 })
                 .then((response) => {
-                    this.options = response.data.data.map((stock) => {
-                        console.log(stock)
+                    this.options = response.data.map((customer) => {
+                        console.log(customer)
                         return {
-                            label: `${stock.product.code} - ${stock.product.description} - Available ${stock.quantity} ${stock.product.unit_measure
-                                .name}`,
-                            stock_id: stock.id,
-                            productCode: stock.product.code,
-                            productName: stock.product.description,
-                            available: stock.quantity,
-                            unit_measure: stock.product?.unit_measure?.name,
+                            label: `${customer.name} - ${customer.email}`,
+                            id: customer.id,
+                            customer_id: customer.id,
+                            name: customer.name,
+                            email: customer.email,
+                            phone_number: customer.phone_number,
+                            address: customer.address,
                         };
                     });
                 })
@@ -173,58 +201,49 @@ export default {
                 });
         },
 
-        checkIfProductExists(product) {
-            return this.selectedProducts.some((selectedProduct) => {
-                return selectedProduct.stock_id === product.stock_id;
+        checkIfCustomerExists(customer) {
+            return this.selectedCustomers.some((selectedCustomer) => {
+                return selectedCustomer.id === customer.id;
             });
         },
 
-        codeWithName({
+        nameWithEmail({
             label
         }) {
             return label;
         },
 
-        selectProduct(product) {
-            console.log(product)
-            if (this.checkIfProductExists(product)) {
+        selectCustomer(customer) {
+            console.log(customer)
+            if (this.checkIfCustomerExists(customer)) {
                 return;
             }
-            this.selectedProducts.push(
-                {
-                    'quantity': 0,
-                    ...product
-                }
+            this.selectedCustomers.push(
+                customer
             );
         },
 
-        removeProduct(product) {
-            this.selectedProducts = this.selectedProducts.filter((selectedProduct) => {
-                return selectedProduct.value !== product.value;
+        removeCustomer(customer) {
+            this.selectedCustomers = this.selectedCustomers.filter((selectedCustomer) => {
+                return selectedCustomer.id !== customer.id;
             });
         },
 
         submit() {
-            this.form.details = this.selectedProducts;
+            this.form.customer_stops = this.selectedCustomers.map((customer) => {
+                return customer.customer_id;
+            })
 
-            this.form.post('/admin/add-loadsheet-details', {
+            this.form.post('/admin/add-customer-stops', {
                 preserveScroll: true,
                 onSuccess: () => {
-                    this.selectedProducts = [];
+                    this.selectedCustomers = [];
                     this.options = [];
                     this.$emit('save');
                 }
             });
         },
 
-        isInvalidQty(available, quantity) {
-            if (quantity > available) {
-                this.isFormDirty = true;
-                return 'Quantity must be less than or equal to available stock';
-            }
-            this.isFormDirty = false;
-            return null;
-        }
     },
 
     watch: {

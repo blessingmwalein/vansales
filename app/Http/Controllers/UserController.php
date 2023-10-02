@@ -102,4 +102,9 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'User deleted successfully');
     }
+
+    public  function profile()
+    {
+        return Inertia::render('Profile');
+    }
 }

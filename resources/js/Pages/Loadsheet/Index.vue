@@ -14,6 +14,8 @@ import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
 export default {
+    mixins: [globalMixin],
+
     components: {
         BreadCrumb,
         ConfirmDeleteDialog,
@@ -27,7 +29,6 @@ export default {
         Multiselect,
         Datepicker
     },
-    mixins: [globalMixin],
 
     props: ['loadsheets', 'trucks', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks'],
     data() {
@@ -45,7 +46,7 @@ export default {
                 { id: 3, name: 'Cancelled' },
                 { id: 4, name: 'Confirmed' },
                 { id: 5, name: 'Loaded' },
-                { id: 6, name: 'All' },
+                { id: 6, name: 'Completed' },
             ],
             isLoading: false,
             userOptions: [],
@@ -148,13 +149,7 @@ export default {
 
 
         submitSearch() {
-
-
             this.isLoading = true;
-  
-            // ]
-
-
             axios.post(`/admin/filter-loadsheets`, {
                 'driver': this.searchForm.user ? this.searchForm.user.map(obj => obj.id) : [],
                 'truck': this.searchForm.truck ? this.searchForm.truck.map(obj => obj.id) : [],
@@ -188,7 +183,30 @@ export default {
         },
         returnFormatedName({ first, second }) {
             return `${first} — ${second}`
-        }
+        },
+        getStatusBackGroundColor(status) {
+            //switch case
+            switch (status) {
+                case 'Draft':
+                    return 'bg-yellow-300 text-yellow-800';
+                    break;
+                case 'Created':
+                    return 'bg-green-500 text-white';
+                    break;
+                case 'Cancelled':
+                    return 'bg-red-500 text-white';
+                    break;
+                case 'Confirmed':
+                    return 'bg-blue-500 text-white';
+                    break;
+                case 'Loaded':
+                    return 'bg-gray-500 text-white';
+                    break;
+                default:
+                    return 'bg-gray-500 text-white';
+                    break;
+            }
+        },
     },
 
     watch: {
@@ -272,7 +290,7 @@ export default {
                             <multiselect
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
                                 v-model="searchForm.status" :options="statusOptions" :multiple="true"
-                                :custom-label="returnStatusName" placeholder="Filter by status" label="name" track-by="id">
+                                placeholder="Filter by status" label="name" track-by="id">
                             </multiselect>
                         </div>
                         <div class="w-full">
@@ -280,7 +298,7 @@ export default {
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Driver</label>
                             <multiselect class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                                 :multiple="true" v-model="searchForm.user" :options="userOptions"
-                                :custom-label="returnFormatedName" placeholder="Driver"  label="name" track-by="id">
+                                :custom-label="returnFormatedName" placeholder="Driver" label="name" track-by="id">
                             </multiselect>
                         </div>
                         <div>
@@ -448,7 +466,7 @@ export default {
                                             <td
                                                 class=" p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                 <span :class="getStatusBackGroundColor(loadsheet.status)"
-                                                    class=" text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                    class="bg-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
                                                     {{ loadsheet.status }}
                                                 </span>
                                             </td>
@@ -494,7 +512,7 @@ export default {
                 :next_page_url="loadsheets_data.links.next" :prev_page_url="loadsheets_data.links.prev" />
         </div>
 
-        <AddLoadSheetModal :loadsheet="selectedLoadSheet" :trucks="trucks" :warehouses="warehouses" :categories="categories"
+        <AddLoadSheetModal :loadsheet="selectedLoadSheet" :trucks="trucks" :warehouses="warehouses"
             :routes="routes" :users="users" @save="closeAddLoadSheetModal()" />
         <ConfirmDeleteDialog @cancel="closeDeleteModal" @yes="deleteLoadsheet" :type="'loadsheet'" />
     </MainLayout>

@@ -14,7 +14,7 @@ class Product extends Model
         'created_at' => 'datetime:Y-m-d H:00',
     ];
 
-    protected $with = [ 'unitMeasure', 'tax'];
+    protected $with = ['unitMeasure', 'tax'];
     //create before save event to set product code
     protected static function boot()
     {
@@ -51,4 +51,19 @@ class Product extends Model
         $code = $prefix . str_pad($lastRecordId + 1, 4, '0', STR_PAD_LEFT);
         return $code;
     }
+
+    //STOCK RELATED
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class, 'product_id');
+    }
+
+    //get total stock quantity
+    public function getTotalStockQuantity()
+    {
+        return $this->stocks()->sum('quantity');
+    }
+
+    //get total number of warehouses the product is in
+    
 }

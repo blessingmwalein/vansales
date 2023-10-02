@@ -254,4 +254,25 @@ class LoadsheetController extends Controller
         $this->loadSheetRepository->completeLoadSheet($data['load_sheet_id']);
         return redirect()->back()->with('success', 'Loadsheet completed successfully');
     }
+
+    //add customers stop to loadsheet
+    public function addCustomerStops(Request $request)
+    {
+        $data = $request->validate([
+            'customer_stops' => 'required|array',
+            'loadsheet_id' => 'required',
+        ]);
+        $this->loadSheetRepository->addCustomerStops($data['loadsheet_id'], $data['customer_stops']);
+        return redirect()->back()->with('success', 'Customer Stops loaded successfully');
+    }
+
+    //remove customer stop from loadsheet
+    public function removeCustomerStop(Request $request)
+    {
+        $data = $request->validate([
+            'customer_stop_id' => 'required',
+        ]);
+        $this->loadSheetRepository->removeCustomerStop($data['customer_stop_id']);
+        return redirect()->back()->with('success', 'Customer Stop removed successfully');
+    }
 }
