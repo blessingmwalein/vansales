@@ -18,4 +18,7 @@ interface TruckRepositoryInterface
 
     //search truck by license plate and make_model
     public function searchTruck($search);
+
+    //get available trucks
+    public function getAvailableTrucks();
 }

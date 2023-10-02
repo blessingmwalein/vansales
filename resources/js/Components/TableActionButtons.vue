@@ -34,12 +34,16 @@
 export default {
     data() {
         return {
+            delete: this.has_delete ? this.has_delete : true,
+            view: this.has_view ? this.has_view : true,
+            edit: this.has_edit ? this.has_edit : true
         }
     },
-    props: ['type', 'has_view'],
+    props: ['type', 'has_view', 'has_delete', 'has_edit'],
     methods: {
 
-
+    },
+    mounted() {
 
     },
 

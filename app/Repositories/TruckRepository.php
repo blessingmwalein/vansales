@@ -35,7 +35,7 @@ class TruckRepository implements TruckRepositoryInterface
 
     public function getPaginated($perPage = 10)
     {
-        return Truck::paginate($perPage);
+        return Truck::latest()->paginate($perPage);
     }
 
     //search truck by license plate and make_model
@@ -44,5 +44,11 @@ class TruckRepository implements TruckRepositoryInterface
         return Truck::where('license_plate', 'like', '%' . $search . '%')
             ->orWhere('make_model', 'like', '%' . $search . '%')
             ->paginate(10);
+    }
+
+    //get available trucks
+    public function getAvailableTrucks()
+    {
+        return Truck::where('is_available', '1')->get();
     }
 }

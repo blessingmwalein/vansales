@@ -35,6 +35,6 @@ class ProductCategoryRepository implements ProductCategoryRepositoryInterface
 
     public function getPaginated($perPage = 10)
     {
-        return ProductCategory::paginate($perPage);
+        return ProductCategory::latest()->paginate($perPage);
     }
 }

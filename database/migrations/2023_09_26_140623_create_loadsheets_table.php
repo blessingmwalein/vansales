@@ -17,10 +17,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('truck_id')->constrained('trucks');
             $table->foreignId('warehouse_id')->nullable()->constrained('warehouses');
-
             $table->enum('status', ['Draft', 'Created', 'Loaded', 'Confirmed', 'Completed']);
             $table->foreignId('route_id')->constrained('routes');
-            $table->timestamp('start_date_time')->nullable();
+            $table->string('start_date_time')->nullable();
             $table->timestamps();
         });
     }

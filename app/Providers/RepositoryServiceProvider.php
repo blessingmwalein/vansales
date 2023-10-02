@@ -8,12 +8,14 @@ use App\Interfaces\WarehouseRepositoryInterface;
 use App\Interfaces\TruckRepositoryInterface;
 use App\Interfaces\ProductRepositoryInterface;
 use App\Interfaces\CustomerRepositoryInterface;
+use App\Interfaces\LoadSheetRepositoryInterface;
 use App\Interfaces\RouteRepositoryInterface;
 use App\Repositories\ProductCategoryRepository;
 use App\Repositories\TruckRepository;
 use App\Repositories\UtilityRepository;
 use App\Repositories\WarehouseRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\LoadSheetRepository;
 use App\Repositories\CustomerRepository;
 use App\Repositories\RouteRepository;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(TruckRepositoryInterface::class, TruckRepository::class);
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
         $this->app->bind(RouteRepositoryInterface::class, RouteRepository::class);
+        $this->app->bind(LoadSheetRepositoryInterface::class, LoadSheetRepository::class);
     }
 
     /**

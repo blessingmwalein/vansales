@@ -98,6 +98,15 @@ const NavItems = [
 
         ]
     },
+    {
+        name: 'Loadsheets',
+        icon: 'bi bi-layout-text-sidebar-reverse',
+        feature: 'loadsheet_management',
+        route: '/admin/loadsheets',
+        children: [
+
+        ]
+    },
 ]
 
 export default NavItems;

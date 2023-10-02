@@ -95,4 +95,11 @@ class WarehouseController extends Controller
         $this->warehouseRepository->allocateStock($request->products, $request->warehouse_id);
         return redirect()->back()->with('success', 'Stock allocated.');
     }
+
+    public function searchWareStock(Request $request)
+    {
+        $search = $request->search;
+        $stocks = $this->warehouseRepository->searchWareStock($request->id, $search);
+        return StockResource::collection($stocks);
+    }
 }

@@ -10,6 +10,8 @@ import "vue3-snackbar/styles";
 import { SnackbarService, Vue3Snackbar } from "vue3-snackbar";
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 import VueGoogleMaps from '@fawmi/vue-google-maps'
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -26,6 +28,7 @@ createInertiaApp({
                 },
             })
             .component("vue3-snackbar", Vue3Snackbar)
+            .component('Datepicker', VueDatePicker)
             .mount(el);
     },
     progress: {

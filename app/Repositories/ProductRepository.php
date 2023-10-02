@@ -60,7 +60,7 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function getPaginated($perPage = 10)
     {
-        return Product::paginate($perPage);
+        return Product::latest()->paginate($perPage);
     }
 
     public function generateCode()

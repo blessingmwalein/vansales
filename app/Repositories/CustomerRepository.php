@@ -35,7 +35,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function getPaginated($perPage = 10)
     {
-        return Customer::paginate($perPage);
+        return Customer::latest()->paginate($perPage);
     }
 
     //search customer by name, email, phone number

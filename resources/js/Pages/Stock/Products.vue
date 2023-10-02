@@ -32,6 +32,7 @@ export default {
             deleteModal: null,
             products_data: this.products,
             search: '',
+            isLoading: false,
         }
     },
     mounted() {
@@ -115,15 +116,19 @@ export default {
             //         }
             //     });
             //use axios
+            this.isLoading = true;
             axios.post(`/admin/products-search`, {
                 search: this.search
             })
                 .then((response) => {
                     console.log(response);
                     this.products_data = response.data;
+                    this.isLoading = false;
+
                 })
                 .catch((error) => {
                     console.log(error);
+                    this.isLoading = false;
                 });
         },
     },
@@ -212,7 +217,7 @@ export default {
             <div class="overflow-x-auto">
                 <div class="inline-block min-w-full align-middle">
                     <div class="overflow-hidden shadow">
-                        <TableLayout :hasData="products.data.length > 0 ? true : false">
+                        <TableLayout :hasData="products.data.length > 0 ? true : false" :isLoading="isLoading">
                             <template v-slot:table>
                                 <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
                                     <thead class="bg-gray-100 dark:bg-gray-700">
@@ -335,7 +340,6 @@ export default {
                                 </button>
                             </template>
                         </TableLayout>
-
                     </div>
                 </div>
             </div>

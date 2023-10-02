@@ -15,7 +15,6 @@ class WarehouseRepository implements WarehouseRepositoryInterface
 
     public function create(array $data)
     {
-        $data['code'] = $this->generateCode();
         return Warehouse::create($data);
     }
 
@@ -37,22 +36,11 @@ class WarehouseRepository implements WarehouseRepositoryInterface
 
     public function getPaginated($perPage = 10)
     {
-        return Warehouse::paginate($perPage);
+        return Warehouse::latest()->paginate($perPage);
     }
 
     //create function to generate code
-    public function generateCode()
-    {
-        //gen company name from env
-        $companyName = env('COMPANY_NAME');
-        $lastRecord = Warehouse::latest()->first();
-        if (!$lastRecord) {
-            return $companyName . '0001';
-        }
-        $lastRecordId = $lastRecord->id;
-        $code = $companyName . str_pad($lastRecordId + 1, 4, '0', STR_PAD_LEFT);
-        return $code;
-    }
+
 
     public function getAllocatedStock($id, $page = 10)
     {
@@ -86,5 +74,18 @@ class WarehouseRepository implements WarehouseRepositoryInterface
             ]);
         }
         return true;
+    }
+
+    //search warestocks
+    public function searchWareStock($id, $search)
+    {
+        $warehouse = Warehouse::find($id);
+
+        //product name and code is in stocks products relationships
+        return $warehouse->stocks()->whereHas('product', function ($query) use ($search) {
+            $query->where('description', 'LIKE', '%' . $search . '%')->orWhere('code', 'LIKE', '%' . $search . '%');
+        })->paginate(10);
+
+        // return $warehouse->stocks()->where('product_id', 'LIKE', '%' . $search . '%')->paginate(10);
     }
 }

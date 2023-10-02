@@ -17,7 +17,7 @@ class UtilityRepository implements UtilityRepositoryInterface
 
     public function getAllUnitMeasuresPaginated($page)
     {
-        return UnitMeasure::paginate($page);
+        return UnitMeasure::latest()->paginate($page);
     }
 
     public function createUnitMeasure(array $data)
@@ -45,7 +45,7 @@ class UtilityRepository implements UtilityRepositoryInterface
 
     public function getAllTaxsPaginated($page)
     {
-        return Tax::paginate($page);
+        return Tax::latest()->paginate($page);
     }
 
     public function createTax(array $data)

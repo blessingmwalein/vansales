@@ -43,7 +43,7 @@ class RouteRepository implements RouteRepositoryInterface
 
     public function getPaginated($perPage = 10)
     {
-        return Route::paginate($perPage);
+        return Route::latest()->paginate($perPage);
     }
 
     //search Route by license plate and make_model

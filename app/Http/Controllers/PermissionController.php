@@ -17,7 +17,7 @@ class PermissionController extends Controller
     {
 
         return Inertia::render('User/Permissions', [
-            'permissions_value' => Permission::paginate(5),
+            'permissions_value' => Permission::latest()->paginate(5),
         ]);
     }
 

@@ -14,6 +14,7 @@ class Product extends Model
         'created_at' => 'datetime:Y-m-d H:00',
     ];
 
+    protected $with = [ 'unitMeasure', 'tax'];
     //create before save event to set product code
     protected static function boot()
     {

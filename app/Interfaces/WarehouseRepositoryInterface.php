@@ -21,4 +21,7 @@ interface WarehouseRepositoryInterface
 
     //function to allocate bulk stock
     public function allocateStock($data, $id);
+
+    //search warestocks
+    public function searchWareStock($id, $search);
 }

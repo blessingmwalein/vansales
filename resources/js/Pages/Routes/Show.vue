@@ -190,7 +190,9 @@ export default {
                 <div class="inline-block min-w-full align-middle">
                     <div class="overflow-hidden shadow">
                         <GMapMap :center="center" :zoom="8" style="width: 82vw; height: 82vh">
-                            <GMapPolygon :paths="paths" />
+                            <!-- <GMapPolygon :paths="paths" /> -->
+
+                            <GMapPolyline :path="paths" :editable="true" ref="polyline" />
                             <GMapMarker :key="index" v-for="(m, index) in markers" :position="m.position"
                                 @click="openInfoWindow(m.id)" :clickable="true" :icon='{
                                     url: "/assets/location.svg",

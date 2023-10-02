@@ -10,6 +10,8 @@ class Stock extends Model
     use HasFactory;
     protected $guarded;
 
+    protected $with = ['product'];
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:00',
     ];

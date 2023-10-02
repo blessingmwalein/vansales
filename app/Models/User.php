@@ -65,4 +65,20 @@ class User extends Authenticatable
     ];
 
     protected array $guard_name = ['sanctum', 'web'];
+
+    public function loadsheets()
+    {
+        return $this->hasMany(Loadsheet::class, 'user_id');
+    }
+
+    //get is user has open loadsheets if status is not complete
+    public function hasOpenLoadsheet()
+    {
+        $openLoadsheet = $this->loadsheets()->where('status', '!=', 'complete')->first();
+        if ($openLoadsheet) {
+            return true;
+        }
+        return false;
+    }
+
 }

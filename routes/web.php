@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\LoadsheetController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
@@ -64,13 +65,28 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->gro
     Route::resource('/trucks', TruckController::class);
     Route::resource('/customers', CustomerController::class);
     Route::resource('/routes', RouteController::class);
+    Route::resource('/loadsheets', LoadsheetController::class);
     Route::post('/update-product/{product}', [ProductController::class, 'update']);
     Route::post('/products-search', [ProductController::class, 'searchByCodeName'])->name('products.search');
+    Route::post('/products-search-warehouse', [WarehouseController::class, 'searchWareStock'])->name('products.search.warehouse');
+    Route::post('/loadsheets-search', [LoadsheetController::class, 'searchByLoadsheetNumber'])->name('loadsheet.search');
+    Route::post('/filter-loaadsheets-status', [LoadsheetController::class, 'filterByStatus'])->name('loadsheet.filter');
+    Route::post('/filter-loadsheets-date', [LoadsheetController::class, 'searchByDateRange'])->name('loadsheet.date');
+    Route::post('/filter-loadsheets', [LoadsheetController::class, 'filter'])->name('loadsheet.filter');
     Route::post('/trucks-search', [TruckController::class, 'searchTruckByLicenceModel'])->name('trucks.search');
     Route::post('/customers-search', [CustomerController::class, 'searchCustomerByNameEmailPhoneNumber'])->name('customers.search');
     Route::post('/upload-excel-products', [ProductController::class, 'uploadExcelProducts'])->name('products.upload');
     Route::post('/save-excel-products', [ProductController::class, 'saveExcelProducts'])->name('products.save');
     Route::post('/allocate-stock', [WarehouseController::class, 'allocateStock'])->name('warehouse.allocate');
+    Route::post('/load-stock', [LoadsheetController::class, 'loadStock'])->name('loadsheet.loadStock');
+    Route::post('/update-stock', [LoadsheetController::class, 'updateStock'])->name('loadsheet.updateStock');
+    Route::post('/confirm-loadsheet', [LoadsheetController::class, 'confirmLoadSheet'])->name('loadsheet.confirmLoadSheet');
+    Route::post('/add-loadsheet-details', [LoadsheetController::class, 'addLoadSheetDetail'])->name('loadsheet.addLoadSheetDetail');
+    Route::post('/update-loadsheet-details', [LoadsheetController::class, 'updateLoadSheetDetail'])->name('loadsheet.updateLoadSheetDetail');
+    Route::post('/complete-loadsheet', [LoadsheetController::class, 'completeLoadSheet'])->name('loadsheet.completeLoadSheet');
+    Route::post('/delete-loadsheet-detail', [LoadsheetController::class, 'deleteLoadSheetDetail'])->name('loadsheet.deleteLoadSheet');
+    Route::post('/confirm-loadsheet', [LoadsheetController::class, 'confirmLoadSheetDetail'])->name('loadsheet.confirmLoadSheet');
+    Route::post('/complete-loadsheet', [LoadsheetController::class, 'completeLoadSheetDetail'])->name('loadsheet.completeLoadSheet');
 });
 
 Route::get('/unauthorizes', function () {
