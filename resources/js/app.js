@@ -11,6 +11,7 @@ import { SnackbarService, Vue3Snackbar } from "vue3-snackbar";
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 import VueGoogleMaps from '@fawmi/vue-google-maps'
 import VueDatePicker from '@vuepic/vue-datepicker';
+import VueApexCharts from "vue3-apexcharts";
 import '@vuepic/vue-datepicker/dist/main.css';
 
 createInertiaApp({
@@ -26,7 +27,7 @@ createInertiaApp({
                     key: 'AIzaSyD2aMS3Zy5ru63unlPgw1uV4v-fa7iRDfU',
                     libraries: 'places',
                 },
-            })
+            }).use(VueApexCharts)
             .component("vue3-snackbar", Vue3Snackbar)
             .component('Datepicker', VueDatePicker)
             .mount(el);
