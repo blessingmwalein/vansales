@@ -59,8 +59,12 @@ class ProductController extends Controller
             'unit_measure_id' => 'required',
             'tax_id' => 'required',
             'discount' => 'nullable',
-            'retail_unit_price' => 'nullable',
-            'wholesale_unit_price' => 'nullable',
+            'retail_price' => 'nullable',
+            'wholesale_price' => 'nullable',
+            'hasMoreThanOnePrices' => 'required|boolean',
+            'prices' => 'nullable|array',
+            'currency_id' => 'nullable|integer',
+            'pricing_method_id' => 'nullable|integer',
         ]);
 
         $this->productRepository->create($data);
@@ -128,8 +132,8 @@ class ProductController extends Controller
         $categories = $request->categories;
         $taxs = $request->taxs;
         $unitMeasures = $request->unitMeasures;
-        $from =$request->from;
-        $to =$request->to;
+        $from = $request->from;
+        $to = $request->to;
 
         $products = $this->productRepository->filter($code, $description, $categories, $taxs, $unitMeasures, $from, $to);
         return ProductResource::collection($products);

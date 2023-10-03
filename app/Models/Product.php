@@ -64,6 +64,14 @@ class Product extends Model
         return $this->stocks()->sum('quantity');
     }
 
-    //get total number of warehouses the product is in
-    
+    public function prices()
+    {
+        return $this->hasMany(ProductPricing::class, 'product_id');
+    }
+
+    //get default price
+    public function getDefaultPrice()
+    {
+        return $this->prices()->where('is_default', true)->first();
+    }
 }

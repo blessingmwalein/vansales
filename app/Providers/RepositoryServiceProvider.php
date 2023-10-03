@@ -10,6 +10,9 @@ use App\Interfaces\ProductRepositoryInterface;
 use App\Interfaces\CustomerRepositoryInterface;
 use App\Interfaces\LoadSheetRepositoryInterface;
 use App\Interfaces\RouteRepositoryInterface;
+use App\Interfaces\CurrencyRepositoryInterface;
+use App\Interfaces\PricingMethodRepositoryInterface;
+use App\Interfaces\ProductPricingRepositoryInterface;
 use App\Repositories\ProductCategoryRepository;
 use App\Repositories\TruckRepository;
 use App\Repositories\UtilityRepository;
@@ -18,6 +21,9 @@ use App\Repositories\ProductRepository;
 use App\Repositories\LoadSheetRepository;
 use App\Repositories\CustomerRepository;
 use App\Repositories\RouteRepository;
+use App\Repositories\CurrencyRepository;
+use App\Repositories\PricingMethodRepository;
+use App\Repositories\ProductPricingRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -35,6 +41,9 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
         $this->app->bind(RouteRepositoryInterface::class, RouteRepository::class);
         $this->app->bind(LoadSheetRepositoryInterface::class, LoadSheetRepository::class);
+        $this->app->bind(CurrencyRepositoryInterface::class, CurrencyRepository::class);
+        $this->app->bind(PricingMethodRepositoryInterface::class, PricingMethodRepository::class);
+        $this->app->bind(ProductPricingRepositoryInterface::class, ProductPricingRepository::class);
     }
 
     /**

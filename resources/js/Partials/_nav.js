@@ -107,6 +107,19 @@ const NavItems = [
 
         ]
     },
+    {
+        name: 'Settings',
+        icon: 'bi bi-gear-fill',
+        feature: 'settings_management',
+        route: '/admin/settings',
+        children: [
+            {
+                name: 'Product',
+                feature: 'product_settings_management',
+                route: '/admin/settings/product-settings',
+            }
+        ]
+    },
 ]
 
 export default NavItems;

@@ -32,6 +32,10 @@ class ProductResource extends JsonResource
             'available_quantity' => $this->getTotalStockQuantity(),
             // get created_at in format: 2021-01-01 00:00
             'created_at' => $this->created_at->format('Y-m-d H:i'),
+
+            'pricies' => $this->prices,
+
+            'default_price' => $this->getDefaultPrice(),
             // 'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

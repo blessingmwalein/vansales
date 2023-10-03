@@ -2,11 +2,18 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\ProductPricingRepositoryInterface;
 use App\Interfaces\ProductRepositoryInterface;
 use App\Models\Product;
 
 class ProductRepository implements ProductRepositoryInterface
 {
+    private ProductPricingRepositoryInterface $productPricingRepository;
+
+    public function __construct(ProductPricingRepositoryInterface $productPricingRepository)
+    {
+        $this->productPricingRepository = $productPricingRepository;
+    }
     public function all()
     {
         return Product::all();
@@ -19,7 +26,34 @@ class ProductRepository implements ProductRepositoryInterface
             $data['image'] = $this->uploadImage($data['image']);
         }
         // $data['code'] = $this->generateCode();
-        return Product::create($data);
+        $product =  Product::create([
+            'description' => $data['description'],
+            'image' => $data['image'],
+            'product_category_id' => $data['product_category_id'],
+            'tax_id' => $data['tax_id'],
+            'unit_measure_id' => $data['unit_measure_id'],
+            'reorder_level' => $data['reorder_level'],
+        ]);
+        //create default product pricing
+        if ($data['hasMoreThanOnePrices']) {
+            foreach ($data['prices'] as $productPrice) {
+                $productPrice['product_id'] = $product->id;
+                $this->productPricingRepository->create($productPrice);
+            }
+        } else {
+            $data['product_id'] = $product->id;
+            $this->productPricingRepository->create([
+                'product_id' => $product->id,
+                'currency_id' => $data['currency_id'],
+                'retail_price' => $data['retail_price'],
+                'wholesale_price' => $data['wholesale_price'],
+                'discount' => $data['discount'],
+                'pricing_method_id' => $data['pricing_method_id'],
+                'is_default' => true
+            ]);
+        }
+
+        return $product;
     }
 
     public function update(array $data, $id)

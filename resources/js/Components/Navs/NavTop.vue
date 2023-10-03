@@ -179,6 +179,13 @@
                             </div>
                             <ul class="py-1" role="none">
                                 <li>
+                                    <Link href="#"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                                        role="menuitem">Currency : <span
+                                        class="bg-pink-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-pink-900 dark:text-pink-300">
+                                        <strong> {{ defaultCurrency?.name }}</strong> </span></Link>
+                                </li>
+                                <li>
                                     <Link :href="'/dashboard'"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                                         role="menuitem">Dashboard</Link>
@@ -212,6 +219,7 @@ export default {
     data() {
         return {
             user: this.$page.props.auth.user,
+            defaultCurrency: this.$page.props?.defaultCurrency,
         }
     },
 

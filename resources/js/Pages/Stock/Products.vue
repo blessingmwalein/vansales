@@ -437,12 +437,15 @@ export default {
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                 <div class="flex-coulumn">
                                                     <h3 class="text-base font-semibold">
-                                                        Retail: ${{ product.retail_unit_price }}</h3>
+                                                        Retail: {{ product.default_price.currency.symbol }}{{
+                                                            product.default_price?.retail_price }}</h3>
 
                                                     <div
                                                         class="mt-1 flex text-sm font-normal text-gray-500 dark:text-gray-400">
                                                         <span class="text-xs font-medium text-gray-500">
-                                                            Wholesale: <strong>${{ product.wholesale_unit_price }} </strong>
+                                                            Wholesale: <strong>{{ product.default_price.currency.symbol }}{{
+                                                                product.default_price?.wholesale_price }}
+                                                            </strong>
 
                                                         </span>
 
@@ -453,7 +456,7 @@ export default {
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                ${{ product.discount }}
+                                                {{ product.default_price?.discount }}%
                                             </td>
 
                                             <td class="p-4 space-x-2 whitespace-nowrap">

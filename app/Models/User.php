@@ -81,4 +81,9 @@ class User extends Authenticatable
         return false;
     }
 
+    //get default currency
+    public function getDefaultCurrency()
+    {
+        return Currency::where('is_default', true)->first();
+    }
 }

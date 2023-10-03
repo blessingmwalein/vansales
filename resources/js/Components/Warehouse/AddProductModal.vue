@@ -1,7 +1,7 @@
 <template>
-    <div class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+    <div class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
         id="add-product-modal">
-        <div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+        <div class="relative w-full max-w-4xl max-h-full">
             <!-- Modal content -->
             <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
                 <!-- Modal header -->
@@ -81,34 +81,92 @@
                                 <InputError class="mt-2" :message="form.errors.unit_measure_id" />
                             </div>
                         </div>
-                        <div>
-                            <label for="discount"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Discount</label>
-                            <input type="number" name="discount" id="discount"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                v-model="form.discount">
-                            <InputError class="mt-2" :message="form.errors.discount" />
 
-                        </div>
-                        <div class="grid gap-6 mb-6 md:grid-cols-2">
-                            <div>
-                                <label for="tax" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Retail
-                                    Unit Price</label>
-                                <input type="number" name="retail_unit_price" id="retail_unit_price"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    v-model="form.retail_unit_price">
-                                <InputError class="mt-2" :message="form.errors.retail_unit_price" />
+                        <template v-if="hasMoreThanOnePrices()">
+                            <div class="grid gap-6 mb-6 md:grid-cols-3" v-for="(currency, index) in currencies">
+                                <div>
+                                    <label for="tax"
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Retail
+                                        Unit Price</label>
+                                    <input type="number" name="retail_price" id="retail_price"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                        v-model="form.prices[index].retail_price">
+                                    <p id="helper-text-explanation"
+                                        class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                        {{ currency.name }} : Retail Price
+                                    </p>
+                                    <!-- <InputError class="mt-2" :message="form.errors.retail_price" /> -->
+                                </div>
+                                <div>
+                                    <label for="category"
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Wholesale Unit
+                                        Price</label>
+                                    <input type="number" name="wholesale_price" id="wholesale_price"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                        v-model="form.prices[index].wholesale_price">
+                                    <p id="helper-text-explanation"
+                                        class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                        {{ currency.name }} : Wholesale Price
+                                    </p>
+                                    <!-- <InputError class="mt-2" :message="form.errors.wholesale_price" /> -->
+                                </div>
+                                <div>
+                                    <label for="discount"
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Discount</label>
+                                    <input type="number" name="discount" id="discount"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                        v-model="form.prices[index].discount">
+                                    <p id="helper-text-explanation"
+                                        class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                        {{ currency.name }} : Discount
+                                    </p>
+                                    <!-- <InputError class="mt-2" :message="form.errors.discount" /> -->
+                                </div>
                             </div>
-                            <div>
-                                <label for="category"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Wholesale Unit
-                                    Price</label>
-                                <input type="number" name="wholesale_unit_price" id="wholesale_unit_price"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    v-model="form.wholesale_unit_price">
-                                <InputError class="mt-2" :message="form.errors.wholesale_unit_price" />
+                        </template>
+                        <template v-else>
+                            <div class="grid gap-6 mb-6 md:grid-cols-3">
+                                <div>
+                                    <label for="tax"
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Retail
+                                        Unit Price</label>
+                                    <input type="number" name="retail_price" id="retail_price"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                        v-model="form.retail_price">
+                                    <p id="helper-text-explanation"
+                                        class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                        {{ defaultCurrency.name }} : Retail Price
+                                    </p>
+                                    <InputError class="mt-2" :message="form.errors.retail_price" />
+                                </div>
+                                <div>
+                                    <label for="category"
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Wholesale Unit
+                                        Price</label>
+                                    <input type="number" name="wholesale_price" id="wholesale_price"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                        v-model="form.wholesale_price">
+                                    <p id="helper-text-explanation"
+                                        class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                        {{ defaultCurrency.name }} : Wholesale Price
+                                    </p>
+                                    <InputError class="mt-2" :message="form.errors.wholesale_price" />
+                                </div>
+                                <div>
+                                    <label for="discount"
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Discount</label>
+                                    <input type="number" name="discount" id="discount"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                        v-model="form.discount">
+                                    <p id="helper-text-explanation"
+                                        class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                        {{ defaultCurrency.name }} : Discount
+                                    </p>
+                                    <InputError class="mt-2" :message="form.errors.discount" />
+                                </div>
                             </div>
-                        </div>
+                        </template>
+
                         <div>
 
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -138,8 +196,7 @@ export default {
     components: { InputError },
     props: ['product', 'categories', 'taxs', 'unitMeasures'],
     mounted() {
-
-
+        this.setMoreprices();
     },
     data() {
         return {
@@ -151,10 +208,17 @@ export default {
                 tax_id: this.product?.tax_id || '',
                 unit_measure_id: this.product?.unit_measure_id || '',
                 discount: this.product?.discount || '',
-                retail_unit_price: this.product?.retail_unit_price || '',
-                wholesale_unit_price: this.product?.wholesale_unit_price || '',
-                image: ''
-            })
+                retail_price: this.product?.retail_price || '',
+                wholesale_price: this.product?.wholesale_price || '',
+                image: '',
+                prices: this.product?.prices || [],
+                currency_id: null,
+                pricing_method_id: null,
+                hasMoreThanOnePrices: false
+            }),
+            defaultPricingMethod: this.$page.props?.defaultPricingMethod,
+            defaultCurrency: this.$page.props?.defaultCurrency,
+            currencies: this.$page.props?.currencies,
         }
     },
 
@@ -169,6 +233,9 @@ export default {
         },
 
         create() {
+            this.form.hasMoreThanOnePrices = this.hasMoreThanOnePrices();
+            this.form.currency_id = this.defaultCurrency.id;
+            this.form.pricing_method_id = this.defaultPricingMethod.id;
             this.form.post('/admin/products', {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -178,6 +245,7 @@ export default {
         },
 
         update() {
+            this.form.hasMoreThanOnePrices = this.hasMoreThanOnePrices();
             this.form.post(`/admin/update-product/${this.product.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -193,6 +261,24 @@ export default {
                 return;
             this.form.image = files[0];
         },
+        setMoreprices() {
+            if (this.hasMoreThanOnePrices()) {
+                this.form.prices = this.currencies.map(currency => {
+                    return {
+                        currency_id: currency.id,
+                        retail_price: '',
+                        wholesale_price: '',
+                        discount: '',
+                        is_default: currency.id == this.defaultCurrency.id ? true : false,
+                        pricing_method_id: this.defaultPricingMethod.id,
+                    }
+                })
+            }
+        },
+
+        hasMoreThanOnePrices() {
+            return !this.defaultPricingMethod.name.includes('Exchange Rate');
+        },
     },
 
     watch: {
@@ -207,8 +293,8 @@ export default {
                 this.form.tax_id = newValue?.tax_id || '';
                 this.form.unit_measure_id = newValue?.unit_measure_id || '';
                 this.form.discount = newValue?.discount || '';
-                this.form.retail_unit_price = newValue?.retail_unit_price || '';
-                this.form.wholesale_unit_price = newValue?.wholesale_unit_price || '';
+                this.form.retail_price = newValue?.retail_price || '';
+                this.form.wholesale_price = newValue?.wholesale_price || '';
             },
             immediate: true, // This ensures the watcher runs immediately when the component is mounted
         },
