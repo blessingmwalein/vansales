@@ -245,10 +245,8 @@ export default {
         logout() {
             this.$inertia.post('/logout', {
                 preserveScroll: true,
-
             });
         },
-
     }
 }
 </script>

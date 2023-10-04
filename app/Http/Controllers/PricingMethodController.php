@@ -71,6 +71,7 @@ class PricingMethodController extends Controller
         ]);
 
         $this->pricingMethodRepository->update($data, $pricingMethod->id);
+        return redirect()->back()->with('success', 'Pricing method updated successfully');
     }
 
     /**

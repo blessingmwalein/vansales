@@ -83,17 +83,17 @@
                         </div>
 
                         <template v-if="hasMoreThanOnePrices()">
-                            <div class="grid gap-6 mb-6 md:grid-cols-3" v-for="(currency, index) in currencies">
+                            <div class="grid gap-6 mb-6 md:grid-cols-3" v-for="(price, index) in form.prices">
                                 <div>
                                     <label for="tax"
                                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Retail
                                         Unit Price</label>
                                     <input type="number" name="retail_price" id="retail_price"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                        v-model="form.prices[index].retail_price">
+                                        v-model="price.retail_price">
                                     <p id="helper-text-explanation"
                                         class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
-                                        {{ currency.name }} : Retail Price
+                                        {{ price.currency_name }} : Retail Price
                                     </p>
                                     <!-- <InputError class="mt-2" :message="form.errors.retail_price" /> -->
                                 </div>
@@ -103,10 +103,10 @@
                                         Price</label>
                                     <input type="number" name="wholesale_price" id="wholesale_price"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                        v-model="form.prices[index].wholesale_price">
+                                        v-model="price.wholesale_price">
                                     <p id="helper-text-explanation"
                                         class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
-                                        {{ currency.name }} : Wholesale Price
+                                        {{ price.currency_name }} : Wholesale Price
                                     </p>
                                     <!-- <InputError class="mt-2" :message="form.errors.wholesale_price" /> -->
                                 </div>
@@ -115,10 +115,10 @@
                                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Discount</label>
                                     <input type="number" name="discount" id="discount"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                        v-model="form.prices[index].discount">
+                                        v-model="price.discount">
                                     <p id="helper-text-explanation"
                                         class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
-                                        {{ currency.name }} : Discount
+                                        {{ price.currency_name }} : Discount
                                     </p>
                                     <!-- <InputError class="mt-2" :message="form.errors.discount" /> -->
                                 </div>
@@ -262,15 +262,17 @@ export default {
             this.form.image = files[0];
         },
         setMoreprices() {
+            const currencies = this.$page.props?.currencies;
             if (this.hasMoreThanOnePrices()) {
-                this.form.prices = this.currencies.map(currency => {
+                this.form.prices = currencies.map(currency => {
                     return {
                         currency_id: currency.id,
-                        retail_price: '',
-                        wholesale_price: '',
-                        discount: '',
+                        retail_price: 0,
+                        wholesale_price: 0,
+                        discount: 0,
                         is_default: currency.id == this.defaultCurrency.id ? true : false,
                         pricing_method_id: this.defaultPricingMethod.id,
+                        currency_name: currency.name
                     }
                 })
             }

@@ -20,6 +20,11 @@ class PricingMethodRepository implements PricingMethodRepositoryInterface
     public function update(array $data, $id)
     {
         $record = PricingMethod::find($id);
+
+        //check if default pricing method is being updated
+        if (isset($data['is_default'])) {
+            $this->changeDefaultPricingMethod($id);
+        }
         return $record->update($data);
     }
 
@@ -42,5 +47,19 @@ class PricingMethodRepository implements PricingMethodRepositoryInterface
     public function getDefaultPricingMethod()
     {
         return PricingMethod::where('is_default', true)->first();
+    }
+
+    //change default pricing method
+    public function changeDefaultPricingMethod($id)
+    {
+        $pricingMethod = PricingMethod::find($id);
+        $pricingMethod->is_default = true;
+        $pricingMethod->save();
+
+        $pricingMethods = PricingMethod::where('id', '!=', $id)->get();
+        foreach ($pricingMethods as $pricingMethod) {
+            $pricingMethod->is_default = false;
+            $pricingMethod->save();
+        }
     }
 }

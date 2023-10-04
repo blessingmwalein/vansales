@@ -178,6 +178,7 @@ export default {
                     </svg>
                     Add Currency
                 </button>
+
                 <div class="flex flex-col">
                     <div class="overflow-x-auto">
                         <div class="inline-block min-w-full align-middle">
@@ -257,7 +258,7 @@ export default {
                                                         {{ currency.exchange_rate }}</td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {{ currency.is_default ==1 ? "Yes" : "No" }}</td>
+                                                        {{ currency.is_default == 1 ? "Yes" : "No" }}</td>
 
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -307,6 +308,7 @@ export default {
                     </svg>
                     Add Pricing Method
                 </button>
+
                 <div class="flex flex-col">
                     <div class="overflow-x-auto">
                         <div class="inline-block min-w-full align-middle">
@@ -351,8 +353,8 @@ export default {
                                                     v-for="pricingMethod in pricingMethods.data">
                                                     <td class="w-4 p-4">
                                                         <div class="flex items-center">
-                                                            <input :id="`checkbox-${pricingMethod.id}`" aria-describedby="checkbox-1"
-                                                                type="checkbox"
+                                                            <input :id="`checkbox-${pricingMethod.id}`"
+                                                                aria-describedby="checkbox-1" type="checkbox"
                                                                 class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
                                                             <label :for="`checkbox-${pricingMethod.id}`"
                                                                 class="sr-only">checkbox</label>
@@ -365,7 +367,7 @@ export default {
                                                         {{ pricingMethod.name }}</td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {{ pricingMethod.is_default ==1 ? "Yes" : "No" }}</td>
+                                                        {{ pricingMethod.is_default == 1 ? "Yes" : "No" }}</td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                         {{ pricingMethod.created_at }}</td>

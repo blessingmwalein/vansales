@@ -59,7 +59,7 @@
                                 <InputError class="mt-2" :message="form.errors.exchange_rate" />
                             </div>
                         </div>
-                        <div>
+                        <div >
                             <label class="relative inline-flex items-center mb-4 cursor-pointer mt-4">
                                 <input type="checkbox" value="" v-model="form.is_default" class="sr-only peer" checked>
                                 <div

@@ -450,8 +450,6 @@ export default {
                                                         </span>
 
                                                     </div>
-
-
                                                 </div>
                                             </td>
                                             <td
@@ -466,8 +464,6 @@ export default {
                                                     @view="openSingleProduct(product)" />
                                             </td>
                                         </tr>
-
-
                                     </tbody>
                                 </table>
                             </template>
