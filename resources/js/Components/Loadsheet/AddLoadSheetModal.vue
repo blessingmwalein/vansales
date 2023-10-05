@@ -66,14 +66,17 @@
 
                                 <InputError class="mt-2" :message="form.errors.route_id" />
                             </div>
-                            <div v-if="!loadsheet">
+                            <div>
                                 <label for="category"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warehouse</label>
                                 <multiselect class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                                     v-model="form.warehouse_id" :options="warehouseOptions"
                                     :custom-label="returnFormatedName" placeholder="Select one" label="name"
                                     track-by="name"></multiselect>
-
+                                <p v-if="loadsheet" id="helper-text-explanation"
+                                    class="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                    Current Route : {{ loadsheet?.warehouse.name }}
+                                </p>
                                 <InputError class="mt-2" :message="form.errors.warehouse_id" />
                             </div>
                         </div>

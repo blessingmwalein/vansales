@@ -57,14 +57,12 @@ export default {
 
 <template>
     <MainLayout>
-
         <div
             class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
             <div class="w-full mb-1">
                 <div class="mb-4">
                     <BreadCrumb :title="`Stock/${product.data.description}`" />
                     <div class="sm:flex">
-
                         <div class="flex items-center ml-auto space-x-2 sm:space-x-3">
                             <button type="button" @click="openAddWarehouseModal()"
                                 class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
@@ -78,7 +76,6 @@ export default {
                             </button>
                         </div>
                     </div>
-
                     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
 
@@ -92,7 +89,6 @@ export default {
                                         <img class="h-20 w-20 max-w-lg rounded-lg" :src="`/storage/${product.data.image}`"
                                             alt="image description">
                                     </td>
-
                                 </tr>
                                 <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                                     <th scope="row"
@@ -130,23 +126,28 @@ export default {
                                 <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                                     <th scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        Retail Unit Price
+                                        Prices
                                     </th>
                                     <td class="px-6 py-4">
-                                        ${{ product.data.retail_unit_price }}
+                                        <div class="flex flex-column mt-2" v-for="price in product.data.pricies">
+                                            <span
+                                                class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                                                {{ price.currency.name }} </span>
+                                            <span
+                                                class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                                                Retail Price : {{
+                                                    price.currency.symbol }}
+                                                {{
+                                                    price.retail_price }}</span>
+                                            <span
+                                                class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                                                Wholesale Price : {{
+                                                    price.currency.symbol }} {{ price.wholesale_price }}</span>
+                                            <span
+                                                class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                                                Discount : {{ price.discount }}%</span>
+                                        </div>
                                     </td>
-
-                                </tr>
-
-                                <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                                    <th scope="row"
-                                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        Wholesale Unit Price
-                                    </th>
-                                    <td class="px-6 py-4">
-                                        ${{ product.data.wholesale_unit_price }}
-                                    </td>
-
                                 </tr>
                                 <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                                     <th scope="row"
@@ -156,18 +157,6 @@ export default {
                                     <td class="px-6 py-4">
                                         {{ product.data.reorder_level }} units
                                     </td>
-
-                                </tr>
-
-                                <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                                    <th scope="row"
-                                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        Discount
-                                    </th>
-                                    <td class="px-6 py-4">
-                                        {{ product.data.discount }}%
-                                    </td>
-
                                 </tr>
                                 <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                                     <th scope="row"
@@ -202,18 +191,16 @@ export default {
                                     </td>
 
                                 </tr>
-
-
                             </tbody>
                         </table>
                     </div>
-
                     <!-- <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">{{ product.name }}</h1> -->
                 </div>
 
             </div>
         </div>
-        <AddProductModal :product="product.data" @save="closeAddProductModal()" :categories="categories" :taxs="taxs" :unitMeasures="unitMeasures" />
+        <AddProductModal :product="product.data" @save="closeAddProductModal()" :categories="categories" :taxs="taxs"
+            :unitMeasures="unitMeasures" />
 
     </MainLayout>
 </template>

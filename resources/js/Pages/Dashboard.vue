@@ -593,7 +593,7 @@ export default {
                                                 Neil Sims
                                             </p>
                                             <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                                email@quirkbox.com
+                                                email@Aximos.com
                                             </p>
                                         </div>
                                         <div
@@ -612,7 +612,7 @@ export default {
                                                 Bonnie Green
                                             </p>
                                             <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                                email@quirkbox.com
+                                                email@Aximos.com
                                             </p>
                                         </div>
                                         <div
@@ -631,7 +631,7 @@ export default {
                                                 Michael Gough
                                             </p>
                                             <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                                email@quirkbox.com
+                                                email@Aximos.com
                                             </p>
                                         </div>
                                         <div
@@ -650,7 +650,7 @@ export default {
                                                 Thomes Lean
                                             </p>
                                             <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                                email@quirkbox.com
+                                                email@Aximos.com
                                             </p>
                                         </div>
                                         <div
@@ -669,7 +669,7 @@ export default {
                                                 Lana Byrd
                                             </p>
                                             <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                                email@quirkbox.com
+                                                email@Aximos.com
                                             </p>
                                         </div>
                                         <div
