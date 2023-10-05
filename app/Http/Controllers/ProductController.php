@@ -105,8 +105,12 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'tax_id' => 'required',
             'discount' => 'nullable',
-            'retail_unit_price' => 'nullable',
-            'wholesale_unit_price' => 'nullable',
+            'prices' => 'nullable|array',
+            'retail_price' => 'nullable',
+            'wholesale_price' => 'nullable',
+            'hasMoreThanOnePrices' => 'required|boolean',
+            'pricing_method_id' => 'nullable|integer',
+            'currency_id' => 'nullable|integer',
         ]);
 
 

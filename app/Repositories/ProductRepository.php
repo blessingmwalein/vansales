@@ -71,15 +71,34 @@ class ProductRepository implements ProductRepositoryInterface
         } else {
             $data['image'] = $record->image;
         }
+        $record->update([
+            'description' => $data['description'],
+            'image' => $data['image'],
+            'product_category_id' => $data['product_category_id'],
+            'tax_id' => $data['tax_id'],
+            'unit_measure_id' => $data['unit_measure_id'],
+            'reorder_level' => $data['reorder_level'],
+        ]);
+        //update default product pricing
+        if ($data['hasMoreThanOnePrices']) {
+            foreach ($data['prices'] as $productPrice) {
+                $productPrice['product_id'] = $record->id;
+                $this->productPricingRepository->update($productPrice, $productPrice['id']);
+            }
+        } else {
+            $data['product_id'] = $record->id;
+            $this->productPricingRepository->update([
+                'product_id' => $record->id,
+                'currency_id' => $data['currency_id'],
+                'retail_price' => $data['retail_price'],
+                'wholesale_price' => $data['wholesale_price'],
+                'discount' => $data['discount'],
+                'pricing_method_id' => $data['pricing_method_id'],
+                'is_default' => true
+            ], $record->getDefaultPrice()->id);
+        }
 
-        // if (isset($data['image'])) {
-        //     //delete old image
-        //     if ($record->image) {
-        //         unlink(public_path('storage/' . $record->image));
-        //     }
-        //     $data['image'] = $this->uploadImage($data['image']);
-        // }
-        return $record->update($data);
+        return $record;
     }
 
     public function delete($id)

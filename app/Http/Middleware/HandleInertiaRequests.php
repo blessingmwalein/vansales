@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Interfaces\CurrencyRepositoryInterface;
+use App\Interfaces\GeneralSettingRepositoryInterface;
 use App\Interfaces\PricingMethodRepositoryInterface;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -11,11 +12,13 @@ class HandleInertiaRequests extends Middleware
 {
     private CurrencyRepositoryInterface $currencyRepository;
     private PricingMethodRepositoryInterface $pricingMethodRepository;
+    private GeneralSettingRepositoryInterface $generalSettingRepository;
 
-    public function __construct(CurrencyRepositoryInterface $currencyRepository, PricingMethodRepositoryInterface $pricingMethodRepository)
+    public function __construct(CurrencyRepositoryInterface $currencyRepository, PricingMethodRepositoryInterface $pricingMethodRepository, GeneralSettingRepositoryInterface $generalSettingRepository)
     {
         $this->currencyRepository = $currencyRepository;
         $this->pricingMethodRepository = $pricingMethodRepository;
+        $this->generalSettingRepository = $generalSettingRepository;
     }
     /**
      * The root template that's loaded on the first page visit.
@@ -54,6 +57,7 @@ class HandleInertiaRequests extends Middleware
             'defaultCurrency' => fn () => auth()->check() ? $this->currencyRepository->getDefaultCurrency() : null,
             'currencies' => fn () => auth()->check() ? $this->currencyRepository->all() : [],
             'defaultPricingMethod' => fn () => auth()->check() ? $this->pricingMethodRepository->getDefaultPricingMethod() : null,
+            'generalSettings' => fn () => auth()->check() ? $this->generalSettingRepository->all() : null,
         ]);
     }
 }

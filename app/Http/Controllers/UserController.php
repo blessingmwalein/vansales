@@ -107,4 +107,39 @@ class UserController extends Controller
     {
         return Inertia::render('Profile');
     }
+
+    public function filter(Request $request)
+    {
+        $first_name = $request->first_name;
+        $last_name = $request->last_name;
+        $phone_number = $request->phone_number;
+        $email = $request->email;
+        $role = $request->role;
+
+        $users = User::query();
+
+        if ($first_name) {
+            $users->where('first_name', 'LIKE', "%{$first_name}%");
+        }
+
+        if ($last_name) {
+            $users->where('last_name', 'LIKE', "%{$last_name}%");
+        }
+
+        if ($phone_number) {
+            $users->where('phone_number', 'LIKE', "%{$phone_number}%");
+        }
+
+        if ($email) {
+            $users->where('email', 'LIKE', "%{$email}%");
+        }
+
+        if ($role) {
+            $users->whereHas('roles', function ($query) use ($role) {
+                $query->where('id', $role);
+            });
+        }
+
+        return $users->with('roles')->paginate(10);
+    }
 }

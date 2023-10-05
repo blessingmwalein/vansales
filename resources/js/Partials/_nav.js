@@ -117,6 +117,11 @@ const NavItems = [
                 name: 'Product',
                 feature: 'product_settings_management',
                 route: '/admin/settings/product-settings',
+            },
+            {
+                name: 'General',
+                feature: 'general_settings_management',
+                route: '/admin/settings/general-settings',
             }
         ]
     },

@@ -26,7 +26,7 @@ class CurrencyController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Settings/Index', [
+        return Inertia::render('Settings/Products', [
             'currencies' => $this->currencyRepository->getPaginated(10),
             'pricingMethods' => $this->pricingMethodRepository->getPaginated(10),
             'productPricings' => $this->productPricingRepository->getPaginated(10),

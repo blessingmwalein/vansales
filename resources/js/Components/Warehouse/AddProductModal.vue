@@ -246,6 +246,8 @@ export default {
 
         update() {
             this.form.hasMoreThanOnePrices = this.hasMoreThanOnePrices();
+            this.form.currency_id = this.defaultCurrency.id;
+            this.form.pricing_method_id = this.defaultPricingMethod.id;
             this.form.post(`/admin/update-product/${this.product.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -278,6 +280,30 @@ export default {
             }
         },
 
+        //function to updated prices on form if there is product
+        updatePrices(prices) {
+            const currencies = this.$page.props?.currencies;
+            if (this.hasMoreThanOnePrices()) {
+                this.form.prices = currencies.map(currency => {
+                    const price = prices.find(price => price.currency_id == currency.id);
+                    return {
+                        currency_id: currency.id,
+                        retail_price: price?.retail_price || 0,
+                        wholesale_price: price?.wholesale_price || 0,
+                        discount: price?.discount || 0,
+                        is_default: currency.id == this.defaultCurrency.id ? true : false,
+                        pricing_method_id: this.defaultPricingMethod.id,
+                        currency_name: currency.name,
+                        id: price?.id || null
+                    }
+                })
+            } else {
+                if (!prices) return;
+                this.form.retail_price = prices[0]?.retail_price || 0;
+                this.form.wholesale_price = prices[0]?.wholesale_price || 0;
+                this.form.discount = prices[0]?.discount || 0;
+            }
+        },
         hasMoreThanOnePrices() {
             return !this.defaultPricingMethod.name.includes('Exchange Rate');
         },
@@ -297,6 +323,8 @@ export default {
                 this.form.discount = newValue?.discount || '';
                 this.form.retail_price = newValue?.retail_price || '';
                 this.form.wholesale_price = newValue?.wholesale_price || '';
+
+                this.updatePrices(newValue?.pricies);
             },
             immediate: true, // This ensures the watcher runs immediately when the component is mounted
         },

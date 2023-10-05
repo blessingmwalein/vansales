@@ -8,6 +8,8 @@ import AddUserModal from '@/Components/User/AddUserModal.vue';
 import ViewRoleModal from '@/Components/User/ViewRoleModal.vue';
 import UserCircleAvartar from '@/Components/UserCircleAvartar.vue';
 import MainLayout from '@/Layouts/MainLayout.vue';
+import Multiselect from 'vue-multiselect'
+
 
 export default {
     components: {
@@ -19,19 +21,33 @@ export default {
         MainLayout,
         ViewRoleModal,
         UserCircleAvartar,
-        TableLayout
+        TableLayout,
+        Multiselect
     },
 
     props: ['users', 'roles'],
     data() {
         return {
+            user_data: this.users,
             selectedUser: null,
             addUserModal: null,
             deleteModal: null,
             viewUserModal: null,
+            rolesOptions: [],
+            showSearchForm: true,
+            isLoading: false,
+            searchForm: {
+                role: null,
+                date_range: null,
+                first_name: null,
+                last_name: null,
+                email: null,
+                phone_number: null,
+            },
         }
     },
     mounted() {
+        this.updateOptions();
         const $targetEl = document.getElementById('add-user-modal');
         this.addUserModal = new Modal($targetEl);
 
@@ -44,6 +60,18 @@ export default {
 
 
     methods: {
+        updateOptions() {
+            this.rolesOptions = this.roles.map(role => {
+                return {
+                    id: role.id,
+                    name: role.name
+                }
+            });
+        },
+
+        returnFormatedName({ name }) {
+            return name;
+        },
         openAddUserModal() {
             this.selectedUser = null;
             this.addUserModal.show();
@@ -87,8 +115,35 @@ export default {
         confirmDeleteDialog(event, user) {
             this.selectedUser = user;
             this.deleteModal.show();
+        },
+        submitSearch() {
+            this.isLoading = true;
+
+            const { role } = this.searchForm
+            axios.post(`/admin/search-users`, {
+                role: role ? role.id : null,
+                ...this.searchForm
+            })
+                .then((response) => {
+                    console.log(response);
+                    this.user_data = response.data;
+                    this.isLoading = false;
+                })
+                .catch((error) => {
+                    console.log(error);
+                    this.isLoading = false;
+                });
+
         }
     },
+
+    //watchers
+    watch: {
+        users: function (val) {
+            this.user_data = val;
+        },
+
+    }
 
 
 };
@@ -105,18 +160,26 @@ export default {
                     <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Users</h1>
                 </div>
                 <div class="sm:flex">
-                    <div
-                        class="items-center hidden mb-3 sm:flex sm:divide-x sm:divide-gray-100 sm:mb-0 dark:divide-gray-700">
-                        <form class="lg:pr-3" action="#" method="GET">
-                            <label for="users-search" class="sr-only">Search</label>
-                            <div class="relative mt-1 lg:w-64 xl:w-96">
-                                <input type="text" name="email" id="users-search"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Search for users">
-                            </div>
-                        </form>
-                    </div>
+
                     <div class="flex items-center ml-auto space-x-2 sm:space-x-3">
+                        <button type="button" @click="showSearchForm = !showSearchForm"
+                            class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+
+                            <i class=" w-5 h-5 mr-2 -ml-1"
+                                :class="{ 'bi bi-dash-lg': showSearchForm, 'bi bi-plus-lg': !showSearchForm }"></i>
+                            Hide Search Form
+                        </button>
+                        <button type="button"
+                            class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+                            <!-- <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg> -->
+                            <i class="bi bi-download w-5 h-5 mr-2 -ml-1"></i>
+                            Export Excel
+                        </button>
                         <button type="button" @click="openAddUserModal()"
                             class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
 
@@ -130,8 +193,65 @@ export default {
         <div class="flex flex-col">
             <div class="overflow-x-auto">
                 <div class="inline-block min-w-full align-middle">
+                    <div class="grid gap-6 sm:grid-cols-4 sm:gap-6 m-4" v-if="showSearchForm">
+                        <div>
+                            <label for="item-weight"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.first_name"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="item-weight"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.last_name"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="item-weight"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.email"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="item-weight"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone Number</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.phone_number"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+                        <div class="w-full">
+                            <label for="brand"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="searchForm.role" :options="rolesOptions" :multiple="false" label="name"
+                                track-by="id" :custom-label="returnFormatedName">
+                            </multiselect>
+                        </div>
+
+
+                        <div>
+                            <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date
+                                Range</label>
+                            <Datepicker placeholder="Date Range"
+                                class="z-20 block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="searchForm.date_range" range />
+                        </div>
+
+
+
+                        <div class="">
+
+                            <button type="button" @click="submitSearch()"
+                                class="mt-7 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                <i class="bi bi-search w-5 h-5 mr-2 -ml-1"></i>
+
+                                Search
+                            </button>
+
+                        </div>
+                    </div>
                     <div class="overflow-hidden shadow">
-                        <TableLayout :hasData="users.data.length > 0 ? true : false">
+                        <TableLayout :hasData="user_data.data.length > 0 ? true : false" :isLoading="isLoading">
                             <template v-slot:table>
                                 <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
                                     <thead class="bg-gray-100 dark:bg-gray-700">
@@ -168,7 +288,7 @@ export default {
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
 
-                                        <tr class="hover:bg-gray-100 dark:hover:bg-gray-700" v-for="user in users.data">
+                                        <tr class="hover:bg-gray-100 dark:hover:bg-gray-700" v-for="user in user_data.data">
 
                                             <td class="w-4 p-4">
                                                 <div class="flex items-center">
@@ -232,10 +352,10 @@ export default {
                 </div>
             </div>
         </div>
-        <div v-if="users.data.length > 0 ? true : false"
+        <div v-if="user_data.data.length > 0 ? true : false"
             class="sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 sm:flex sm:justify-between dark:bg-gray-800 dark:border-gray-700">
-            <Pagination :from="users.from" :to="users.to" :total="users.total" :next_page_url="users.next_page_url"
-                :prev_page_url="users.prev_page_url" />
+            <Pagination :from="user_data.from" :to="user_data.to" :total="user_data.total"
+                :next_page_url="user_data.next_page_url" :prev_page_url="user_data.prev_page_url" />
         </div>
 
         <AddUserModal :user="selectedUser" @save="closeAddUserModal()" :roles="roles" />
@@ -245,3 +365,4 @@ export default {
 
     </MainLayout>
 </template>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

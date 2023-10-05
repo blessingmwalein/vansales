@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\LoadsheetController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PricingMethodController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\TruckController;
 use App\Http\Controllers\UnitMeasureController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
+use App\Models\GeneralSetting;
 use App\Models\ProductCategory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -54,7 +56,11 @@ Route::middleware([
 //route prefix for admin
 Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->group(function () {
     Route::get('/profile', [UserController::class, 'profile'])->name('admin.profile');
+
+    //users
     Route::resource('/users', UserController::class);
+    Route::post('/search-users', [UserController::class, 'filter'])->name('users.search');
+
     Route::resource('/roles', RoleController::class);
     Route::resource('/permissions', PermissionController::class);
     Route::post('/assign-role-permission', [PermissionController::class, 'assignRolePermission'])->name('assignRolePermission');
@@ -129,6 +135,10 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->gro
 
     //product settings
     Route::get('/settings/product-settings', [CurrencyController::class, 'index'])->name('product.settings');
+
+    //setting routes
+    Route::resource('/settings/general-settings', GeneralSettingController::class);
+    Route::post('/settings/update-general-settings', [GeneralSettingController::class, 'updateGeneralSettings']);
 });
 
 Route::get('/unauthorizes', function () {
