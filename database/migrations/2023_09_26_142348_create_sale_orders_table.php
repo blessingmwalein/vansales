@@ -17,6 +17,20 @@ return new class extends Migration
             $table->foreignId('customer_id')->nullable()->constrained('customers');
             $table->foreignId('loadsheet_id')->nullable()->constrained('loadsheets');
             $table->enum('status', ['Pending', 'Canceled', 'Paid']);
+            $table->enum('payment_method', ['Cash', 'Ecocash', 'Swipe', 'Bank Transfer'])->nullable();
+            //currency
+            $table->foreignId('currency_id')->nullable();
+            $table->float('discount')->nullable();
+            $table->float('tax')->nullable();
+            $table->double('total')->nullable();
+
+            $table->integer('total_items_synced')->default(0);
+            $table->integer('total_items_failed_synced')->default(0);
+            $table->boolean('is_synced')->default(false);
+
+            $table->string('customer_signature')->nullable();
+            $table->string('driver_signature')->nullable();
+            $table->string('receipt_url')->nullable();
             $table->timestamps();
         });
     }

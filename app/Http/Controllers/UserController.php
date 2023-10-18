@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -9,13 +10,19 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    private UserRepositoryInterface $userRepository;
+
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         return Inertia::render('User/Index', [
-            'users' => User::with('roles')->paginate(10),
+            'users' => $this->userRepository->getAllUsersPaginated(10),
             'roles' => Role::all(),
         ]);
     }
@@ -43,11 +50,8 @@ class UserController extends Controller
         $roleData = $request->validate([
             'role_id' => 'required',
         ]);
-        $userData['password'] = bcrypt($userData['password']);
-        $user = User::create($userData);
-        $role = Role::find($roleData['role_id']);
-        $user->assignRole($role);
 
+        $this->userRepository->createUser($userData, $roleData);
         return redirect()->back()->with('success', 'User created successfully');
     }
 
@@ -78,14 +82,10 @@ class UserController extends Controller
             'phone_number' => 'required',
             'email' => 'required',
             'role_id' => 'required',
+            'password' => 'nullable',
         ]);
 
-        //check if password is set
-        if ($request->password) {
-            $data['password'] = bcrypt($request->password);
-        }
-        $user->update($data);
-
+        $this->userRepository->updateUser($data, $user->id);
         return redirect()->back()->with('success', 'User updated successfully');
     }
 
@@ -94,12 +94,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //detach all roles
-        $user->roles()->detach();
-
-        //delete user
-        $user->delete();
-
+        $this->userRepository->deleteUser($user->id);
         return redirect()->back()->with('success', 'User deleted successfully');
     }
 
@@ -116,30 +111,70 @@ class UserController extends Controller
         $email = $request->email;
         $role = $request->role;
 
-        $users = User::query();
+        $users = $this->userRepository->filter($first_name, $last_name, $phone_number, $email, $role);
 
-        if ($first_name) {
-            $users->where('first_name', 'LIKE', "%{$first_name}%");
+        return $users;
+    }
+
+
+    //mobile functions
+
+    //driver login
+    public function login(Request $request)
+    {
+        $data = $request->validate([
+            'email' => 'required',
+            'password' => 'required',
+        ]);
+
+        $device = $request->validate([
+            'device_name' => 'required',
+        ]);
+
+        $user = $this->userRepository->login($data);
+        if ($user) {
+            $token = $user->createToken($device['device_name'])->plainTextToken;
+            return $this->response('Login successful', ['token' => $token]);
+        } else {
+            return $this->response('Invalid credentials', null, 401);
         }
+    }
 
-        if ($last_name) {
-            $users->where('last_name', 'LIKE', "%{$last_name}%");
+    //get authenticated user
+    public function getAuthenticatedUser()
+    {
+        $user = $this->userRepository->profile();
+        return $this->response('User profile', $user);
+    }
+
+    //update user profile
+    public function updateProfile(Request $request)
+    {
+        $data = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'phone_number' => 'required',
+            'email' => 'required',
+        ]);
+
+        $user = $this->userRepository->updateUser($data, auth()->user()->id);
+        return $this->response('User profile updated', $user);
+    }
+
+
+    //change password
+    public function changePassword(Request $request)
+    {
+        $data = $request->validate([
+            'old_password' => 'required',
+            'password' => 'required|confirmed',
+        ]);
+
+        $user = $this->userRepository->changePassword($data);
+        if ($user) {
+            return $this->response('Password changed successfully', $user);
+        } else {
+            return $this->response('Invalid old password', null, 401);
         }
-
-        if ($phone_number) {
-            $users->where('phone_number', 'LIKE', "%{$phone_number}%");
-        }
-
-        if ($email) {
-            $users->where('email', 'LIKE', "%{$email}%");
-        }
-
-        if ($role) {
-            $users->whereHas('roles', function ($query) use ($role) {
-                $query->where('id', $role);
-            });
-        }
-
-        return $users->with('roles')->paginate(10);
     }
 }

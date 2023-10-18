@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\LoadsheetDetailResource;
 use App\Http\Resources\LoadSheetResource;
 use App\Interfaces\LoadSheetRepositoryInterface;
 use App\Interfaces\RouteRepositoryInterface;
@@ -108,7 +109,7 @@ class LoadsheetController extends Controller
 
         return Inertia::render('Loadsheet/Show', [
             'loadsheet' => new LoadSheetResource($loadsheet),
-            'details' => $loadsheet->details()->latest()->get(),
+            'details' => LoadsheetDetailResource::collection($loadsheet->details()->latest()->get()),
             'trucks' => $this->truckRepository->getAvailableTrucks(),
             'warehouses' => $this->warehouseRepository->all(),
             'routes' => $this->routeRepository->all(),
@@ -255,6 +256,15 @@ class LoadsheetController extends Controller
         return redirect()->back()->with('success', 'Loadsheet completed successfully');
     }
 
+    public function startLoadSheetDetail(Request $request)
+    {
+        $data = $request->validate([
+            'load_sheet_id' => 'required',
+        ]);
+        $this->loadSheetRepository->startLoadSheet($data['load_sheet_id']);
+        return $this->response('Loadsheet started successfully', null, 200);
+    }
+
     //add customers stop to loadsheet
     public function addCustomerStops(Request $request)
     {
@@ -274,5 +284,12 @@ class LoadsheetController extends Controller
         ]);
         $this->loadSheetRepository->removeCustomerStop($data['customer_stop_id']);
         return redirect()->back()->with('success', 'Customer Stop removed successfully');
+    }
+
+    //get current user loadsheets by status
+    public function getLoadSheetsByStatus(Request $request)
+    {
+        $data = $request->status;
+        return $this->response('User loadsheets', LoadSheetResource::collection($this->loadSheetRepository->getLoadSheetsByStatus($data)));
     }
 }

@@ -19,6 +19,7 @@ interface LoadSheetRepositoryInterface
     // public function updateStock($id, array $data);
     public function confirmLoadSheet($id);
     public function completeLoadSheet($id);
+    public function startLoadSheet($id);
 
     public function searchByLoadsheetNumber($search);
 
@@ -40,4 +41,7 @@ interface LoadSheetRepositoryInterface
 
     //remove customer stop from loadsheet
     public function removeCustomerStop($customer_stop_id);
+
+    //get current user loadsheets by status
+    public function getLoadSheetsByStatus($status);
 }

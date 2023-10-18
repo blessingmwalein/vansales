@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\SaleOrderRepositoryInterface;
 use App\Models\SaleOrder;
 use Illuminate\Http\Request;
 
 class SaleOrderController extends Controller
 {
+
+    private SaleOrderRepositoryInterface $saleOrderRepository;
+
+    public function __construct(SaleOrderRepositoryInterface $saleOrderRepository)
+    {
+        $this->saleOrderRepository = $saleOrderRepository;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -28,7 +36,8 @@ class SaleOrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->saleOrderRepository->syncSaleOrderBulk($request->all());
+        return $this->response('Sale Orders Synced', 200);
     }
 
     /**

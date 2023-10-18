@@ -86,4 +86,13 @@ class User extends Authenticatable
     {
         return Currency::where('is_default', true)->first();
     }
+
+
+    //function to check if user has role admin
+    public function isAdmin()
+    {
+        return $this->hasRole('admin');
+    }
+
+    
 }

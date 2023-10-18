@@ -14,7 +14,7 @@ class Product extends Model
         'created_at' => 'datetime:Y-m-d H:00',
     ];
 
-    protected $with = ['unitMeasure', 'tax'];
+    protected $with = ['unitMeasure', 'tax', 'prices'];
     //create before save event to set product code
     protected static function boot()
     {
@@ -74,4 +74,5 @@ class Product extends Model
     {
         return $this->prices()->where('is_default', true)->first();
     }
+
 }

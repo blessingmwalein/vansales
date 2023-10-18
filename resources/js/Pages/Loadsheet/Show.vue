@@ -520,7 +520,7 @@ export default {
                     <div class="overflow-x-auto">
                         <div class="inline-block min-w-full align-middle">
                             <div class="overflow-hidden shadow">
-                                <TableLayout :hasData="details.length > 0 ? true : false">
+                                <TableLayout :hasData="details.data.length > 0 ? true : false">
                                     <template v-slot:table>
                                         <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
                                             <thead class="bg-gray-100 dark:bg-gray-700">
@@ -560,7 +560,7 @@ export default {
                                                 class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
 
                                                 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                    v-for="detail in details">
+                                                    v-for="detail in details.data">
 
                                                     <td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
 
@@ -594,15 +594,18 @@ export default {
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        ${{ detail.stock.product.retail_unit_price }}
+                                                        {{ detail.default_price.currency.symbol }}{{
+                                                            detail.default_price.retail_price }}
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        ${{ detail.stock.product.wholesale_unit_price }}
+                                                        {{ detail.default_price.currency.symbol }}{{
+                                                            detail.default_price.wholesale_price }}
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {{ detail.stock.product.discount }}%
+                                                        {{
+                                                            detail.default_price.discount }}%
                                                     </td>
 
                                                     <td class="p-4 space-x-2 whitespace-nowrap">

@@ -55,6 +55,18 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
         ]);
         return $loadsheet;
     }
+    
+    public function startLoadSheet($id)
+    {
+        $loadsheet = Loadsheet::find($id);
+        $loadsheet->setStatus('Started');
+        $loadsheet->history()->create([
+            'user_id' => auth()->user()->id,
+            'status' => 'Started',
+            'description' => 'Loadsheet Started',
+        ]);
+        return $loadsheet;
+    }
 
     public function update(array $data, $id)
     {
@@ -271,5 +283,10 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
             'description' => 'Customer Stop Deleted',
         ]);
         return true;
+    }
+
+    public function getLoadSheetsByStatus($status)
+    {
+        return Loadsheet::where('user_id', auth()->user()->id)->where('status', $status)->get();
     }
 }

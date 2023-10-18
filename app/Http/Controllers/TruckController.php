@@ -81,7 +81,6 @@ class TruckController extends Controller
                 'is_available' => 'required',
             ]
         );
-
         $this->truckRepository->update($data, $truck->id);
 
         return redirect()->back()->with('success', 'Truck updated.');

@@ -13,4 +13,9 @@ class SaleOrder extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:00',
     ];
+
+    public function salesOrderDetails()
+    {
+        return $this->hasMany(SaleOrderDetail::class);
+    }
 }
