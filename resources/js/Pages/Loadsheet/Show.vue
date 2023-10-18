@@ -29,11 +29,10 @@ export default {
         AddLoadSheetModal,
         ConfirmLoadSheetModal,
         AddCustomerStopModal
-
     },
     mixins: [globalMixin],
 
-    props: ['loadsheet', 'details', 'trucks', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks'],
+    props: ['loadsheet', 'details', 'trucks', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks', 'sales'],
     data() {
         return {
             selectedDetail: null,
@@ -83,8 +82,6 @@ export default {
 
         const $addCustomerStop = document.getElementById('add-customer-stop-modal');
         this.addCustomerModal = new Modal($addCustomerStop);
-
-
     },
     filters: {
         formatField(value) {

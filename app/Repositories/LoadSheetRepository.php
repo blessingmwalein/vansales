@@ -21,12 +21,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
         $record = Loadsheet::create($data);
 
         $record->setStatus('Created');
-        $record->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Created',
-            'description' => 'Loadsheet Created',
-        ]);
-        //update truck is_available to false
+        $this->createLoadSheetHistory($record->id, 'Created', 'Loadsheet Created');
         $record->truck->update(['is_available' => false]);
 
         return $record;
@@ -36,11 +31,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
     {
         $loadsheet = Loadsheet::find($id);
         $loadsheet->setStatus('Confirmed');
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Confirmed',
-            'description' => 'Loadsheet Confirmed',
-        ]);
+        $this->createLoadSheetHistory($id, 'Confirmed', 'Loadsheet Confirmed');
         return $loadsheet;
     }
 
@@ -48,23 +39,15 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
     {
         $loadsheet = Loadsheet::find($id);
         $loadsheet->setStatus('Completed');
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Completed',
-            'description' => 'Loadsheet Completed',
-        ]);
+        $this->createLoadSheetHistory($id, 'Completed', 'Loadsheet Completed');
         return $loadsheet;
     }
-    
+
     public function startLoadSheet($id)
     {
         $loadsheet = Loadsheet::find($id);
         $loadsheet->setStatus('Started');
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Started',
-            'description' => 'Loadsheet Started',
-        ]);
+        $this->createLoadSheetHistory($id, 'Started', 'Loadsheet Started');
         return $loadsheet;
     }
 
@@ -83,14 +66,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
             $newTruck->update(['is_available' => false]);
         }
         $record->update($data);
-
-
-
-        $record->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Updated',
-            'description' => 'Loadsheet Updated Changes:' . json_encode($record->getChanges()),
-        ]);
+        $this->createLoadSheetHistory($id, 'Updated', 'Loadsheet Updated Changes:' . json_encode($record->getChanges()));
         return $record;
     }
 
@@ -100,6 +76,8 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
         //update truck is_available to true
         $sheet->truck->update(['is_available' => true]);
         $sheet->setStatus('Cancelled');
+
+        $this->createLoadSheetHistory($id, 'Cancelled', 'Loadsheet Cancelled');
         return $sheet;
     }
 
@@ -166,11 +144,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
             $this->updateStock($value['stock_id'], $loadsheet_id, $value['quantity'], true);
         }
         $loadsheet->setStatus('Loaded');
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Loaded',
-            'description' => 'Loadsheet Loaded',
-        ]);
+        $this->createLoadSheetHistory($loadsheet_id, 'Loaded', 'Loadsheet Loaded');
         return true;
     }
 
@@ -179,24 +153,19 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
 
         $record = LoadSheetDetail::find($detail_id);
         $update = $this->updateStock($record->stock_id, $record->load_sheet_id, $data['quantity'], false);
+        $this->createLoadSheetHistory($record->load_sheet_id, 'Stock Updated', 'Stock Updated');
         return true;
     }
+
     public function deleteLoadSheetDetail($detail_id)
     {
         $record = LoadSheetDetail::find($detail_id);
         $this->addStockToWarehouse($record->loadsheet->warehouse_id, $record->stock_id, $record->quantity);
         $record->delete();
-
         $loadsheet = Loadsheet::find($record->load_sheet_id);
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Deleted',
-            'description' => 'Detail With Stock ID ' . $record->stock_id . ' Deleted',
-        ]);
-
+        $this->createLoadSheetHistory($record->load_sheet_id, 'Deleted', 'Detail With Stock ID ' . $record->stock_id . ' Deleted');
         return true;
     }
-
 
     public function updateStock($stock_id, $load_sheet_id, $quantity, $incerement = false)
     {
@@ -263,11 +232,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
                 ]);
             }
         }
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Customer Stops Added',
-            'description' => 'Customer Stops Added',
-        ]);
+        $this->createLoadSheetHistory($loadsheet_id, 'Customer Stops Added', 'Customer Stops Added');
         return true;
     }
 
@@ -277,16 +242,24 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
         $record = CustomerStop::find($customer_stop_id);
         $record->delete();
         $loadsheet = Loadsheet::find($record->loadsheet_id);
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Customer Stop Deleted: ' . $record->customer->name,
-            'description' => 'Customer Stop Deleted',
-        ]);
+        $this->createLoadSheetHistory($record->loadsheet_id, 'Customer Stop Deleted', 'Customer Stop Deleted: ' . $record->customer->name);
         return true;
     }
 
     public function getLoadSheetsByStatus($status)
     {
         return Loadsheet::where('user_id', auth()->user()->id)->where('status', $status)->get();
+    }
+
+    //create loadsheet history
+    public function createLoadSheetHistory($loadsheet_id, $status, $description)
+    {
+        $loadsheet = Loadsheet::find($loadsheet_id);
+        $loadsheet->history()->create([
+            'user_id' => auth()->user()->id,
+            'status' => $status,
+            'description' => $description,
+        ]);
+        return true;
     }
 }

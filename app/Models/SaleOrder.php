@@ -18,4 +18,19 @@ class SaleOrder extends Model
     {
         return $this->hasMany(SaleOrderDetail::class);
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class, 'currency_id');
+    }
+
+    public function loadsheet()
+    {
+        return $this->belongsTo(Loadsheet::class, 'loadsheet_id');
+    }
 }

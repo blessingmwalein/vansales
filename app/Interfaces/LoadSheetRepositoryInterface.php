@@ -44,4 +44,6 @@ interface LoadSheetRepositoryInterface
 
     //get current user loadsheets by status
     public function getLoadSheetsByStatus($status);
+
+    public function createLoadSheetHistory($loadsheet_id, $status, $description);
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\LoadsheetDetailResource;
 use App\Http\Resources\LoadSheetResource;
+use App\Http\Resources\SaleOderResource;
 use App\Interfaces\LoadSheetRepositoryInterface;
 use App\Interfaces\RouteRepositoryInterface;
 use App\Interfaces\TruckRepositoryInterface;
@@ -110,6 +111,7 @@ class LoadsheetController extends Controller
         return Inertia::render('Loadsheet/Show', [
             'loadsheet' => new LoadSheetResource($loadsheet),
             'details' => LoadsheetDetailResource::collection($loadsheet->details()->latest()->get()),
+            'sales' => SaleOderResource::collection($loadsheet->sales()->latest()->get()),
             'trucks' => $this->truckRepository->getAvailableTrucks(),
             'warehouses' => $this->warehouseRepository->all(),
             'routes' => $this->routeRepository->all(),

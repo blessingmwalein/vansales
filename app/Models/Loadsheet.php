@@ -80,4 +80,9 @@ class Loadsheet extends Model
     {
         return $this->hasMany(CustomerStop::class, 'loadsheet_id');
     }
+
+    public function sales()
+    {
+        return $this->hasMany(SaleOrder::class, 'loadsheet_id');
+    }
 }

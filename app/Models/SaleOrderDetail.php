@@ -13,4 +13,9 @@ class SaleOrderDetail extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:00',
     ];
+
+    public function stock()
+    {
+        return $this->belongsTo(Stock::class, 'stock_id');
+    }
 }
