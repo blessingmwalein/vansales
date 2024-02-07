@@ -12,7 +12,11 @@ use App\Interfaces\LoadSheetRepositoryInterface;
 use App\Interfaces\RouteRepositoryInterface;
 use App\Interfaces\CurrencyRepositoryInterface;
 use App\Interfaces\PricingMethodRepositoryInterface;
+use App\Interfaces\PaymentMethodRepositoryInterface;
 use App\Interfaces\ProductPricingRepositoryInterface;
+use App\Interfaces\GeneralSettingRepositoryInterface;
+use App\Interfaces\SaleOrderRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Repositories\ProductCategoryRepository;
 use App\Repositories\TruckRepository;
 use App\Repositories\UtilityRepository;
@@ -23,7 +27,11 @@ use App\Repositories\CustomerRepository;
 use App\Repositories\RouteRepository;
 use App\Repositories\CurrencyRepository;
 use App\Repositories\PricingMethodRepository;
+use App\Repositories\PaymentMethodRepository;
 use App\Repositories\ProductPricingRepository;
+use App\Repositories\GeneralSettingRepository;
+use App\Repositories\SaleOrderRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -43,7 +51,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(LoadSheetRepositoryInterface::class, LoadSheetRepository::class);
         $this->app->bind(CurrencyRepositoryInterface::class, CurrencyRepository::class);
         $this->app->bind(PricingMethodRepositoryInterface::class, PricingMethodRepository::class);
+        $this->app->bind(PaymentMethodRepositoryInterface::class, PaymentMethodRepository::class);
         $this->app->bind(ProductPricingRepositoryInterface::class, ProductPricingRepository::class);
+        $this->app->bind(GeneralSettingRepositoryInterface::class, GeneralSettingRepository::class);
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(SaleOrderRepositoryInterface::class, SaleOrderRepository::class);
     }
 
     /**

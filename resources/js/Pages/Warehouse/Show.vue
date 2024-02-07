@@ -228,15 +228,20 @@ export default {
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                ${{ stock.product.retail_unit_price }}
+                                                {{ stock.product?.default_price?.currency?.symbol }}{{
+                                                    stock.product?.default_price?.retail_price }}
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                ${{ stock.product.wholesale_unit_price }}
+
+                                                {{ stock.product?.default_price?.currency?.symbol }}{{
+                                                    stock.product?.default_price?.wholesale_price }}
+
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                ${{ stock.product.discount }}
+                                                {{
+                                                    stock.product?.default_price?.retail_price }}%
                                             </td>
 
                                             <td class="p-4 space-x-2 whitespace-nowrap">

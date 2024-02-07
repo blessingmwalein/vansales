@@ -2,7 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LoadSheetDetailsExport;
+use App\Exports\LoadSheetSummaryExport;
+use App\Http\Resources\LoadsheetDetailResource;
 use App\Http\Resources\LoadSheetResource;
+use App\Http\Resources\LoadSheetSaleSummaryResource;
+use App\Http\Resources\SaleOderResource;
+use App\Interfaces\GeneralSettingRepositoryInterface;
 use App\Interfaces\LoadSheetRepositoryInterface;
 use App\Interfaces\RouteRepositoryInterface;
 use App\Interfaces\TruckRepositoryInterface;
@@ -11,6 +17,7 @@ use App\Models\Loadsheet;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Excel;
 
 class LoadsheetController extends Controller
 {
@@ -18,13 +25,20 @@ class LoadsheetController extends Controller
     private TruckRepositoryInterface $truckRepository;
     private WarehouseRepositoryInterface $warehouseRepository;
     private RouteRepositoryInterface $routeRepository;
+    private GeneralSettingRepositoryInterface $generalSettingRepository;
 
-    public function __construct(LoadSheetRepositoryInterface $loadSheetRepository, TruckRepositoryInterface $truckRepository, WarehouseRepositoryInterface $warehouseRepository, RouteRepositoryInterface $routeRepository)
-    {
+    public function __construct(
+        LoadSheetRepositoryInterface $loadSheetRepository,
+        TruckRepositoryInterface $truckRepository,
+        WarehouseRepositoryInterface $warehouseRepository,
+        RouteRepositoryInterface $routeRepository,
+        GeneralSettingRepositoryInterface $generalSettingRepository
+    ) {
         $this->loadSheetRepository = $loadSheetRepository;
         $this->truckRepository = $truckRepository;
         $this->warehouseRepository = $warehouseRepository;
         $this->routeRepository = $routeRepository;
+        $this->generalSettingRepository = $generalSettingRepository;
     }
 
 
@@ -33,15 +47,12 @@ class LoadsheetController extends Controller
      */
     public function index()
     {
-        //get user with role salesman
+        //get user with role salesman and is is_available = true
         $users = User::whereHas('roles', function ($query) {
             $query->where('name', 'salesman');
-        })->get();
+        })->where('is_available', true)->get();
 
-        //filter user with open loadsheet return array of users
-        $users = $users->filter(function ($user) {
-            return $user->loadsheets()->where('status', '!=', 'Completed')->count() == 0;
-        })->values()->toArray();
+
 
         $allDrivers = User::whereHas('roles', function ($query) {
             $query->where('name', 'salesman');
@@ -56,6 +67,7 @@ class LoadsheetController extends Controller
             'users' => $users,
             'allDrivers' => $allDrivers,
             'allTrucks' => $this->truckRepository->all(),
+            'settings' => $this->generalSettingRepository->all(),
         ]);
     }
 
@@ -78,6 +90,7 @@ class LoadsheetController extends Controller
             'route_id' => 'required',
             'user_id' => 'required',
             'start_date_time' => 'required',
+            'manual_allocate' => 'required',
         ]);
         $this->loadSheetRepository->create($request->all());
         return redirect()->back()->with('success', 'Loadsheet created successfully');
@@ -108,13 +121,17 @@ class LoadsheetController extends Controller
 
         return Inertia::render('Loadsheet/Show', [
             'loadsheet' => new LoadSheetResource($loadsheet),
-            'details' => $loadsheet->details()->latest()->get(),
+            'details' => LoadsheetDetailResource::collection($loadsheet->details()->latest()->get()),
+            'sales' => SaleOderResource::collection($loadsheet->sales()->latest()->get()),
             'trucks' => $this->truckRepository->getAvailableTrucks(),
             'warehouses' => $this->warehouseRepository->all(),
             'routes' => $this->routeRepository->all(),
             'users' => $users,
             'allDrivers' => $allDrivers,
             'allTrucks' => $this->truckRepository->all(),
+            'salesOrderDetails' => LoadSheetSaleSummaryResource::collection($loadsheet->getSalesOrderDetails()),
+            'summary' => $this->loadSheetRepository->getLoadSheetSummary($loadsheet->id),
+            'settings' => $this->generalSettingRepository->all(),
         ]);
     }
 
@@ -254,6 +271,23 @@ class LoadsheetController extends Controller
         $this->loadSheetRepository->completeLoadSheet($data['load_sheet_id']);
         return redirect()->back()->with('success', 'Loadsheet completed successfully');
     }
+    public function completeLoadSheetDetailDriver(Request $request)
+    {
+        $data = $request->validate([
+            'load_sheet_id' => 'required',
+        ]);
+        $this->loadSheetRepository->completeLoadSheet($data['load_sheet_id']);
+        return $this->response('Loadsheet completed successfully', null, 200);
+    }
+
+    public function startLoadSheetDetail(Request $request)
+    {
+        $data = $request->validate([
+            'load_sheet_id' => 'required',
+        ]);
+        $this->loadSheetRepository->startLoadSheet($data['load_sheet_id']);
+        return $this->response('Loadsheet started successfully', null, 200);
+    }
 
     //add customers stop to loadsheet
     public function addCustomerStops(Request $request)
@@ -274,5 +308,32 @@ class LoadsheetController extends Controller
         ]);
         $this->loadSheetRepository->removeCustomerStop($data['customer_stop_id']);
         return redirect()->back()->with('success', 'Customer Stop removed successfully');
+    }
+
+    //get current user loadsheets by status
+    public function getLoadSheetsByStatus(Request $request)
+    {
+        $data = $request->status;
+        return $this->response('User loadsheets', LoadSheetResource::collection($this->loadSheetRepository->getLoadSheetsByStatus($data)));
+    }
+
+    public function downloadLoadSheetSummary(Request $request)
+    {
+        $data = $request->validate([
+            'loadsheet_id' => 'required',
+        ]);
+        $loadsheet = Loadsheet::find($data['loadsheet_id']);
+
+
+        return Excel::download(new LoadSheetSummaryExport($data['loadsheet_id']), 'loadsheet_ ' . $loadsheet->loadsheet_number . 'summary.xlsx');
+    }
+
+    public function downloadLoadSheetDetails(Request $request)
+    {
+        $data = $request->validate([
+            'loadsheet_id' => 'required',
+        ]);
+        $loadsheet = Loadsheet::find($data['loadsheet_id']);
+        return Excel::download(new LoadSheetDetailsExport($data['loadsheet_id']), 'loadsheet' . $loadsheet->loadsheet_number . 'details.xlsx');
     }
 }

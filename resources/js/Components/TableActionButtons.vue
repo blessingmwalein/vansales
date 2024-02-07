@@ -1,5 +1,5 @@
 <template>
-    <button type="button" v-if="has_view" @click="$emit('view')"
+    <button type="button" v-if="view" @click="$emit('view')"
         class="inline-flex items-center p-2 text-sm font-medium text-center text-white focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300  rounded-lg dark:focus:ring-yellow-900">
         <svg class="w-5 h-5 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
             <path
@@ -8,7 +8,7 @@
         </svg>
 
     </button>
-    <button type="button" @click="$emit('edit', `add-${type}-modal`)"
+    <button v-if="edit" type="button" @click="$emit('edit', `add-${type}-modal`)"
         class="inline-flex p-2 items-center text-sm font-medium text-center text-white text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg  dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z">
@@ -20,7 +20,7 @@
 
     </button>
 
-    <button type="button" @click="$emit('delete')"
+    <button v-if="delete" type="button" @click="$emit('delete')"
         class=" items-center p-2 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd"
@@ -34,9 +34,9 @@
 export default {
     data() {
         return {
-            delete: this.has_delete ? this.has_delete : true,
-            view: this.has_view ? this.has_view : true,
-            edit: this.has_edit ? this.has_edit : true
+            delete: this.has_delete != null ? this.has_delete : true,
+            view: this.has_view != null ? this.has_view : true,
+            edit: this.has_edit != null ? this.has_edit : true
         }
     },
     props: ['type', 'has_view', 'has_delete', 'has_edit'],

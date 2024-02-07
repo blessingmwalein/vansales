@@ -18,4 +18,13 @@ interface CustomerRepositoryInterface
 
     //search customer by name, email, phone number
     public function searchCustomerByNameEmailPhoneNumber($search);
+
+    //filter customer by name, email, phone number, routes and date range
+    public function filter($name, $phone_number, $email, $routes, $from, $to);
+
+    //get cash account customer
+    public function getCashAccountCustomer();
+
+    public function syncCustomerFromApi(array $data);
+
 }

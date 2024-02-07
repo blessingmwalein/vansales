@@ -52,11 +52,33 @@
 
                         </div>
                         <div>
+                            <label for="route"
+                                class="block mt-2 mb-2 text-sm font-medium text-gray-900 dark:text-white">Default
+                                Route</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="form.route_id" :options="routeOptions" label="name" track-by="id">
+                            </multiselect>
+                            <InputError class="mt-2" :message="form.errors.route_id" />
+                        </div>
+                        <div>
+                            <label for="tax" class="flex mb-2 mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                                Location <span
+                                    class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
+                                    Lat: {{ form.lat }} Lng: {{ form.lon }}
+
+                                </span></label>
+                            <GMapAutocomplete
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Search location" @place_changed="setLocation">
+                            </GMapAutocomplete>
+                        </div>
+                        <div>
                             <label for="name"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Address</label>
+                                class="block mb-2 mt-2 text-sm font-medium text-gray-900 dark:text-white">Address</label>
                             <textarea id="message" v-model="form.address" rows="4"
                                 class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Write your thoughts here..."></textarea>
+                                placeholder="Customer Address"></textarea>
                             <InputError class="mt-2" :message="form.errors.address" />
 
                         </div>
@@ -76,13 +98,22 @@
 <script>
 import InputError from '@/Components/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
+import Multiselect from 'vue-multiselect'
+
 
 export default {
-    components: { InputError },
-    props: ['customer'],
+    components: { InputError, Multiselect },
+    props: ['customer', 'routes'],
     mounted() {
-
-
+        this.routeOptions = this.routes.map(route => {
+            return {
+                id: route.id,
+                name: route.name,
+            }
+        })
+        if (this.customer) {
+            this.form.route_id = this.routeOptions.find(route => route.id == this.customer.route_id);
+        }
     },
     data() {
         return {
@@ -92,7 +123,11 @@ export default {
                 phone_number: this.customer?.phone_number || '',
                 address: this.customer?.address || '',
                 id: this.customer?.id || null,
-            })
+                route_id: this.customer?.route_id || null,
+                lat: this.customer?.lat || null,
+                lon: this.customer?.lon || null,
+            }),
+            routeOptions: [],
         }
     },
 
@@ -107,6 +142,7 @@ export default {
         },
 
         create() {
+            this.form.route_id = this.form.route_id ? this.form.route_id.id : null;
             this.form.post('/admin/customers', {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -116,13 +152,19 @@ export default {
         },
 
         update() {
+            this.form.route_id = this.form.route_id ? this.form.route_id.id : null;
             this.form.put(`/admin/customers/${this.customer.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
                 }
             });
-        }
+        },
+
+        setLocation(event) {
+            this.form.lat = event.geometry.location.lat();
+            this.form.lon = event.geometry.location.lng();
+        },
     },
 
     watch: {
@@ -136,9 +178,13 @@ export default {
                 this.form.email = newValue?.email || '';
                 this.form.phone_number = newValue?.phone_number || '';
                 this.form.address = newValue?.address || '';
+                this.form.route_id = this.routeOptions.find(route => route.id == newValue.route_id);
+                this.form.lat = newValue?.lat || null;
+                this.form.lon = newValue?.lon || null;
             },
             immediate: true, // This ensures the watcher runs immediately when the component is mounted
         },
     },
 }
 </script>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

@@ -154,6 +154,10 @@ export default {
                                     </th>
                                     <th scope="col"
                                         class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                        Is Main Warehouse
+                                    </th>
+                                    <th scope="col"
+                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
                                         Created At
                                     </th>
 
@@ -192,6 +196,8 @@ export default {
                                         {{ warehouse.name }}</td>
                                     <td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {{ warehouse.location }}</td>
+                                    <td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {{ warehouse.is_main_warehouse == 1 ? "Yes" : "No" }}</td>
                                     <td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {{ warehouse.created_at }}</td>
 

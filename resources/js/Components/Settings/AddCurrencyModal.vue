@@ -60,6 +60,15 @@
                             </div>
                         </div>
                         <div>
+                            <label for="exchange_rate"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Payment Methods</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="form.payment_methods" :multiple="true" :options="paymentMehodsOptions" label="name"
+                                track-by="id">
+                            </multiselect>
+                        </div>
+                        <div>
                             <label class="relative inline-flex items-center mb-4 cursor-pointer mt-4">
                                 <input type="checkbox" value="" v-model="form.is_default" class="sr-only peer" checked>
                                 <div
@@ -85,14 +94,13 @@
 import InputError from '@/Components/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 import { Modal } from 'flowbite';
+import Multiselect from 'vue-multiselect'
+
 
 export default {
-    components: { InputError },
-    props: ['currency'],
-    mounted() {
+    components: { InputError, Multiselect },
+    props: ['currency', 'paymentMethods'],
 
-
-    },
     data() {
         return {
             form: useForm({
@@ -102,9 +110,20 @@ export default {
                 symbol: this.currency?.symbol || '',
                 exchange_rate: this.currency?.exchange_rate || '',
                 is_default: this.currency?.is_default || false,
+                payment_methods: this.currency?.payment_methods || [],
 
-            })
+            }),
+
+            paymentMehodsOptions: []
         }
+    },
+    mounted() {
+        this.paymentMehodsOptions = this.paymentMethods.map((item) => {
+            return {
+                id: item.id,
+                name: item.name
+            }
+        })
     },
 
     methods: {
@@ -118,6 +137,9 @@ export default {
         },
 
         create() {
+            this.form.payment_methods = this.form.payment_methods.map((item) => {
+                return item.id
+            })
             this.form.post('/admin/currencies', {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -127,6 +149,9 @@ export default {
         },
 
         update() {
+            this.form.payment_methods = this.form.payment_methods.map((item) => {
+                return item.id
+            })
             this.form.put(`/admin/currencies/${this.currency.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -147,9 +172,16 @@ export default {
                 this.form.symbol = newValue?.symbol || '';
                 this.form.exchange_rate = newValue?.exchange_rate || '';
                 this.form.is_default = newValue?.is_default == 1 ? true : false || false;
+                this.form.payment_methods = newValue ? newValue.payment_methods.map((item) => {
+                    return {
+                        id: item.payment_method.id,
+                        name: item.payment_method.name
+                    }
+                }) : []
             },
             immediate: true, // This ensures the watcher runs immediately when the component is mounted
         },
     },
 }
 </script>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

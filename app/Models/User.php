@@ -31,6 +31,11 @@ class User extends Authenticatable
         'phone_number',
         'email',
         'password',
+        'is_available',
+        'warehouse_id',
+        'route_id',
+        'truck_id',
+        'address'
     ];
 
     /**
@@ -64,6 +69,8 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    protected $with = ['warehouse', 'route', 'truck'];
+
     protected array $guard_name = ['sanctum', 'web'];
 
     public function loadsheets()
@@ -85,5 +92,33 @@ class User extends Authenticatable
     public function getDefaultCurrency()
     {
         return Currency::where('is_default', true)->first();
+    }
+
+
+    //function to check if user has role admin
+    public function isAdmin()
+    {
+        return $this->hasRole('admin');
+    }
+
+    //create attribute to get is_available as boolean
+    public function getIsAvailableAttribute($value)
+    {
+        return $value == 1 ? true : false;
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    public function route()
+    {
+        return $this->belongsTo(Route::class);
+    }
+
+    public function truck()
+    {
+        return $this->belongsTo(Truck::class);
     }
 }

@@ -10,6 +10,7 @@ class Loadsheet extends Model
     use HasFactory;
     protected $guarded;
 
+    // protected $with = ['user'];
     protected static function boot()
     {
         parent::boot();
@@ -79,5 +80,33 @@ class Loadsheet extends Model
     public function customerStops()
     {
         return $this->hasMany(CustomerStop::class, 'loadsheet_id');
+    }
+
+    public function sales()
+    {
+        return $this->hasMany(SaleOrder::class, 'loadsheet_id');
+    }
+
+    //get all sales order details do  not repeat details with same stock id
+    public function getSalesOrderDetails()
+    {
+        $details = [];
+        foreach ($this->sales as $sale) {
+            foreach ($sale->salesOrderDetails as $detail) {
+                $details[] = $detail;
+            }
+        }
+        return collect($details)->unique('stock_id')->values()->all();
+    }
+
+    public function orderDetails()
+    {
+        $details = [];
+        foreach ($this->sales as $sale) {
+            foreach ($sale->salesOrderDetails as $detail) {
+                $details[] = $detail;
+            }
+        }
+        return collect($details);
     }
 }

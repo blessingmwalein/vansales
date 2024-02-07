@@ -15,11 +15,27 @@ class WarehouseRepository implements WarehouseRepositoryInterface
 
     public function create(array $data)
     {
+        $mainWarehouse  = $this->checkMainWarehouse();
+        if (isset($data['is_main_warehouse']) && $data['is_main_warehouse'] == true) {
+            if ($mainWarehouse) {
+                $mainWarehouse->is_main_warehouse = false;
+                $mainWarehouse->save();
+            }
+        }
         return Warehouse::create($data);
     }
 
     public function update(array $data, $id)
     {
+        $mainWarehouse  = $this->checkMainWarehouse();
+
+        // dd($mainWarehouse);
+        if (isset($data['is_main_warehouse']) && $data['is_main_warehouse'] == true) {
+            if ($mainWarehouse) {
+                $mainWarehouse->is_main_warehouse = false;
+                $mainWarehouse->save();
+            }
+        }
         $record = Warehouse::find($id);
         return $record->update($data);
     }
@@ -87,5 +103,11 @@ class WarehouseRepository implements WarehouseRepositoryInterface
         })->paginate(10);
 
         // return $warehouse->stocks()->where('product_id', 'LIKE', '%' . $search . '%')->paginate(10);
+    }
+
+    //check if there is already a main warehouse
+    public function checkMainWarehouse()
+    {
+        return Warehouse::where('is_main_warehouse', true)->first();
     }
 }

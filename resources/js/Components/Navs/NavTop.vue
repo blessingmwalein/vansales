@@ -19,11 +19,10 @@
                         </svg>
                     </button>
                     <a href="#" class="flex ml-2 md:mr-24">
-                        <img src="/assets/logo.png" class="h-10 mr-3" alt="FlowBite Logo" />
+                        <img src="/assets/logo_ax.png" class="h-10 mr-3" alt="FlowBite Logo" />
                         <span
-                            class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">QuirkBox</span>
+                            class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Aximos</span>
                     </a>
-
                 </div>
                 <div class="flex items-center">
 
@@ -245,10 +244,8 @@ export default {
         logout() {
             this.$inertia.post('/logout', {
                 preserveScroll: true,
-
             });
         },
-
     }
 }
 </script>

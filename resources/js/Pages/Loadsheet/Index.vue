@@ -30,7 +30,7 @@ export default {
         Datepicker
     },
 
-    props: ['loadsheets', 'trucks', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks'],
+    props: ['loadsheets', 'trucks', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks', 'settings'],
     data() {
         return {
             selectedLoadSheet: null,
@@ -501,7 +501,6 @@ export default {
                                 </button>
                             </template>
                         </TableLayout>
-
                     </div>
                 </div>
             </div>
@@ -512,7 +511,7 @@ export default {
                 :next_page_url="loadsheets_data.links.next" :prev_page_url="loadsheets_data.links.prev" />
         </div>
 
-        <AddLoadSheetModal :loadsheet="selectedLoadSheet" :trucks="trucks" :warehouses="warehouses"
+        <AddLoadSheetModal :settings="settings" :loadsheet="selectedLoadSheet" :trucks="trucks" :warehouses="warehouses"
             :routes="routes" :users="users" @save="closeAddLoadSheetModal()" />
         <ConfirmDeleteDialog @cancel="closeDeleteModal" @yes="deleteLoadsheet" :type="'loadsheet'" />
     </MainLayout>

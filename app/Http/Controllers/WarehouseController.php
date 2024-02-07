@@ -42,6 +42,7 @@ class WarehouseController extends Controller
         $data = $request->validate([
             'name' => 'required|unique:warehouses,name',
             'location' => 'required',
+            'is_main_warehouse' => 'nullable|boolean'
         ]);
 
         $this->warehouseRepository->create($data);
@@ -75,6 +76,8 @@ class WarehouseController extends Controller
         $data = $request->validate([
             'name' => 'required',
             'location' => 'required',
+            'is_main_warehouse' => 'nullable|boolean'
+
         ]);
 
         $this->warehouseRepository->update($data, $warehouse->id);

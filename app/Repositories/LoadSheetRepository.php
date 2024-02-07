@@ -2,15 +2,31 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\CustomerRepositoryInterface;
+use App\Interfaces\GeneralSettingRepositoryInterface;
 use App\Interfaces\LoadSheetRepositoryInterface;
+use App\Interfaces\PricingMethodRepositoryInterface;
 use App\Models\CustomerStop;
 use App\Models\Loadsheet;
 use App\Models\LoadSheetDetail;
+use App\Models\SaleOrder;
 use App\Models\Stock;
 use App\Models\Truck;
+use App\Models\User;
 
 class LoadSheetRepository implements LoadSheetRepositoryInterface
 {
+    private GeneralSettingRepositoryInterface $generalSettingRepository;
+    private CustomerRepositoryInterface $customerRepository;
+    private PricingMethodRepositoryInterface $pricingMethodRepository;
+
+    public function __construct(GeneralSettingRepositoryInterface $generalSettingRepository, CustomerRepositoryInterface $customerRepository, PricingMethodRepositoryInterface $pricingMethodRepository)
+    {
+        $this->generalSettingRepository = $generalSettingRepository;
+        $this->customerRepository = $customerRepository;
+        $this->pricingMethodRepository = $pricingMethodRepository;
+    }
+
     public function all()
     {
         return Loadsheet::all();
@@ -18,29 +34,51 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
 
     public function create(array $data)
     {
+        //remove manual allocate from data and se to another variable
+        $manualAllocate = $data['manual_allocate'];
+        unset($data['manual_allocate']);
+
         $record = Loadsheet::create($data);
 
         $record->setStatus('Created');
-        $record->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Created',
-            'description' => 'Loadsheet Created',
-        ]);
-        //update truck is_available to false
+        $this->createLoadSheetHistory($record->id, 'Created', 'Loadsheet Created');
         $record->truck->update(['is_available' => false]);
 
+        $this->generalSettingRepository->checkIfSettingIsActivated('Loadsheets')
+            ? null :
+            $record->user->update(['is_available' => false]);
+        $this->assignCustomerStopsForRoute($record);
+
+        //add cash customer to customer stops
+        $cashAccountCustomer = $this->customerRepository->getCashAccountCustomer();
+        $cashAccountCustomer ? $record->customerStops()->create([
+            'customer_id' => $cashAccountCustomer->id,
+        ]) : null;
+
+        if (!$manualAllocate) {
+            $this->addAllAllocationFromWarehouse($record);
+        }
+
         return $record;
+    }
+
+    public function assignCustomerStopsForRoute($loadsheet)
+    {
+        $route = $loadsheet->route;
+        foreach ($route->customers as $key => $value) {
+            $loadsheet->customerStops()->create([
+                'customer_id' => $value->id,
+            ]);
+        }
+        $this->createLoadSheetHistory($loadsheet->id, 'Customer Stops Added', 'Customer Stops Added');
+        return true;
     }
 
     public function confirmLoadSheet($id)
     {
         $loadsheet = Loadsheet::find($id);
         $loadsheet->setStatus('Confirmed');
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Confirmed',
-            'description' => 'Loadsheet Confirmed',
-        ]);
+        $this->createLoadSheetHistory($id, 'Confirmed', 'Loadsheet Confirmed');
         return $loadsheet;
     }
 
@@ -48,11 +86,18 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
     {
         $loadsheet = Loadsheet::find($id);
         $loadsheet->setStatus('Completed');
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Completed',
-            'description' => 'Loadsheet Completed',
-        ]);
+        $this->createLoadSheetHistory($id, 'Completed', 'Loadsheet Completed');
+        $loadsheet->user->update(['is_available' => true]);
+        $loadsheet->truck->update(['is_available' => true]);
+
+        return $loadsheet;
+    }
+
+    public function startLoadSheet($id)
+    {
+        $loadsheet = Loadsheet::find($id);
+        $loadsheet->setStatus('Started');
+        $this->createLoadSheetHistory($id, 'Started', 'Loadsheet Started');
         return $loadsheet;
     }
 
@@ -71,14 +116,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
             $newTruck->update(['is_available' => false]);
         }
         $record->update($data);
-
-
-
-        $record->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Updated',
-            'description' => 'Loadsheet Updated Changes:' . json_encode($record->getChanges()),
-        ]);
+        $this->createLoadSheetHistory($id, 'Updated', 'Loadsheet Updated Changes:' . json_encode($record->getChanges()));
         return $record;
     }
 
@@ -88,6 +126,10 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
         //update truck is_available to true
         $sheet->truck->update(['is_available' => true]);
         $sheet->setStatus('Cancelled');
+
+        $this->createLoadSheetHistory($id, 'Cancelled', 'Loadsheet Cancelled');
+        $sheet->user->update(['is_available' => true]);
+
         return $sheet;
     }
 
@@ -154,11 +196,18 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
             $this->updateStock($value['stock_id'], $loadsheet_id, $value['quantity'], true);
         }
         $loadsheet->setStatus('Loaded');
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Loaded',
-            'description' => 'Loadsheet Loaded',
-        ]);
+        $this->createLoadSheetHistory($loadsheet_id, 'Loaded', 'Loadsheet Loaded');
+        return true;
+    }
+
+    public function addAllAllocationFromWarehouse($loadsheet)
+    {
+        $stocks = Stock::where('warehouse_id', $loadsheet->warehouse_id)->get();
+        foreach ($stocks as $key => $value) {
+            $this->updateStock($value->id, $loadsheet->id, $value->quantity, true);
+        }
+        $loadsheet->setStatus('Loaded');
+        $this->createLoadSheetHistory($loadsheet->id, 'Loaded', 'Loadsheet Loaded');
         return true;
     }
 
@@ -167,24 +216,19 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
 
         $record = LoadSheetDetail::find($detail_id);
         $update = $this->updateStock($record->stock_id, $record->load_sheet_id, $data['quantity'], false);
+        $this->createLoadSheetHistory($record->load_sheet_id, 'Stock Updated', 'Stock Updated');
         return true;
     }
+
     public function deleteLoadSheetDetail($detail_id)
     {
         $record = LoadSheetDetail::find($detail_id);
         $this->addStockToWarehouse($record->loadsheet->warehouse_id, $record->stock_id, $record->quantity);
         $record->delete();
-
         $loadsheet = Loadsheet::find($record->load_sheet_id);
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Deleted',
-            'description' => 'Detail With Stock ID ' . $record->stock_id . ' Deleted',
-        ]);
-
+        $this->createLoadSheetHistory($record->load_sheet_id, 'Deleted', 'Detail With Stock ID ' . $record->stock_id . ' Deleted');
         return true;
     }
-
 
     public function updateStock($stock_id, $load_sheet_id, $quantity, $incerement = false)
     {
@@ -212,6 +256,8 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
                 'load_sheet_id' => $load_sheet_id
             ]);
         }
+
+
         return true;
     }
 
@@ -251,11 +297,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
                 ]);
             }
         }
-        $loadsheet->history()->create([
-            'user_id' => auth()->user()->id,
-            'status' => 'Customer Stops Added',
-            'description' => 'Customer Stops Added',
-        ]);
+        $this->createLoadSheetHistory($loadsheet_id, 'Customer Stops Added', 'Customer Stops Added');
         return true;
     }
 
@@ -265,11 +307,65 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
         $record = CustomerStop::find($customer_stop_id);
         $record->delete();
         $loadsheet = Loadsheet::find($record->loadsheet_id);
+        $this->createLoadSheetHistory($record->loadsheet_id, 'Customer Stop Deleted', 'Customer Stop Deleted: ' . $record->customer->name);
+        return true;
+    }
+
+    public function getLoadSheetsByStatus($status)
+    {
+        return Loadsheet::where('user_id', auth()->user()->id)->where('status', $status)->get();
+    }
+
+    //create loadsheet history
+    public function createLoadSheetHistory($loadsheet_id, $status, $description)
+    {
+        $loadsheet = Loadsheet::find($loadsheet_id);
         $loadsheet->history()->create([
             'user_id' => auth()->user()->id,
-            'status' => 'Customer Stop Deleted: ' . $record->customer->name,
-            'description' => 'Customer Stop Deleted',
+            'status' => $status,
+            'description' => $description,
         ]);
         return true;
+    }
+
+    //create function to set driver to be unavailable
+    public function setDriverUnavailable($driver_id)
+    {
+        $driver = User::find($driver_id);
+        $driver->is_available = false;
+        $driver->save();
+        return true;
+    }
+
+    public function getLoadSheetSummary($load_sheet_id)
+    {
+
+        //get loadsheet total allocated quantity
+        $loadsheet = Loadsheet::find($load_sheet_id);
+        $totalAllocatedQuantity = $loadsheet->details()->sum('quantity');
+
+        //get loadsheet total inload quantity from sales order details through sales orders
+        $totalSoldQty = $loadsheet->orderDetails()->sum('quantity');
+
+        $totalSales = $loadsheet->orderDetails()->sum('total_price');
+
+        return [
+            'total_allocated_quantity' => $totalAllocatedQuantity,
+            'total_sold_quantity' => $totalSoldQty,
+            'total_sales' => $totalSales,
+        ];
+    }
+
+    //get loadsheet summary grouped by currency
+    public function getPaymentsBreakDown($load_sheet_id)
+    {
+        // $loadsheet = Loadsheet::find($load_sheet_id);
+
+        return SaleOrder::whereHas('loadsheet', function ($query) use ($load_sheet_id) {
+            $query->where('id', $load_sheet_id);
+        })
+        ->selectRaw("json_unquote(json_extract(totals, '$.*')) as currency, sum(cast(json_unquote(json_extract(totals, json_unquote(json_extract(totals, '$.*')))) as decimal(10,2))) as total")
+        ->groupBy('currency')
+        ->get();
     }
 }
