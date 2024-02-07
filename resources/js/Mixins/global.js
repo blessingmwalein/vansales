@@ -83,6 +83,36 @@ export default {
 
         },
 
+        getInitials(name) {
+            const nameArray = name.split(" "); // Split the name into an array of words
+            const initials = nameArray.map(word => word.charAt(0)); // Get the first character of each word
+            return initials.join(""); // Combine the initials
+        },
+
+        hasSettingActive(type, settings) {
+            //check if the setting is active
+            const setting = settings.find(setting => setting.type == type);
+            if (setting) {
+                return setting.value;
+            }
+            return false;
+        },
+
+        formatMoney(value, currency) {
+            // Check if the value is a number
+            if (typeof value !== 'number') {
+                return value;
+            }
+
+            // Use toLocaleString() method for formatting
+            return value.toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD', // Change the currency code as needed
+                minimumFractionDigits: 2,
+            });
+        }
+
+
         //create function 
     },
 };

@@ -4,6 +4,7 @@ import CopyButton from '@/Components/CopyButton.vue';
 import ConfirmDeleteDialog from '@/Components/ConfirmDeleteDialog.vue';
 import AddCurrencyModal from '@/Components/Settings/AddCurrencyModal.vue';
 import AddPricingMethodModal from '@/Components/Settings/AddPricingMethodModal.vue';
+import AddPaymentMethodModal from '@/Components/Settings/AddPaymentMethodModal.vue';
 import Pagination from '@/Components/Pagination.vue';
 import TableActionButtons from '@/Components/TableActionButtons.vue';
 import TableLayout from '@/Components/TableLayout.vue';
@@ -21,20 +22,24 @@ export default {
         CopyButton,
         TableLayout,
         AddCurrencyModal,
-        AddPricingMethodModal
+        AddPricingMethodModal,
+        AddPaymentMethodModal
     },
     mixins: [globalMixin],
 
-    props: ['currencies', 'pricingMethods', 'productPricings'],
+    props: ['currencies', 'pricingMethods', 'productPricings', 'paymentMethods'],
     data() {
         return {
             activeTab: 'currencies',
             selectedCurrency: null,
             selectedPricingMethod: null,
+            selectedPaymentMethod: null,
             addCurrencyModal: null,
             addPricingMethodModal: null,
+            addPaymentMethodModal: null,
             deleteCurrencyModal: null,
             deletePricingMethodModal: null,
+            deletePaymentMethodModal: null,
         }
     },
     mounted() {
@@ -45,11 +50,17 @@ export default {
         const $targetElPricingMethod = document.getElementById('add-pricing-method-modal');
         this.addPricingMethodModal = new Modal($targetElPricingMethod);
 
+        const $targetElPaymentMethod = document.getElementById('add-payment-method-modal');
+        this.addPaymentMethodModal = new Modal($targetElPaymentMethod);
+
         const $deleteCurrencyModalEl = document.getElementById('delete-currency-modal');
         this.deleteCurrencyModal = new Modal($deleteCurrencyModalEl);
 
         const $deletePricingMethodModalEl = document.getElementById('delete-pricing-method-modal');
         this.deletePricingMethodModal = new Modal($deletePricingMethodModalEl);
+
+        const $deletePaymentMethodModalEl = document.getElementById('delete-payment-method-modal');
+        this.deletePaymentMethodModal = new Modal($deletePaymentMethodModalEl);
     },
 
 
@@ -63,6 +74,11 @@ export default {
             this.addPricingMethodModal.show();
         },
 
+        openAddPaymentMethodModal() {
+            this.selectedPaymentMethod = null;
+            this.addPaymentMethodModal.show();
+        },
+
         closeAddCurrencyModal() {
             this.addCurrencyModal.hide();
         },
@@ -70,10 +86,18 @@ export default {
             this.addPricingMethodModal.hide();
         },
 
+        closeAddPaymentMethodModal() {
+            this.addPaymentMethodModal.hide();
+        },
+
         closeDeleteCurrencyModal() {
             this.deleteCurrencyModal.hide();
         },
         closeDeletePricingMethodModal() {
+            this.deletePricingMethodModal.hide();
+        },
+
+        closeDeletePaymentMethodModal() {
             this.deletePricingMethodModal.hide();
         },
 
@@ -87,6 +111,14 @@ export default {
         },
         deletePricingMethod() {
             this.$inertia.delete(`/admin/pricing-methods/${this.selectedPricingMethod.id}`, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    this.closeDeletePricingMethodModal();
+                }
+            });
+        },
+        deletePaymentMethod() {
+            this.$inertia.delete(`/admin/payment-methods/${this.selectedPaymentMethod.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeletePricingMethodModal();
@@ -113,6 +145,10 @@ export default {
             this.selectedPricingMethod = pricingMethod;
             this.addPricingMethodModal.show();
         },
+        selectPaymentMethod(event, paymentMethod) {
+            this.selectedPaymentMethod = paymentMethod;
+            this.addPaymentMethodModal.show();
+        },
         confirmDeleteCurrencyDialog(event, currency) {
             this.selectedCurrency = currency;
             this.deleteCurrencyModal.show();
@@ -122,14 +158,25 @@ export default {
             this.deletePricingMethodModal.show();
         },
 
+        confirmDeletePaymentMethodDialog(event, paymentMethod) {
+            this.selectedPricingMethod = paymentMethod;
+            this.deletePaymentMethodModal.show();
+        },
+
         toggleTab(id) {
             this.activeTab = id;
             if (id == 'currencies') {
                 document.getElementById('currencies').classList.remove('hidden');
                 document.getElementById('pricingMethods').classList.add('hidden');
-            } else {
+                document.getElementById('paymentMethods').classList.add('hidden');
+            } else if (id == 'pricingMethods') {
                 document.getElementById('currencies').classList.add('hidden');
                 document.getElementById('pricingMethods').classList.remove('hidden');
+                document.getElementById('paymentMethods').classList.add('hidden');
+            } else {
+                document.getElementById('currencies').classList.add('hidden');
+                document.getElementById('pricingMethods').classList.add('hidden');
+                document.getElementById('paymentMethods').classList.remove('hidden');
             }
         }
     },
@@ -163,6 +210,11 @@ export default {
                     <button @click="toggleTab('pricingMethods')" :class="{ 'activeTab': activeTab == 'pricingMethods' }"
                         class="inline-block p-4  border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
                         type="button">Pricing Methods</button>
+                </li>
+                <li class="mr-2">
+                    <button @click="toggleTab('paymentMethods')" :class="{ 'activeTab': activeTab == 'paymentMethods' }"
+                        class="inline-block p-4  border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                        type="button">Payments Methods</button>
                 </li>
             </ul>
         </div>
@@ -404,13 +456,120 @@ export default {
                         :next_page_url="pricingMethods.next_page_url" :prev_page_url="pricingMethods.prev_page_url" />
                 </div>
             </div>
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="paymentMethods">
+                <button type="button" @click="openAddPaymentMethodModal()"
+                    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                    <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Add Payment Method
+                </button>
+
+                <div class="flex flex-col">
+                    <div class="overflow-x-auto">
+                        <div class="inline-block min-w-full align-middle">
+                            <div class="overflow-hidden shadow">
+                                <TableLayout :hasData="paymentMethods.data.length > 0 ? true : false">
+                                    <template v-slot:table>
+                                        <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
+                                            <thead class="bg-gray-100 dark:bg-gray-700">
+                                                <tr>
+                                                    <th scope="col" class="p-4">
+                                                        <div class="flex items-center">
+                                                            <input id="checkbox-all" aria-describedby="checkbox-1"
+                                                                type="checkbox"
+                                                                class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
+                                                            <label for="checkbox-all" class="sr-only">checkbox</label>
+                                                        </div>
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Name
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Is Default
+                                                    </th>
+
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Created At
+                                                    </th>
+
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Actions
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody
+                                                class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+
+                                                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                    v-for="paymentMethod in paymentMethods.data">
+                                                    <td class="w-4 p-4">
+                                                        <div class="flex items-center">
+                                                            <input :id="`checkbox-${paymentMethod.id}`"
+                                                                aria-describedby="checkbox-1" type="checkbox"
+                                                                class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
+                                                            <label :for="`checkbox-${paymentMethod.id}`"
+                                                                class="sr-only">checkbox</label>
+                                                        </div>
+                                                    </td>
 
 
+                                                    <td
+                                                        class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        {{ paymentMethod.name }}</td>
+                                                    <td
+                                                        class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        {{ paymentMethod.is_default == 1 ? "Yes" : "No" }}</td>
+                                                    <td
+                                                        class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        {{ paymentMethod.created_at }}</td>
+
+                                                    <td class="p-4 space-x-2 whitespace-nowrap">
+                                                        <TableActionButtons :type="'unit-measure'" :has_view="false"
+                                                            @delete="confirmDeletePaymentMethodDialog($event, paymentMethod)"
+                                                            @edit="selectPaymentMethod($event, paymentMethod)" />
+                                                    </td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                    <template v-slot:action-button>
+                                        <button @click="openAddPaymentMethodModal()"
+                                            class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600 dark:hover:bg-blue-500 dark:bg-blue-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>Add Payment Method</span>
+                                        </button>
+                                    </template>
+                                </TableLayout>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="paymentMethods.data.length > 0"
+                    class="sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 sm:flex sm:justify-between dark:bg-gray-800 dark:border-gray-700">
+                    <Pagination :from="paymentMethods.from" :to="paymentMethods.to" :total="paymentMethods.total"
+                        :next_page_url="paymentMethods.next_page_url" :prev_page_url="paymentMethods.prev_page_url" />
+                </div>
+            </div>
         </div>
 
-        <AddCurrencyModal :currency="selectedCurrency" @save="closeAddCurrencyModal()" />
+        <AddCurrencyModal :paymentMethods="paymentMethods.data" :currency="selectedCurrency" @save="closeAddCurrencyModal()" />
         <AddPricingMethodModal :pricingMethod="selectedPricingMethod" @save="closeAddPricingMethodModal()" />
+        <AddPaymentMethodModal :paymentMethod="selectedPaymentMethod" @save="closeAddPaymentMethodModal()" />
         <ConfirmDeleteDialog @cancel="closeDeletePricingMethodModal" @yes="deletePricingMethod" :type="'pricing-method'" />
+        <ConfirmDeleteDialog @cancel="closeDeletePaymentMethodModal" @yes="deletePaymentMethod" :type="'payment-method'" />
         <ConfirmDeleteDialog @cancel="closeDeleteCurrencyModal" @yes="deleteCurrency" :type="'currency'" />
     </MainLayout>
 </template>

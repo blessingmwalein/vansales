@@ -7,19 +7,27 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Interfaces\CurrencyRepositoryInterface;
 use App\Interfaces\PricingMethodRepositoryInterface;
+use App\Interfaces\PaymentMethodRepositoryInterface;
 use App\Interfaces\ProductPricingRepositoryInterface;
 
 class CurrencyController extends Controller
 {
     private CurrencyRepositoryInterface $currencyRepository;
     private PricingMethodRepositoryInterface $pricingMethodRepository;
+    private PaymentMethodRepositoryInterface $paymentMethodRepository;
     private ProductPricingRepositoryInterface $productPricingRepository;
 
-    public function __construct(CurrencyRepositoryInterface $currencyRepository, PricingMethodRepositoryInterface $pricingMethodRepository, ProductPricingRepositoryInterface $productPricingRepository)
-    {
+
+    public function __construct(
+        CurrencyRepositoryInterface $currencyRepository,
+        PricingMethodRepositoryInterface $pricingMethodRepository,
+        ProductPricingRepositoryInterface $productPricingRepository,
+        PaymentMethodRepositoryInterface $paymentMethodRepository
+    ) {
         $this->currencyRepository = $currencyRepository;
         $this->pricingMethodRepository = $pricingMethodRepository;
         $this->productPricingRepository = $productPricingRepository;
+        $this->paymentMethodRepository = $paymentMethodRepository;
     }
     /**
      * Display a listing of the resource.
@@ -30,6 +38,7 @@ class CurrencyController extends Controller
             'currencies' => $this->currencyRepository->getPaginated(10),
             'pricingMethods' => $this->pricingMethodRepository->getPaginated(10),
             'productPricings' => $this->productPricingRepository->getPaginated(10),
+            'paymentMethods' => $this->paymentMethodRepository->getPaginated(10),
         ]);
     }
 
@@ -51,6 +60,7 @@ class CurrencyController extends Controller
             'symbol' => 'nullable|string|unique:currencies,symbol',
             'exchange_rate' => 'required|numeric',
             'is_default' => 'required|boolean',
+            'payment_methods' => 'nullable|array',
         ]);
 
         $this->currencyRepository->create($data);
@@ -84,6 +94,7 @@ class CurrencyController extends Controller
             'symbol' => 'nullable|string|unique:currencies,symbol,' . $currency->id,
             'exchange_rate' => 'required|numeric',
             'is_default' => 'required|boolean',
+            'payment_methods' => 'nullable|array',
         ]);
 
         $this->currencyRepository->update($data, $currency->id);
@@ -97,5 +108,10 @@ class CurrencyController extends Controller
     {
         $this->currencyRepository->delete($currency->id);
         return redirect()->back()->with('success', 'Currency deleted successfully');
+    }
+
+    public function getCurrencies()
+    {
+        return $this->response('Currencies',$this->currencyRepository->all());
     }
 }

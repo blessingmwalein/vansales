@@ -32,7 +32,7 @@ class BulkSyncSalesOrders implements ShouldQueue
             // Create a new sale order
             $createdSalesOrder = SaleOrder::create([
                 'order_number' => $salesOrderData['order_number'],
-                'customer_id' => $salesOrderData['customer_id'],
+                'customer_id' => $salesOrderData['customer_id'] == 0 ? null : $salesOrderData['customer_id'],
                 'loadsheet_id' => $salesOrderData['loadsheet_id'],
                 'status' => $salesOrderData['status'],
                 'payment_method' => $salesOrderData['payment_method'],
@@ -40,6 +40,7 @@ class BulkSyncSalesOrders implements ShouldQueue
                 'discount' => $salesOrderData['discount'],
                 'tax' => $salesOrderData['tax'],
                 'total' => $salesOrderData['total'],
+                'totals' => json_encode($salesOrderData['totals']),
             ]);
 
             $salesOrderDetails = $salesOrderData['salesOrderDetails'];

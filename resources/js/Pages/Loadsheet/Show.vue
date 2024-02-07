@@ -12,8 +12,8 @@ import UserCircleAvartar from '@/Components/UserCircleAvartar.vue';
 import AddLoadSheetModal from '@/Components/Loadsheet/AddLoadSheetModal.vue';
 import ConfirmLoadSheetModal from '@/Components/Loadsheet/ConfirmLoadSheetModal.vue';
 import AddCustomerStopModal from '@/Components/Loadsheet/AddCustomerStopModal.vue';
-
 import TableLayout from '@/Components/TableLayout.vue';
+import html2pdf from "html2pdf.js";
 export default {
     components: {
         BreadCrumb,
@@ -28,11 +28,16 @@ export default {
         UserCircleAvartar,
         AddLoadSheetModal,
         ConfirmLoadSheetModal,
-        AddCustomerStopModal
+        AddCustomerStopModal,
     },
     mixins: [globalMixin],
-
-    props: ['loadsheet', 'details', 'trucks', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks', 'sales'],
+    filters: {
+        //currency filter
+        currency(value) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+        },
+    },
+    props: ['paymentsBreakdown', 'loadsheet', 'details', 'trucks', 'settings', 'salesOrderDetails', 'summary', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks', 'sales'],
     data() {
         return {
             selectedDetail: null,
@@ -52,6 +57,8 @@ export default {
             canRemoveStock: true,
             confirmType: 'confirm',
             selectedCustomerStop: null,
+            defaultCurrency: this.$page.props?.defaultCurrency,
+            paymentBreakdowns: [],
         }
     },
     mounted() {
@@ -61,6 +68,7 @@ export default {
         this.showCancelSheet();
         this.showCompleteSheet()
         // this.setCanRemoveStock()
+        this.getPaymentBreakDowns();
         const $targetEl = document.getElementById('add-details-loadsheet-modal');
         this.addLoadSheetDetail = new Modal($targetEl);
 
@@ -153,14 +161,26 @@ export default {
                 document.getElementById('details').classList.remove('hidden');
                 document.getElementById('history').classList.add('hidden');
                 document.getElementById('customers').classList.add('hidden');
+                document.getElementById('summary').classList.add('hidden');
+
             } else if (id == 'history') {
                 document.getElementById('details').classList.add('hidden');
                 document.getElementById('customers').classList.add('hidden');
+                document.getElementById('summary').classList.add('hidden');
+
                 document.getElementById('history').classList.remove('hidden');
             } else if (id == 'customers') {
                 document.getElementById('details').classList.add('hidden');
                 document.getElementById('history').classList.add('hidden');
+                document.getElementById('summary').classList.add('hidden');
                 document.getElementById('customers').classList.remove('hidden');
+
+            }
+            else if (id == 'summary') {
+                document.getElementById('details').classList.add('hidden');
+                document.getElementById('history').classList.add('hidden');
+                document.getElementById('customers').classList.add('hidden');
+                document.getElementById('summary').classList.remove('hidden');
             }
         },
 
@@ -211,7 +231,7 @@ export default {
 
         showCompleteSheet() {
             //sheet can only be confirmed if it is loaded
-            if (this.loadsheet.data.status == 'Confirmed') {
+            if (this.loadsheet.data.status == 'Confirmed' || this.loadsheet.data.status == 'Started') {
                 return this.isShowCompleteSheet = true;
             } else {
                 return this.isShowCompleteSheet = false;
@@ -286,7 +306,110 @@ export default {
             this.canRemoveStock = false
         },
 
+        getPaymentBreakDowns() {
+            const aggregatedTotalsList = [];
+            // if (!this.sales.data.totals) {
+            //     return;
+            // }
 
+            // Iterate through the array
+            this.sales.data.forEach(item => {
+                const totals = item.totals || {};
+
+                // Iterate through the currencies in each "totals" object
+                Object.entries(totals).forEach(([currency, amount]) => {
+                    // Find the corresponding item in the aggregatedTotalsList array
+                    const existingItem = aggregatedTotalsList.find(item => item.name === currency);
+
+                    if (existingItem) {
+                        // If the currency already exists, update the value
+                        existingItem.value += amount;
+                    } else {
+                        // If the currency doesn't exist, add a new item
+                        aggregatedTotalsList.push({ name: currency, value: amount });
+                    }
+                });
+            });
+
+            console.log(aggregatedTotalsList);
+            this.paymentBreakdowns = aggregatedTotalsList;
+        },
+
+        exportLoadSheetCustomers() {
+            // Get the elements to be exported
+            const loadsheetCustomers = document.getElementById('customers');
+
+            // Create a container element
+            const container = document.createElement('div');
+
+            // Append the content of each element to the container
+            container.appendChild(loadSheetInfor.cloneNode(true));
+            container.appendChild(loadsheetCustomers.cloneNode(true));
+
+            // Export the container to a PDF
+            html2pdf(container, {
+                margin: 0,
+                filename: "loadsheet.pdf",
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', orientation: 'landscape' }
+            });
+        },
+
+        exportLoadSheetDetails() {
+            const loadSheetInfor = document.getElementById('load-sheet-infor');
+            const loadSheetDetails = document.getElementById('details');
+            const container = document.createElement('div');
+
+            // Append the content of each element to the container
+            container.appendChild(loadSheetInfor.cloneNode(true));
+            container.appendChild(loadSheetDetails.cloneNode(true));
+
+            // Export the container to a PDF
+            html2pdf(container, {
+                margin: 0,
+                filename: `${`loadsheet-${this.loadsheet.data.loadsheet_number}-details`}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', orientation: 'landscape' }
+            });
+
+        },
+
+        exportLoadSheetSummary() {
+            const loadsheetSummary = document.getElementById('summary');
+            const container = document.createElement('div');
+
+            // Append the content of each element to the container
+            container.appendChild(loadSheetInfor.cloneNode(true));
+            container.appendChild(loadsheetSummary.cloneNode(true));
+
+            // Export the container to a PDF
+            html2pdf(container, {
+                margin: 0,
+                filename: `${`loadsheet-${this.loadsheet.data.loadsheet_number}-summary`}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', orientation: 'landscape' }
+            });
+        },
+
+        downLoadSheetSummary() {
+            //post to server to generateexcel
+            //create download link from its get admin/download-loadsheet-summary?loadsheet_id=8 and click it
+            // this.$inertia.get(`/admin/download-loadsheet-summary?loadsheet_id=${this.loadsheet.data.id}`)
+
+            window.open(`/admin/download-loadsheet-summary?loadsheet_id=${this.loadsheet.data.id}`, '_blank');
+
+        },
+        downloadLoadSheetDeatils() {
+            //post to server to generateexcel
+            //create download link from its get admin/download-loadsheet-summary?loadsheet_id=8 and click it
+            // this.$inertia.get(`/admin/download-loadsheet-summary?loadsheet_id=${this.loadsheet.data.id}`)
+
+            window.open(`/admin/download-loadsheet-details?loadsheet_id=${this.loadsheet.data.id}`, '_blank');
+
+        }
     },
 
     //watch for changes in loadsheet
@@ -315,7 +438,7 @@ export default {
                 <div class="mb-4">
                     <BreadCrumb :title="`Loadsheets/${loadsheet.data.loadsheet_number}`" />
 
-                    <div class="flex items-start space-x-4">
+                    <div class="flex items-start space-x-4" id="load-sheet-infor">
                         <div class="flex-shrink-0">
 
                             <span :class="getStatusBackGroundColor(loadsheet.data.status)"
@@ -437,6 +560,8 @@ export default {
                 <div class="sm:flex">
 
                     <div class="flex items-center ml-auto space-x-2 sm:space-x-3 ">
+
+
                         <button v-if="isShowEditSheet" type="button" @click="openEditSheet()"
                             class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white  font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:focus:ring-yellow-900">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -486,6 +611,7 @@ export default {
                             <i class="bi bi-x-circle w-5 h-5 mr-2 -ml-1"></i>
                             Cancel Sheet
                         </button>
+
                     </div>
                 </div>
             </div>
@@ -507,12 +633,38 @@ export default {
                         class="inline-block p-4 text-base font-semibold border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
                         type="button"> Customer Stops</button>
                 </li>
+                <li class="mr-2" v-if="loadsheet.data.status == 'Completed'">
+                    <button @click="toggleTab('summary')" :class="{ 'activeTab': activeTab == 'summary' }"
+                        class="inline-block p-4 text-base font-semibold border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                        type="button"> Load Sheet Summary</button>
+                </li>
 
             </ul>
         </div>
         <div>
             <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="details">
-
+                <button type="button" @click="exportLoadSheetDetails()"
+                    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+                    <!-- <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg> -->
+                    <i class="bi bi-download w-5 h-5 mr-2 -ml-1"></i>
+                    Export PDf
+                </button>
+                <button type="button" @click="downloadLoadSheetDeatils()"
+                    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+                    <!-- <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg> -->
+                    <i class="bi bi-download w-5 h-5 mr-2 -ml-1"></i>
+                    Export Excel
+                </button>
                 <div class="flex flex-col">
                     <div class="overflow-x-auto">
                         <div class="inline-block min-w-full align-middle">
@@ -591,12 +743,12 @@ export default {
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {{ detail.default_price.currency.symbol }}{{
+                                                        {{ detail.default_price?.currency?.symbol }}{{
                                                             detail.default_price.retail_price }}
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {{ detail.default_price.currency.symbol }}{{
+                                                        {{ detail.default_price?.currency?.symbol }}{{
                                                             detail.default_price.wholesale_price }}
                                                     </td>
                                                     <td
@@ -617,7 +769,7 @@ export default {
                                         </table>
                                     </template>
                                     <template v-slot:action-button>
-                                        <button @click="openAddProductModal()"
+                                        <button @click="openAddLoadSheetModal()"
                                             class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600 dark:hover:bg-blue-500 dark:bg-blue-600">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                 stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -706,9 +858,17 @@ export default {
                 </ol>
             </div>
             <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="customers">
-
-
-
+                <button type="button" @click="exportLoadSheetCustomers()"
+                    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+                    <!-- <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg> -->
+                    <i class="bi bi-download w-5 h-5 mr-2 -ml-1"></i>
+                    Export PDf
+                </button>
                 <div class="flex flex-col">
                     <div class="overflow-x-auto">
                         <div class="inline-block min-w-full align-middle">
@@ -830,14 +990,183 @@ export default {
                 </div>
 
             </div>
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="summary">
+                <button type="button" @click="exportLoadSheetSummary()"
+                    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+                    <!-- <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg> -->
+                    <i class="bi bi-download w-5 h-5 mr-2 -ml-1"></i>
+                    Export PDf
+                </button>
+                <button type="button" @click="downLoadSheetSummary()"
+                    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+                    <!-- <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg> -->
+                    <i class="bi bi-download w-5 h-5 mr-2 -ml-1"></i>
+                    Download Excel
+                </button>
+                <div class="flex flex-col">
+                    <div class="overflow-x-auto">
+                        <div class="inline-block min-w-full align-middle">
+                            <div class="overflow-hidden shadow">
+                                <TableLayout :hasData="salesOrderDetails.data.length > 0 ? true : false">
+                                    <template v-slot:table>
+
+                                        <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
+                                            <thead class="bg-gray-100 dark:bg-gray-700">
+                                                <tr>
+
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Product Name
+                                                    </th>
+
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        OutLoad Qty
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Total Sales Qty
+                                                    </th>
+
+
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Inload Qty
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Sales( {{ defaultCurrency?.name }})
+                                                    </th>
+
+                                                    <!-- <th scope="col"
+                                                        class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                        Discount
+                                                    </th> -->
+
+                                                </tr>
+
+                                            </thead>
+                                            <tbody
+                                                class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+
+                                                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                    v-for="detail in salesOrderDetails.data">
+
+                                                    <td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
+
+
+                                                        <img class="h-10 w-10 max-w-lg rounded-lg"
+                                                            :src="`/storage/${detail.product.image}`"
+                                                            alt="image description">
+
+                                                        <div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                            <div
+                                                                class="text-base font-semibold text-gray-900 dark:text-white">
+                                                                {{ detail.product.description }}</div>
+
+                                                            <div
+                                                                class="flex text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                                <span
+                                                                    class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
+                                                                    {{ detail.product.code }}
+
+                                                                </span>
+                                                                <CopyButton @click="copyToClipboard(detail.product.code)" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+
+
+                                                    <td
+                                                        class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        {{ detail.total_outload_qty }} {{ detail.product.unit_measure.name
+                                                        }}
+                                                    </td>
+                                                    <td
+                                                        class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        {{ detail.total_sale_qty }}{{ detail.product.unit_measure.name }}
+                                                    </td>
+                                                    <td
+                                                        class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        {{ detail.total_inload_qty }}{{ detail.product.unit_measure.name }}
+                                                    </td>
+                                                    <td
+                                                        class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        ${{ detail.total_sale_price }}
+                                                    </td>
+
+
+                                                </tr>
+                                                <tr class="bg-gray-100 dark:bg-gray-700">
+
+                                                    <th scope="col"
+                                                        class="p-4 font-bold text-left text-black uppercase dark:text-gray-400">
+                                                        Payments Breakdowns
+                                                    </th>
+                                                    <!-- <th scope="col"
+                                                        class="p-4 font-bold text-left text-black  dark:text-gray-400">
+                                                        {{ summary.total_allocated_quantity }}<small>units</small>
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 font-bold text-left text-black  dark:text-gray-400">
+                                                        {{ summary.total_sold_quantity }}<small>units</small>
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 font-bold text-left text-black  dark:text-gray-400">
+                                                        {{ summary.total_allocated_quantity - summary.total_sold_quantity
+                                                        }}<small>units</small>
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 font-bold text-left text-black  dark:text-gray-400">
+                                                        {{ defaultCurrency?.symbol }}{{ summary.total_sales }}
+                                                    </th> -->
+                                                    <!-- <th scope="col"
+    class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+    Discount
+</th> -->
+                                                </tr>
+                                                <tr class="bg-gray-100 dark:bg-gray-700"
+                                                    v-for="payment in paymentBreakdowns">
+
+                                                    <th scope="col"
+                                                        class="p-4 font-bold text-left text-black uppercase dark:text-gray-400">
+                                                        {{ payment.name }}
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="p-4 font-bold text-left text-black  dark:text-gray-400">
+                                                        {{ formatMoney(payment.value, payment.name) }}
+                                                    </th>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                </TableLayout>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
         <AddDetailsLoadSheet @save="closeAddStockModal" @close="closeAddStockModal" :loadsheet="loadsheet.data" />
         <UpdateAddStockDetailStock @save="closeUpdateStockModal" @close="closeUpdateStockModal" :loadsheet="loadsheet.data"
             :detail="selectedDetail" />
         <ConfirmDeleteDialog @yes="deleteDetail" :type="'loadsheet'" @cancel="closeDeleteModal" />
         <ConfirmDeleteDialog @yes="removeCustomerStop" :type="'customer'" @cancel="closeDeleteModal" />
-        <AddLoadSheetModal :loadsheet="loadsheet.data" :trucks="trucks" :warehouses="warehouses" :routes="routes"
-            :users="users" @save="closeEditSheet()" />
+        <AddLoadSheetModal :settings="settings" :loadsheet="loadsheet.data" :trucks="trucks" :warehouses="warehouses"
+            :routes="routes" :users="users" @save="closeEditSheet()" />
         <ConfirmLoadSheetModal :loadsheet="loadsheet.data" @save="closeConfirmSheetModal()" @yes="confirmLoadSheet()"
             :type="confirmType" @close="closeConfirmSheetModal()" />
 

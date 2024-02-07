@@ -6,8 +6,11 @@ export default {
         MainLayout,
     },
 
+    props: ['topSoldProducts', 'sales', 'newUsers', 'newProducts','percentageIncrease', 'totalSales'],
     data() {
         return {
+            defaultCurrency: this.$page.props?.defaultCurrency,
+
             mainChartColors: {
                 borderColor: '#F3F4F6',
                 labelColor: '#6B7280',
@@ -26,7 +29,9 @@ export default {
                     }
                 },
                 xaxis: {
-                    categories: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+                    categories: ['Jan', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov',
+                        'Dec'
+                    ],
                     labels: {
                         style: {
                             colors: ["#6B7280"],
@@ -118,14 +123,14 @@ export default {
             series: [
                 {
                     name: 'Revenue',
-                    data: [6356, 6218, 6156, 6526, 6356, 6256, 6056],
+                    data: this.formartSales(),
                     color: '#1A56DB'
                 },
-                {
-                    name: 'Revenue (previous period)',
-                    data: [6556, 6725, 6424, 6356, 6586, 6756, 6616],
-                    color: '#FDBA8C'
-                }
+                // {
+                //     name: 'Revenue (previous period)',
+                //     data: [6556, 6725, 6424, 6356, 6586, 6756, 6616],
+                //     color: '#FDBA8C'
+                // }
             ],
 
             newProductsOptions: {
@@ -291,6 +296,20 @@ export default {
         }
     },
     methods: {
+        formartSales(){
+            //map sales into array of total price replace month without total with 0
+            var salesListByMonth = []
+            for(var i = 0; i < 12; i++){
+                salesListByMonth.push(0)
+            }
+
+            this.sales.forEach(sale => {
+                salesListByMonth[sale.month - 1] = sale.total
+            });
+           
+            return salesListByMonth
+
+        },
         toggleStatisticsTab(id) {
 
             if (id == 'products-tab') {
@@ -315,12 +334,12 @@ export default {
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex-shrink-0">
                             <span
-                                class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">$45,385</span>
+                                class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{defaultCurrency?.symbol}}{{ totalSales }}</span>
                             <h3 class="text-base font-light text-gray-500 dark:text-gray-400">Sales this week</h3>
                         </div>
                         <div
                             class="flex items-center justify-end flex-1 text-base font-medium text-green-500 dark:text-green-400">
-                            12.5%
+                            <!-- 12.5% -->
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"
                                     d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
@@ -439,14 +458,14 @@ export default {
                     <div id="fullWidthTabContent" class="border-t border-gray-200 dark:border-gray-600">
                         <div class=" pt-4" id="products-tab" role="tabpanel">
                             <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-                                <li class="py-3 sm:py-4">
+                                <li class="py-3 sm:py-4" v-for="product in topSoldProducts.data">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center min-w-0">
-                                            <img class="flex-shrink-0 w-10 h-10" src="/storage/default.png"
-                                                alt="imac image">
+                                            <img class="flex-shrink-0 w-10 h-10"
+                                                :src="`/storage/${product.stock.product.image}`" alt="imac image">
                                             <div class="ml-3">
                                                 <p class="font-medium text-gray-900 truncate dark:text-white">
-                                                    iPhone 14 Pro
+                                                    {{ product.stock.product.description }}
                                                 </p>
                                                 <div
                                                     class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
@@ -463,122 +482,11 @@ export default {
                                         </div>
                                         <div
                                             class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            $445,467
+                                            ${{ product.total_price }}
                                         </div>
                                     </div>
                                 </li>
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center min-w-0">
-                                            <img class="flex-shrink-0 w-10 h-10" src="/storage/default.png"
-                                                alt="imac image">
-                                            <div class="ml-3">
-                                                <p class="font-medium text-gray-900 truncate dark:text-white">
-                                                    Apple iMac 27"
-                                                </p>
-                                                <div
-                                                    class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
-                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                        <path clip-rule="evenodd" fill-rule="evenodd"
-                                                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
-                                                        </path>
-                                                    </svg>
-                                                    12.5%
-                                                    <span class="ml-2 text-gray-500">vs last month</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            $256,982
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center min-w-0">
-                                            <img class="flex-shrink-0 w-10 h-10" src="/storage/default.png"
-                                                alt="watch image">
-                                            <div class="ml-3">
-                                                <p class="font-medium text-gray-900 truncate dark:text-white">
-                                                    Apple Watch SE
-                                                </p>
-                                                <div
-                                                    class="flex items-center justify-end flex-1 text-sm text-red-600 dark:text-red-500">
-                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                        <path clip-rule="evenodd" fill-rule="evenodd"
-                                                            d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z">
-                                                        </path>
-                                                    </svg>
-                                                    1.35%
-                                                    <span class="ml-2 text-gray-500">vs last month</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            $201,869
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center min-w-0">
-                                            <img class="flex-shrink-0 w-10 h-10" src="/storage/default.png"
-                                                alt="ipad image">
-                                            <div class="ml-3">
-                                                <p class="font-medium text-gray-900 truncate dark:text-white">
-                                                    Apple iPad Air
-                                                </p>
-                                                <div
-                                                    class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
-                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                        <path clip-rule="evenodd" fill-rule="evenodd"
-                                                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
-                                                        </path>
-                                                    </svg>
-                                                    12.5%
-                                                    <span class="ml-2 text-gray-500">vs last month</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            $103,967
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center min-w-0">
-                                            <img class="flex-shrink-0 w-10 h-10" src="/storage/default.png"
-                                                alt="imac image">
-                                            <div class="ml-3">
-                                                <p class="font-medium text-gray-900 truncate dark:text-white">
-                                                    Apple iMac 24"
-                                                </p>
-                                                <div
-                                                    class="flex items-center justify-end flex-1 text-sm text-red-600 dark:text-red-500">
-                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                        <path clip-rule="evenodd" fill-rule="evenodd"
-                                                            d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z">
-                                                        </path>
-                                                    </svg>
-                                                    2%
-                                                    <span class="ml-2 text-gray-500">vs last month</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            $98,543
-                                        </div>
-                                    </div>
-                                </li>
+
                             </ul>
                         </div>
                         <div class="hidden pt-4" id="salesman-tab" role="tabpanel">
@@ -754,7 +662,7 @@ export default {
                     class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                     <div class="w-full">
                         <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">New products</h3>
-                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">2,340</span>
+                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{newProducts}}</span>
                         <p class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400">
                             <span class="flex items-center mr-1.5 text-sm text-green-500 dark:text-green-400">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
@@ -763,7 +671,7 @@ export default {
                                         d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
                                     </path>
                                 </svg>
-                                12.5%
+                                <!-- 12.5% -->
                             </span>
                             Since last month
                         </p>
@@ -775,7 +683,7 @@ export default {
                     class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                     <div class="w-full">
                         <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Users</h3>
-                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">2,340</span>
+                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{newUsers}}</span>
                         <p class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400">
                             <span class="flex items-center mr-1.5 text-sm text-green-500 dark:text-green-400">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
@@ -784,7 +692,7 @@ export default {
                                         d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
                                     </path>
                                 </svg>
-                                3,4%
+                                <!-- 3,4% -->
                             </span>
                             Since last month
                         </p>
@@ -792,7 +700,7 @@ export default {
                     <apexchart type="bar" height="150" :options="newUsersChatOptions" :series="newUsersChatOptions.series">
                     </apexchart>
                 </div>
-                
+
             </div>
         </div>
     </MainLayout>

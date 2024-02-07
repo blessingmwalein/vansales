@@ -46,4 +46,7 @@ interface LoadSheetRepositoryInterface
     public function getLoadSheetsByStatus($status);
 
     public function createLoadSheetHistory($loadsheet_id, $status, $description);
+
+    public function getLoadSheetSummary($loadsheet_id);
+    public function getPaymentsBreakDown($loadsheet_id);
 }

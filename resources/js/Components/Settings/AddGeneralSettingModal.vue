@@ -87,7 +87,8 @@ export default {
             typesOptions: [
                 { id: '1', name: 'Warehouse' },
                 { id: '2', name: 'Trucks' },
-                { id: '2', name: 'Loadsheets' },
+                { id: '3', name: 'Loadsheets' },
+                { id: '4', name: 'Routes' },
             ],
         }
     },

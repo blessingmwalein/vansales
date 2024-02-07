@@ -45,30 +45,27 @@
                             </div>
                         </div>
                         <div class="grid gap-6 mb-6 md:grid-cols-2">
-
-
                             <div>
                                 <label for="email"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone
                                     Number</label>
                                 <input type="text" name="phone_number" id="phone_number"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="name@company.com" v-model="form.phone_number">
+                                    v-model="form.phone_number">
                                 <InputError class="mt-2" :message="form.errors.phone_number" />
-
                             </div>
                             <div>
-                                <label for="category"
+                                <label for="role"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role</label>
-                                <select id="category" v-model="form.role_id"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    <option :value="role.id" v-for="role in roles">{{ role.name
-                                    }}
-                                    </option>
-                                </select>
+
+                                <multiselect @select="setIsDriver"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                    v-model="form.role_id" :options="rolesOptions" label="name" track-by="id">
+                                </multiselect>
                                 <InputError class="mt-2" :message="form.errors.role_id" />
                             </div>
                         </div>
+
                         <div>
                             <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
                                 email</label>
@@ -78,28 +75,83 @@
                             <InputError class="mt-2" :message="form.errors.email" />
 
                         </div>
-                        <div>
-                            <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
-                                password</label>
-                            <input type="password" name="password" id="password" placeholder="••••••••"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                v-model="form.password">
-                            <InputError class="mt-2" :message="form.errors.password" />
+                        <div class="grid gap-6 mb-6 md:grid-cols-2" v-if="isDriver">
 
+                            <div v-if="hasSettingActive('Warehouse', settings)">
+                                <label for="email"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Default
+                                    Warehouse</label>
+                                <multiselect
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                    v-model="form.warehouse_id" :options="warehouseOptions" label="name" track-by="id">
+                                </multiselect>
+                                <InputError class="mt-2" :message="form.errors.warehouse_id" />
+                            </div>
+                            <div v-if="hasSettingActive('Trucks', settings)">
+                                <label for="category"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Default
+                                    Truck</label>
+                                <multiselect
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                    v-model="form.truck_id" :options="truckOptions" label="name" track-by="id">
+                                </multiselect>
+                                <InputError class="mt-2" :message="form.errors.truck_id" />
+                            </div>
+                        </div>
+                        <div v-if="hasSettingActive('Routes', settings) && isDriver">
+                            <label for="route" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Default
+                                Route</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="form.route_id" :options="routeOptions" label="name" track-by="id">
+                            </multiselect>
+                            <InputError class="mt-2" :message="form.errors.route_id" />
+                        </div>
+
+                        <div>
+                            <label for="route"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Address</label>
+                            <textarea id="description" rows="4" v-model="form.address"
+                                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="User address"></textarea>
+
+                            <InputError class="mt-2" :message="form.errors.address" />
+                        </div>
+                        <div class="grid gap-6 mb-6 md:grid-cols-2">
+
+                            <div>
+                                <label for="password"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
+                                    password</label>
+                                <input type="password" name="password" id="password" placeholder="••••••••"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    v-model="form.password">
+                                <InputError class="mt-2" :message="form.errors.password" />
+
+                            </div>
+                            <div>
+                                <label for="confirm-password"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm
+                                    password</label>
+                                <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    v-model="form.password_confirmation">
+                                <InputError class="mt-2" :message="form.errors.password_confirmation" />
+
+                            </div>
                         </div>
                         <div>
-                            <label for="confirm-password"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm
-                                password</label>
-                            <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                v-model="form.password_confirmation">
-                            <InputError class="mt-2" :message="form.errors.password_confirmation" />
+                            <label class="relative inline-flex items-center mb-4 mt-8 cursor-pointer">
+                                <input type="checkbox" value="" class="sr-only peer" checked v-model="form.is_available">
+                                <div
+                                    class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">Is
+                                    Available</span>
+                            </label>
+                            <InputError class="mt-2" :message="form.errors.is_available" />
 
                         </div>
-
-
-
                     </form>
                 </div>
                 <!-- Modal footer -->
@@ -116,11 +168,16 @@
 import InputError from '@/Components/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 import { Modal } from 'flowbite';
+import Multiselect from 'vue-multiselect'
+import globalMixin from "@/Mixins/global.js";
+
 
 export default {
-    components: { InputError },
-    props: ['user', 'roles'],
+    components: { InputError, Multiselect },
+    props: ['user', 'roles', 'settings', 'warehouses', 'trucks', 'routes'],
+    mixins: [globalMixin],
     mounted() {
+        this.updateOptions();
     },
     data() {
         return {
@@ -131,22 +188,64 @@ export default {
                 email: '',
                 password: '',
                 password_confirmation: '',
+                warehouse_id: null,
+                truck_id: null,
+                route_id: null,
                 role_id: null,
-            })
+                is_available: null,
+                address: '',
+            }),
+            truckOptions: [],
+            warehouseOptions: [],
+            routeOptions: [],
+            rolesOptions: [],
+            isDriver: false,
         }
     },
 
     methods: {
+        updateOptions() {
+            this.rolesOptions = this.roles.map(role => {
+                return {
+                    id: role.id,
+                    name: role.name,
+                }
+            })
+
+            this.truckOptions = this.trucks.map(truck => {
+                return {
+                    id: truck.id,
+                    name: `${truck.make_model} - ${truck.license_plate}`,
+                }
+            })
+
+            this.warehouseOptions = this.warehouses.map(warehouse => {
+                return {
+                    id: warehouse.id,
+                    name: `${warehouse.code} - ${warehouse.name}`, // `first` and `second` are the column names in the table
+                }
+            })
+
+            this.routeOptions = this.routes.map(route => {
+                return {
+                    id: route.id,
+                    name: route.name,
+                }
+            })
+        },
         submitForm() {
             if (this.user) {
                 this.update();
             } else {
                 this.create();
             }
-
         },
 
         create() {
+            this.form.role_id = this.form.role_id?.id ?? null;
+            this.form.warehouse_id = this.form.warehouse_id?.id ?? null;
+            this.form.truck_id = this.form.truck_id?.id ?? null;
+            this.form.route_id = this.form.route_id?.id ?? null;
             this.form.post('/admin/users', {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -157,6 +256,10 @@ export default {
         },
 
         update() {
+            this.form.role_id = this.form.role_id?.id ?? null;
+            this.form.warehouse_id = this.form.warehouse_id?.id ?? null;
+            this.form.truck_id = this.form.truck_id?.id ?? null;
+            this.form.route_id = this.form.route_id?.id ?? null;
             this.form.put(`/admin/users/${this.user.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -164,6 +267,10 @@ export default {
                     this.$emit('save');
                 }
             });
+        },
+
+        setIsDriver() {
+            this.isDriver = this.form.role_id.name == 'salesman' ? true : false;
         }
     },
 
@@ -178,9 +285,12 @@ export default {
                 this.form.email = newValue?.email ?? '';
                 this.form.id = newValue?.id ?? null;
                 this.form.role_id = newValue?.roles[0].id ?? null;
+                this.form.is_available = newValue?.is_available == 1 ? true : false ?? '';
+
             },
             immediate: true, // This ensures the watcher runs immediately when the component is mounted
         },
     },
 }
 </script>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

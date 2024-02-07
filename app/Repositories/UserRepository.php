@@ -31,13 +31,26 @@ class UserRepository implements UserRepositoryInterface
     public function updateUser(array $data, $id)
     {
         $user = User::find($id);
-        //check if password is set
-        if (isset($data['password'])) {
+
+        // if (!$user) {
+        //     // Handle the case where the user with the given ID is not found.
+        //     // You may want to return an error response or perform some other action.
+        //     return null;
+        // }
+
+        // Check if the password is set and not empty.
+        if (isset($data['password']) && !empty($data['password'])) {
             $data['password'] = bcrypt($data['password']);
+        } else {
+            // If the password is not provided in the input data, don't update it.
+            unset($data['password']);
         }
+
         $user->update($data);
+
         return $user;
     }
+
 
     public function deleteUser($id)
     {

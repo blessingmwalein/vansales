@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\GeneralSettingRepositoryInterface;
+use App\Interfaces\RouteRepositoryInterface;
+use App\Interfaces\TruckRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\WarehouseRepositoryInterface;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,11 +15,25 @@ use Spatie\Permission\Models\Role;
 class UserController extends Controller
 {
     private UserRepositoryInterface $userRepository;
+    private GeneralSettingRepositoryInterface $generalSettingRepository;
+    private WarehouseRepositoryInterface $warehouseRepository;
+    private TruckRepositoryInterface $truckRepository;
+    private RouteRepositoryInterface $routeRepository;
 
-    public function __construct(UserRepositoryInterface $userRepository)
-    {
+    public function __construct(
+        UserRepositoryInterface $userRepository,
+        GeneralSettingRepositoryInterface $generalSettingRepository,
+        WarehouseRepositoryInterface $warehouseRepository,
+        TruckRepositoryInterface $truckRepository,
+        RouteRepositoryInterface $routeRepository
+    ) {
         $this->userRepository = $userRepository;
+        $this->generalSettingRepository = $generalSettingRepository;
+        $this->warehouseRepository = $warehouseRepository;
+        $this->truckRepository = $truckRepository;
+        $this->routeRepository = $routeRepository;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -24,6 +42,10 @@ class UserController extends Controller
         return Inertia::render('User/Index', [
             'users' => $this->userRepository->getAllUsersPaginated(10),
             'roles' => Role::all(),
+            'settings' => $this->generalSettingRepository->all(),
+            'warehouses' => $this->warehouseRepository->all(),
+            'trucks' => $this->truckRepository->all(),
+            'routes' => $this->routeRepository->all(),
         ]);
     }
 
@@ -46,6 +68,10 @@ class UserController extends Controller
             'phone_number' => 'required:unique:users,phone_number',
             'email' => 'required|unique:users,email',
             'password' => 'required|confirmed',
+            'warehouse_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Warehouse') ? 'required' : 'nullable',
+            'route_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Routes') ? 'required' : 'nullable',
+            'truck_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Trucks') ? 'required' : 'nullable',
+            'address' => 'required',
         ]);
         $roleData = $request->validate([
             'role_id' => 'required',
@@ -60,7 +86,9 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        return Inertia::render('User/Show', [
+            'user' => $user,
+        ]);
     }
 
     /**
@@ -83,6 +111,11 @@ class UserController extends Controller
             'email' => 'required',
             'role_id' => 'required',
             'password' => 'nullable',
+            'is_available' => 'required',
+            'warehouse_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Warehouse') ? 'required' : 'nullable',
+            'route_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Routes') ? 'required' : 'nullable',
+            'truck_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Trucks') ? 'required' : 'nullable',
+            'address' => 'required',
         ]);
 
         $this->userRepository->updateUser($data, $user->id);

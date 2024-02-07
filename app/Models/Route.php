@@ -20,4 +20,9 @@ class Route extends Model
     {
         return $this->hasMany(RouteNodes::class);
     }
+
+    public function customers()
+    {
+        return $this->hasMany(Customer::class);
+    }
 }

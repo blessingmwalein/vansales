@@ -62,4 +62,16 @@ class GeneralSettingRepository implements GeneralSettingRepositoryInterface
 
         return true;
     }
+
+    public function checkIfSettingIsActivated($settingType)
+    {
+        $setting = GeneralSetting::where('type', $settingType)->first();
+        if ($setting) {
+            if ($setting->value == 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

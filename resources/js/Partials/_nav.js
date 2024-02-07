@@ -21,6 +21,15 @@ const NavItems = [
         ]
     },
     {
+        name: 'Sales',
+        icon: 'bi bi-basket',
+        feature: 'sales_management',
+        route: '/admin/sales',
+        children: [
+
+        ]
+    },
+    {
         name: 'Stock Management',
         icon: 'bi bi-database-fill',
         feature: 'inventory_management',

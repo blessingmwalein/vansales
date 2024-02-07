@@ -25,7 +25,7 @@ export default {
         Multiselect
     },
 
-    props: ['users', 'roles'],
+    props: ['users', 'roles', 'settings', 'warehouses', 'routes', 'trucks'],
     data() {
         return {
             user_data: this.users,
@@ -277,7 +277,11 @@ export default {
                                             </th>
                                             <th scope="col"
                                                 class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                Created At
+                                                Available
+                                            </th>
+                                            <th scope="col"
+                                                class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                                                More Details
                                             </th>
 
                                             <th scope="col"
@@ -323,7 +327,39 @@ export default {
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                {{ user.created_at }}</td>
+                                                <label class="relative inline-flex items-center mb-4 mt-8 cursor-pointer">
+                                                    <input type="checkbox" value="" class="sr-only peer" checked
+                                                        v-model="user.is_available">
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                                                    </div>
+
+                                                </label>
+                                            </td>
+                                            <td v-if="user?.roles[0].name == 'salesman'"
+                                                class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <!-- {{ user.created_at }} -->
+                                                <div
+                                                    class="mt-1 flex flex-column text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                    <span class="text-xs font-medium text-gray-500">
+                                                        Route: {{ user?.route?.name }}
+                                                    </span>
+                                                </div>
+                                                <div
+                                                    class="mt-1 flex flex-column text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                    <span class="text-xs font-medium text-gray-500">
+                                                        Truck: {{ user?.truck?.make_model }}
+                                                    </span>
+                                                </div>
+                                                <div
+                                                    class="mt-1 flex flex-column text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                    <span class="text-xs font-medium text-gray-500">
+                                                        Warehouse: {{ user?.warehouse?.name }}
+                                                    </span>
+
+                                                </div>
+                                            </td>
+                                            <td v-else></td>
 
                                             <td class="p-4 space-x-2 whitespace-nowrap">
                                                 <TableActionButtons :type="'user'"
@@ -358,7 +394,8 @@ export default {
                 :next_page_url="user_data.next_page_url" :prev_page_url="user_data.prev_page_url" />
         </div>
 
-        <AddUserModal :user="selectedUser" @save="closeAddUserModal()" :roles="roles" />
+        <AddUserModal :user="selectedUser" :warehouses="warehouses" :trucks="trucks" :routes="routes" :settings="settings"
+            @save="closeAddUserModal()" :roles="roles" />
         <ConfirmDeleteDialog @cancel="closeDeleteModal" @yes="deleteUser" :type="'user'" />
         <!-- <ViewRoleModal :user="selectedUser" @close="closeViewRoleModal()" :permissions_data="permissions_data"
             @save="closeViewRoleModal" /> -->

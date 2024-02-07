@@ -18,4 +18,6 @@ interface GeneralSettingRepositoryInterface
 
     //create function to updateGeneralSettings 
     public function updateGeneralSettings(array $data);
+
+    public function checkIfSettingIsActivated($settingType);
 }

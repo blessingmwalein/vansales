@@ -13,4 +13,11 @@ class Customer extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:00',
     ];
+
+    protected $with = ['route'];
+
+    public function route()
+    {
+        return $this->belongsTo(Route::class);
+    }
 }

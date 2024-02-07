@@ -8,6 +8,9 @@ import TableLayout from '@/Components/TableLayout.vue';
 import AddCustomerModal from '@/Components/Customer/AddCustomerModal.vue';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import globalMixin from "@/Mixins/global.js";
+import Multiselect from 'vue-multiselect'
+import { Link } from '@inertiajs/vue3';
+
 export default {
     components: {
         BreadCrumb,
@@ -17,22 +20,40 @@ export default {
         AddCustomerModal,
         MainLayout,
         CopyButton,
-        TableLayout
+        TableLayout,
+        Multiselect,
+        Link
     },
     mixins: [globalMixin],
 
-    props: ['customers'],
+    props: ['customers', 'routes'],
     data() {
         return {
             selectedCustomer: null,
             addCustomerModal: null,
             deleteModal: null,
             search: '',
-            customers_data: this.customers
+            customers_data: this.customers,
+            showSearchForm: true,
+            routeOptions: [],
+            isLoading: false,
+            searchForm: {
+                name: '',
+                routes: [],
+                phone_number: null,
+                email: '',
+                date_range: null,
 
+            }
         }
     },
     mounted() {
+        this.routeOptions = this.routes.map(route => {
+            return {
+                id: route.id,
+                name: route.name,
+            }
+        })
         const $targetEl = document.getElementById('add-customer-modal');
         this.addCustomerModal = new Modal($targetEl);
 
@@ -83,26 +104,23 @@ export default {
             this.deleteModal.show();
         },
         submitSearch() {
-            // this.$inertia.post(`/admin/products-search`, {
-            //     search: this.search
-            // },
-            //     {
-            //         preserveScroll: true,
-            //         onSuccess: (page) => {
-            //             // console.log(page);
-            //             this.products_data = page;
-            //         }
-            //     });
-            //use axios
+            this.isLoading = true;
             axios.post(`/admin/customers-search`, {
-                search: this.search
+                name: this.searchForm.name,
+                routes: this.searchForm.routes ? this.searchForm.routes.map(route => route.id) : [],
+                phone_number: this.searchForm.phone_number,
+                email: this.searchForm.email,
+                from: this.searchForm.date_range ? this.searchForm.date_range[0] : null,
+                to: this.searchForm.date_range ? this.searchForm.date_range[1] : null,
             })
                 .then((response) => {
                     console.log(response);
-                    this.customers = response.data;
+                    this.customers_data = response.data;
+                    this.isLoading = false;
                 })
                 .catch((error) => {
                     console.log(error);
+                    this.isLoading = false;
                 });
         },
 
@@ -129,31 +147,21 @@ export default {
             <div class="w-full mb-1">
                 <div class="mb-4">
                     <BreadCrumb :title="'Customers'" />
-                    <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Trucks</h1>
+                    <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Customers</h1>
                 </div>
                 <div class="sm:flex">
                     <div
                         class="items-center hidden mb-3 sm:flex sm:divide-x sm:divide-gray-100 sm:mb-0 dark:divide-gray-700">
-                        <form class="lg:pr-3" action="#" method="GET">
-                            <label for="users-search" class="sr-only">Search</label>
-                            <div class="relative mt-1 lg:w-64 xl:w-96">
-                                <input type="text" name="email" id="users-search" v-model="search"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Search for customers by name, email or phone number">
-                            </div>
-                        </form>
-                        <div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0">
-                            <button type="button" @click="submitSearch()"
-                                class="inline-flex p-2 items-center text-sm font-medium text-center text-white text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
-                            </button>
-                        </div>
+
                     </div>
                     <div class="flex items-center ml-auto space-x-2 sm:space-x-3">
+                        <button type="button" @click="showSearchForm = !showSearchForm"
+                            class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
+
+                            <i class=" w-5 h-5 mr-2 -ml-1"
+                                :class="{ 'bi bi-dash-lg': showSearchForm, 'bi bi-plus-lg': !showSearchForm }"></i>
+                            Hide Search Form
+                        </button>
                         <button type="button" @click="openAddCustomerModal()"
                             class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                             <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
@@ -164,6 +172,12 @@ export default {
                             </svg>
                             Add Customer
                         </button>
+                        <Link type="button" href="/admin/customers-map"
+                            class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                            <i class=" w-5 h-5 mr-2 -ml-1 bi bi-geo-alt" 
+                                ></i>
+                            View Customer Map
+                    </Link>
                     </div>
                 </div>
             </div>
@@ -171,8 +185,61 @@ export default {
         <div class="flex flex-col">
             <div class="overflow-x-auto">
                 <div class="inline-block min-w-full align-middle">
+                    <div class="grid gap-6 sm:grid-cols-4 sm:gap-6 m-4" v-if="showSearchForm">
+
+
+                        <div class="w-full">
+                            <label for="price"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Route</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="searchForm.routes" :multiple="true" :options="routeOptions" label="name"
+                                track-by="id">
+                            </multiselect>
+                        </div>
+
+                        <div>
+                            <label for="item-weight"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone Number</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.phone_number"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+                        <div class="">
+                            <label for="description"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.name"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+                        <div class="">
+                            <label for="description"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                            <input type="text" name="email" id="users-search" v-model="searchForm.email"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date
+                                Range</label>
+                            <Datepicker placeholder="Date Range"
+                                class="z-20 block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="searchForm.date_range" range />
+                        </div>
+                        <div></div>
+                        <div></div>
+
+                        <div class="w-full">
+
+                            <button type="button" @click="submitSearch()"
+                                class="w-full mt-7 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                <i class="bi bi-search w-5 h-5 mr-2 -ml-1"></i>
+
+                                Search
+                            </button>
+
+                        </div>
+                    </div>
+
                     <div class="overflow-hidden shadow">
-                        <TableLayout :hasData="customers_data.data.length > 0 ? true : false">
+                        <TableLayout :hasData="customers_data.data.length > 0 ? true : false" :isLoading="isLoading">
                             <template v-slot:table>
                                 <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
                                     <thead class="bg-gray-100 dark:bg-gray-700">
@@ -199,7 +266,7 @@ export default {
                                             </th>
                                             <th scope="col"
                                                 class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                                Address
+                                                Location
                                             </th>
 
 
@@ -249,7 +316,14 @@ export default {
                                             </td>
                                             <td
                                                 class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                {{ customer.address }}</td>
+                                                {{ customer.address }}
+                                                <div class="mt-1 flex text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                    <span class="text-xs font-medium text-gray-500">
+                                                        Route: {{ customer?.route?.name }}
+                                                    </span>
+
+                                                </div>
+                                            </td>
 
 
                                             <td class="p-4 space-x-2 whitespace-nowrap">
@@ -286,7 +360,8 @@ export default {
                 :next_page_url="customers_data.next_page_url" :prev_page_url="customers_data.prev_page_url" />
         </div>
 
-        <AddCustomerModal :customer="selectedCustomer" @save="closeAddCustomerModal()" />
+        <AddCustomerModal :routes="routes" :customer="selectedCustomer" @save="closeAddCustomerModal()" />
         <ConfirmDeleteDialog @cancel="closeDeleteModal" @yes="deleteCustomer" :type="'customer'" />
     </MainLayout>
 </template>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

@@ -28,6 +28,7 @@ class SaleOderResource extends JsonResource
             'discount' => $this->discount,
             'tax' => $this->tax,
             'total' => $this->total,
+            'totals' => json_decode($this->totals),
             'total_items_synced' => $this->total_items_synced,
             'total_items_failed_synced' => $this->total_items_failed_synced,
             'is_synced' => $this->is_synced == 1 ? true : false,
@@ -36,6 +37,7 @@ class SaleOderResource extends JsonResource
             'driver_signature' => $this->customerStops,
             'receipt_url' => $this->receipt_url,
             'created_at' => $this->created_at->format('Y-m-d H:00'),
+            'driver' => $this->loadsheet->user,
         ];
     }
 }

@@ -20,10 +20,10 @@ class SaleOderDetailResource extends JsonResource
             'stock_id' => $this->stock_id,
             'stock' => $this->stock,
             'quantity' => $this->quantity,
-            'total_price' => $this->price,
+            'total_price' => $this->total_price,
             'is_synced' => $this->is_synced == 1 ? true : false,
-            'created_at' => $this->created_at->format('Y-m-d H:00'),
-            'updated_at' => $this->updated_at->format('Y-m-d H:00'),
+            'created_at' =>$this->created_at? $this->created_at->format('Y-m-d H:00') : null,
+            'updated_at' =>$this->updated_at? $this->updated_at->format('Y-m-d H:00') : null,
         ];
     }
 }
