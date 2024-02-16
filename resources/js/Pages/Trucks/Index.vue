@@ -58,7 +58,7 @@ export default {
             this.viewRoleModal.hide();
         },
         deleteTruck() {
-            this.$inertia.delete(`/admin/trucks/${this.selectedTruck.id}`, {
+            this.$inertia.delete(`/company/trucks/${this.selectedTruck.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -85,7 +85,7 @@ export default {
             this.deleteModal.show();
         },
         submitSearch() {
-            // this.$inertia.post(`/admin/products-search`, {
+            // this.$inertia.post(`/company/products-search`, {
             //     search: this.search
             // },
             //     {
@@ -96,7 +96,7 @@ export default {
             //         }
             //     });
             //use axios
-            axios.post(`/admin/trucks-search`, {
+            axios.post(`/company/trucks-search`, {
                 search: this.search
             })
                 .then((response) => {

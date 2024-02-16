@@ -46,8 +46,8 @@ class SaleOrderDetail extends Model
         return $totalQty;
     }
 
-    
+
 
     //create function to get total inload qty from loadsheet details with the same stock id
-    
+
 }

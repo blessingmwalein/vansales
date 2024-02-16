@@ -127,7 +127,7 @@ export default {
         },
 
         deleteLoadsheet() {
-            this.$inertia.delete(`/admin/loadsheets/${this.selectedLoadSheet.id}`, {
+            this.$inertia.delete(`/company/loadsheets/${this.selectedLoadSheet.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -144,13 +144,13 @@ export default {
             this.deleteModal.show();
         },
         openSingleProduct(loadsheet) {
-            this.$inertia.visit(`/admin/loadsheets/${loadsheet.id}`)
+            this.$inertia.visit(`/company/loadsheets/${loadsheet.id}`)
         },
 
 
         submitSearch() {
             this.isLoading = true;
-            axios.post(`/admin/filter-loadsheets`, {
+            axios.post(`/company/filter-loadsheets`, {
                 'driver': this.searchForm.user ? this.searchForm.user.map(obj => obj.id) : [],
                 'truck': this.searchForm.truck ? this.searchForm.truck.map(obj => obj.id) : [],
                 'warehouse': this.searchForm.warehouse ? this.searchForm.warehouse.map(obj => obj.id) : [],

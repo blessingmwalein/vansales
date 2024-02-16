@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+// use App\Traits\CompanyScope;
+
 
 class LoadsheetHistory extends Model
 {
@@ -16,8 +18,6 @@ class LoadsheetHistory extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
-
 
     protected $casts = [
         'email_verified_at' => 'datetime',

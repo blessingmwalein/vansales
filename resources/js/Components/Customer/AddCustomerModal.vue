@@ -143,7 +143,7 @@ export default {
 
         create() {
             this.form.route_id = this.form.route_id ? this.form.route_id.id : null;
-            this.form.post('/admin/customers', {
+            this.form.post('/company/customers', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -153,7 +153,7 @@ export default {
 
         update() {
             this.form.route_id = this.form.route_id ? this.form.route_id.id : null;
-            this.form.put(`/admin/customers/${this.customer.id}`, {
+            this.form.put(`/company/customers/${this.customer.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

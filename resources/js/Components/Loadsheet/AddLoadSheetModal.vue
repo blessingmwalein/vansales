@@ -200,7 +200,7 @@ export default {
             this.form.route_id = this.form.route_id.id
 
 
-            this.form.post('/admin/loadsheets', {
+            this.form.post('/company/loadsheets', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.form.reset()
@@ -216,7 +216,7 @@ export default {
             this.form.truck_id = this.form.truck_id ? this.form.truck_id.id : this.loadsheet.truck.id
 
 
-            this.form.put(`/admin/loadsheets/${this.loadsheet.id}`, {
+            this.form.put(`/company/loadsheets/${this.loadsheet.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

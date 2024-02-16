@@ -89,6 +89,7 @@ export default {
                 { id: '2', name: 'Trucks' },
                 { id: '3', name: 'Loadsheets' },
                 { id: '4', name: 'Routes' },
+                { id: '5', name: 'Deliveries' }
             ],
         }
     },
@@ -105,7 +106,7 @@ export default {
 
         create() {
             this.form.type = this.form.type.name;
-            this.form.post('/admin/settings/general-settings', {
+            this.form.post('/company/settings/general-settings', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -114,7 +115,7 @@ export default {
         },
 
         update() {
-            this.form.put(`/admin/settings/general-settings/${this.generalSetting.id}`, {
+            this.form.put(`/company/settings/general-settings/${this.generalSetting.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

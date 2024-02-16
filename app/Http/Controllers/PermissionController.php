@@ -96,4 +96,18 @@ class PermissionController extends Controller
         $role->givePermissionTo($permission);
         return redirect()->back()->with('success', 'Permission assigned successfully');
     }
+
+
+    public function removeRolePermission(Request $request)
+    {
+        $data = $request->validate([
+            'role_id' => 'required',
+            'permission_id' => 'required',
+        ]);
+        $role = Role::find($data['role_id']);
+        $permission = Permission::find($data['permission_id']);
+
+        $role->revokePermissionTo($permission);
+        return redirect()->back()->with('success', 'Permission removed successfully');
+    }
 }

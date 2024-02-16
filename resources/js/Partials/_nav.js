@@ -6,7 +6,25 @@ const NavItems = [
         name: 'Dashboard',
         icon: 'bi bi-pie-chart-fill',
         feature: 'dashboard',
-        route: '/dashboard',
+        route: '/company/dashboard',
+        children: [
+
+        ]
+    },
+    {
+        name: 'Companies',
+        icon: 'bi bi-buildings',
+        feature: 'company_management',
+        route: '/admin/companies',
+        children: [
+
+        ]
+    },
+    {
+        name: 'Subscriptions',
+        icon: 'bi bi-boxes',
+        feature: 'subscription_management',
+        route: '/admin/subscriptions',
         children: [
 
         ]
@@ -15,7 +33,7 @@ const NavItems = [
         name: 'Warehouse',
         icon: 'bi bi-houses-fill',
         feature: 'warehouse_management',
-        route: '/admin/warehouses',
+        route: '/company/warehouses',
         children: [
 
         ]
@@ -24,7 +42,7 @@ const NavItems = [
         name: 'Sales',
         icon: 'bi bi-basket',
         feature: 'sales_management',
-        route: '/admin/sales',
+        route: '/company/sales',
         children: [
 
         ]
@@ -37,22 +55,22 @@ const NavItems = [
         children: [
             {
                 name: 'Product Categories',
-                route: '/admin/product-categories',
+                route: '/company/product-categories',
                 feature: 'product_management',
             },
             {
                 name: 'Utilities',
-                route: '/admin/utilities',
+                route: '/company/utilities',
                 feature: 'product_management',
             },
             {
                 name: 'Products',
-                route: '/admin/products',
+                route: '/company/products',
                 feature: 'product_management',
             }
             // {
             //     name: 'Stock Allocation',
-            //     route: '/admin/stock-allocations',
+            //     route: '/company/stock-allocations',
             //     feature: 'inventory_management',
             // },
         ]
@@ -81,10 +99,23 @@ const NavItems = [
         ]
     },
     {
+        name: 'Employee Management',
+        icon: 'bi bi-people-fill',
+        feature: 'employee_management',
+        route: '/employees',
+        children: [
+            {
+                name: 'Employees',
+                route: '/company/employees',
+                feature: 'employee_management',
+            },
+        ]
+    },
+    {
         name: 'Trucks',
         icon: 'bi bi-truck',
         feature: 'truck_management',
-        route: '/admin/trucks',
+        route: '/company/trucks',
         children: [
 
         ]
@@ -93,7 +124,7 @@ const NavItems = [
         name: 'Customers',
         icon: 'bi bi-people-fill',
         feature: 'customer_management',
-        route: '/admin/customers',
+        route: '/company/customers',
         children: [
 
         ]
@@ -102,7 +133,7 @@ const NavItems = [
         name: 'Routes',
         icon: 'bi bi-pin-map-fill',
         feature: 'route_management',
-        route: '/admin/routes',
+        route: '/company/routes',
         children: [
 
         ]
@@ -111,7 +142,16 @@ const NavItems = [
         name: 'Loadsheets',
         icon: 'bi bi-layout-text-sidebar-reverse',
         feature: 'loadsheet_management',
-        route: '/admin/loadsheets',
+        route: '/company/loadsheets',
+        children: [
+
+        ]
+    },
+    {
+        name: 'Deliveries',
+        icon: 'bi bi-layout-text-sidebar-reverse',
+        feature: 'delivery_management',
+        route: '/company/deliveries',
         children: [
 
         ]
@@ -120,17 +160,17 @@ const NavItems = [
         name: 'Settings',
         icon: 'bi bi-gear-fill',
         feature: 'settings_management',
-        route: '/admin/settings',
+        route: '/company/settings',
         children: [
             {
                 name: 'Product',
                 feature: 'product_settings_management',
-                route: '/admin/settings/product-settings',
+                route: '/company/settings/product-settings',
             },
             {
                 name: 'General',
                 feature: 'general_settings_management',
-                route: '/admin/settings/general-settings',
+                route: '/company/settings/general-settings',
             }
         ]
     },

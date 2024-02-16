@@ -41,7 +41,7 @@ class UnitMeasureController extends Controller
     {
 
         $data = $request->validate([
-            'name' => 'required|unique:unit_measures,name'
+            'name' => 'required'
         ]);
 
         $this->utilityRepository->createUnitMeasure($data);

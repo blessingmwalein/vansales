@@ -26,9 +26,11 @@
                             <div>
                                 <label for="email"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                                <input type="text" name="name" id="name"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    v-model="form.name">
+                                <multiselect @select="populateCodeAndSymbol"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                    v-model="form.name" :multiple="false" :options="currencyOptions" label="name"
+                                    track-by="id">
+                                </multiselect>
                                 <InputError class="mt-2" :message="form.errors.name" />
                             </div>
                             <div>
@@ -113,6 +115,33 @@ export default {
                 payment_methods: this.currency?.payment_methods || [],
 
             }),
+            currencyOptions: [
+                {
+                    id: 1,
+                    name: 'USD',
+                    code: 'USD',
+                    symbol: '$',
+                },
+                {
+                    id: 3,
+                    name: 'RAND',
+                    code: 'ZAR',
+                    symbol: 'R',
+                },
+                {
+                    id: 4,
+                    name: 'RTGS',
+                    code: 'RTGS',
+                    symbol: 'RTGS$',
+                },
+                //pula
+                {
+                    id: 5,
+                    name: 'PULA',
+                    code: 'BWP',
+                    symbol: 'P',
+                },
+            ],
 
             paymentMehodsOptions: []
         }
@@ -140,7 +169,8 @@ export default {
             this.form.payment_methods = this.form.payment_methods.map((item) => {
                 return item.id
             })
-            this.form.post('/admin/currencies', {
+            this.form.name = this.form.name?.name ?? '';
+            this.form.post('/company/currencies', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -152,12 +182,19 @@ export default {
             this.form.payment_methods = this.form.payment_methods.map((item) => {
                 return item.id
             })
-            this.form.put(`/admin/currencies/${this.currency.id}`, {
+            this.form.name = this.form.name?.name ?? '';
+
+            this.form.put(`/company/currencies/${this.currency.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
                 }
             });
+        },
+
+        populateCodeAndSymbol() {
+            this.form.code = this.form.name.name;
+            this.form.symbol = this.form.name.symbol;
         }
     },
 

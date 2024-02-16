@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DeliveryInvoiceController;
+use App\Http\Controllers\DeliverySheetController;
 use App\Http\Controllers\LoadsheetController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\SaleOrderController;
@@ -41,6 +43,13 @@ Route::prefix('driver')->middleware(['auth:sanctum', 'verified'])->group(functio
     Route::post('sync-customers', [CustomerController::class, 'syncCustomersFromMobile']);
     Route::post('start-loadsheet', [LoadsheetController::class, 'startLoadSheetDetail'])->name('loadsheet.startLoadSheet');
     Route::post('complete-loadsheet', [LoadsheetController::class, 'completeLoadSheetDetailDriver'])->name('loadsheet.completeLoadSheetDriver');
+
+    //deliveries routes
+    Route::post('start-delivery-sheet', [DeliverySheetController::class, 'startDeliverySheet']);
+    Route::post('complete-delivery-sheet', [DeliverySheetController::class, 'completeDeliverySheet'])->name('loadsheet.completeDeliverySheet');
+
+    Route::get('delivery-sheets', [DeliverySheetController::class, 'getDeliverySheetByStatus']);
+    Route::post('syc-delivery-sales', [DeliveryInvoiceController::class, 'syncInvoices']);
 });
 
 

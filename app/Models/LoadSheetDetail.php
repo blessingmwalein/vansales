@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+// use App\Traits\CompanyScope;
+
 
 class LoadSheetDetail extends Model
 {
@@ -15,6 +17,8 @@ class LoadSheetDetail extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:00',
     ];
+
+
 
     public function loadsheet()
     {

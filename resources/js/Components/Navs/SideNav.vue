@@ -104,14 +104,27 @@ export default {
     data() {
         return {
             permissions: this.$page.props.permissions,
+            user: this.$page.props.auth?.user,
+            features: this.$page.props.auth?.user?.type == 'Internal' ? [] : this.convertStringFeatureToArray(this.$page.props?.auth?.user?.subscription?.subscription?.features),
             navItems: NavItems,
             selectedMenu: null,
         }
     },
 
     methods: {
+        convertStringFeatureToArray(features) {
+            // Remove the trailing comma to make it valid JSON
+            const stringFeatures = features.replace(/,\s*]/, ']');
+
+            // Parse the string into an array
+            return JSON.parse(stringFeatures);
+        },
         canAccess(permission) {
-            return this.permissions.includes(permission);
+            if (this.user?.type.includes('Internal')) {
+                return this.permissions.includes(permission)
+            } else {
+                return this.features.includes(permission);
+            }
         },
 
         //function to toggle sidebar menu
@@ -122,7 +135,6 @@ export default {
                 document.getElementById(`dropdown-layouts${item.name}`).classList.add('hidden');
                 this.selectedMenu = null;
             }
-
         },
 
         //function to check if sidebar menu is active

@@ -15,8 +15,12 @@ use App\Interfaces\PricingMethodRepositoryInterface;
 use App\Interfaces\PaymentMethodRepositoryInterface;
 use App\Interfaces\ProductPricingRepositoryInterface;
 use App\Interfaces\GeneralSettingRepositoryInterface;
+use App\Interfaces\DeliveryRepositoryInterface;
 use App\Interfaces\SaleOrderRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\CompanyRepositoryInterface;
+use App\Interfaces\SubscriptionRepositoryInterface;
+use App\Models\Subscription;
 use App\Repositories\ProductCategoryRepository;
 use App\Repositories\TruckRepository;
 use App\Repositories\UtilityRepository;
@@ -32,6 +36,9 @@ use App\Repositories\ProductPricingRepository;
 use App\Repositories\GeneralSettingRepository;
 use App\Repositories\SaleOrderRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\CompanyRepository;
+use App\Repositories\DeliveryRepository;
+use App\Repositories\SubscriptionRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -55,7 +62,10 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ProductPricingRepositoryInterface::class, ProductPricingRepository::class);
         $this->app->bind(GeneralSettingRepositoryInterface::class, GeneralSettingRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(CompanyRepositoryInterface::class, CompanyRepository::class);
+        $this->app->bind(SubscriptionRepositoryInterface::class, SubscriptionRepository::class);
         $this->app->bind(SaleOrderRepositoryInterface::class, SaleOrderRepository::class);
+        $this->app->bind(DeliveryRepositoryInterface::class, DeliveryRepository::class);
     }
 
     /**

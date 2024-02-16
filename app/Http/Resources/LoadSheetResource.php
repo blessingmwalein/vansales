@@ -15,7 +15,7 @@ class LoadSheetResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $canViewHistory = Gate::allows('viewHistory', $this->resource);
+        // $canViewHistory = Gate::allows('viewHistory', $this->resource);
 
         return [
             'id' => $this->id,
@@ -24,7 +24,7 @@ class LoadSheetResource extends JsonResource
             'truck' => $this->truck,
             'user' => $this->user,
             'warehouse' => $this->warehouse,
-            'history' => $canViewHistory ? $this->history : null,
+            'history' => $this->history,
             'details' => LoadsheetDetailResource::collection($this->details),
             'route' => $this->route,
             'customer_stops' => $this->customerStops,

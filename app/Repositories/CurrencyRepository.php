@@ -13,7 +13,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
         return Currency::all();
     }
 
-    public function create(array $data)
+    public function create(array $data, $paymentMethods = [])
     {
         //check if default currency is being created
 

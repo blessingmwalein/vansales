@@ -15,9 +15,9 @@ class LoginResponse implements LoginResponseContract
     {
 
         if ($request->user()->hasRole('admin')) {
-            return redirect()->to('/dashboard');
-        } else if ($request->user()->hasRole('security')) {
-            return redirect()->to('/dashboard/security');
+            return redirect()->to('/admin/dashboard');
+        } else if ($request->user()->hasRole('company_admin')) {
+            return redirect()->to('/company/dashboard');
         } else {
             return Inertia::location('/');
         }

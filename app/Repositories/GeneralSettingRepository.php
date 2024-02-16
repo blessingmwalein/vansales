@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\GeneralSettingRepositoryInterface;
+use App\Models\Company;
 use App\Models\GeneralSetting;
 
 class GeneralSettingRepository implements GeneralSettingRepositoryInterface
@@ -65,7 +66,8 @@ class GeneralSettingRepository implements GeneralSettingRepositoryInterface
 
     public function checkIfSettingIsActivated($settingType)
     {
-        $setting = GeneralSetting::where('type', $settingType)->first();
+        $loggedInUser = auth()->user();
+        $setting = GeneralSetting::where('type', $settingType)->where('company_id', $loggedInUser->company_id)->first();
         if ($setting) {
             if ($setting->value == 1) {
                 return true;
@@ -73,5 +75,26 @@ class GeneralSettingRepository implements GeneralSettingRepositoryInterface
         }
 
         return false;
+    }
+
+    public function setDefaultSettingsForCompany($companyId)
+    {
+        //get all general settings  without company_id
+        $settings = GeneralSetting::whereNull('company_id')->get();
+
+        foreach ($settings as $setting) {
+            GeneralSetting::create([
+                'company_id' => $companyId,
+                'name' => $setting->name,
+                'type' => $setting->type,
+                'value' => $setting->value
+            ]);
+        }
+
+        $company = Company::find($companyId);
+        $company->has_default_settings = true;
+        $company->save();
+
+        return true;
     }
 }

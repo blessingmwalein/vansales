@@ -52,7 +52,7 @@ export default {
 
 
         deleteGeneralSetting() {
-            this.$inertia.delete(`/admin/settings/general-settings/${this.selectedGeneralSetting.id}`, {
+            this.$inertia.delete(`/company/settings/general-settings/${this.selectedGeneralSetting.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -63,7 +63,7 @@ export default {
 
         updateSettings() {
             this.isLoading = true;
-            this.$inertia.post(`/admin/settings/update-general-settings`, {
+            this.$inertia.post(`/company/settings/update-general-settings`, {
                 general_settings: this.general_setting_data
             },
                 {

@@ -1,7 +1,7 @@
 <template>
     <div class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
         id="add-user-modal">
-        <div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+        <div class="relative w-full h-full max-w-2xl px-4 md:h-auto ">
             <!-- Modal content -->
             <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
                 <!-- Modal header -->
@@ -20,8 +20,8 @@
                     </button>
                 </div>
                 <!-- Modal body -->
-                <div class="p-6 space-y-6">
-                    <form class="mt-8 space-y-6" action="#">
+                <div class="p-6 space-y-6 overflow-y-auto overflow-auto">
+                    <form class="max-h-[60vh]" action="#">
                         <div class="grid gap-6 mb-6 md:grid-cols-2">
                             <div>
                                 <label for="first_name"
@@ -64,6 +64,16 @@
                                 </multiselect>
                                 <InputError class="mt-2" :message="form.errors.role_id" />
                             </div>
+                        </div>
+
+                        <div v-if="!isExternalUser">
+                            <label for="brand" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">User
+                                Type</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="form.type" :options="userTypeOptions" :multiple="false" label="type" track-by="id">
+                            </multiselect>
+                            <InputError class="mt-2" :message="form.errors.type" />
                         </div>
 
                         <div>
@@ -117,6 +127,16 @@
 
                             <InputError class="mt-2" :message="form.errors.address" />
                         </div>
+                        <div v-if="!isExternalUser">
+                            <label for="brand"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Company</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="form.company_id" :options="companiesOptions" :multiple="false" label="name"
+                                track-by="id">
+                            </multiselect>
+                        </div>
+
                         <div class="grid gap-6 mb-6 md:grid-cols-2">
 
                             <div>
@@ -174,13 +194,16 @@ import globalMixin from "@/Mixins/global.js";
 
 export default {
     components: { InputError, Multiselect },
-    props: ['user', 'roles', 'settings', 'warehouses', 'trucks', 'routes'],
+    props: ['user', 'roles', 'settings', 'warehouses', 'trucks', 'routes', 'companies'],
     mixins: [globalMixin],
     mounted() {
         this.updateOptions();
+        this.form.company_id = this.isExternalUser() ? this.$page.props.auth.user.company_id : null;
+        this.form.type = this.isExternalUser() ? 'External' : 'Internal';
     },
     data() {
         return {
+            loggedInUser: this.$page.props.auth?.user,
             form: useForm({
                 first_name: '',
                 last_name: '',
@@ -194,12 +217,20 @@ export default {
                 role_id: null,
                 is_available: null,
                 address: '',
+                company_id: '',
+                type: '',
             }),
             truckOptions: [],
             warehouseOptions: [],
             routeOptions: [],
             rolesOptions: [],
             isDriver: false,
+            userTypeOptions: [
+                { id: 1, type: 'External' },
+                { id: 2, type: 'Internal' },
+            ],
+
+            companiesOptions: [],
         }
     },
 
@@ -232,6 +263,13 @@ export default {
                     name: route.name,
                 }
             })
+
+            this.companiesOptions = this.companies.map(company => {
+                return {
+                    id: company.id,
+                    name: company.name,
+                }
+            })
         },
         submitForm() {
             if (this.user) {
@@ -240,12 +278,14 @@ export default {
                 this.create();
             }
         },
-
         create() {
+            console.log(this.form);
             this.form.role_id = this.form.role_id?.id ?? null;
             this.form.warehouse_id = this.form.warehouse_id?.id ?? null;
             this.form.truck_id = this.form.truck_id?.id ?? null;
             this.form.route_id = this.form.route_id?.id ?? null;
+            // this.form.company_id = this.form.company_id?.id ?? null;
+            // this.form.type = this.form.type?.type ?? null;
             this.form.post('/admin/users', {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -260,6 +300,8 @@ export default {
             this.form.warehouse_id = this.form.warehouse_id?.id ?? null;
             this.form.truck_id = this.form.truck_id?.id ?? null;
             this.form.route_id = this.form.route_id?.id ?? null;
+            this.form.company_id = this.form.company_id?.id ?? null;
+            this.form.type = this.form.type?.type ?? null;
             this.form.put(`/admin/users/${this.user.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -284,7 +326,24 @@ export default {
                 this.form.phone_number = newValue?.phone_number ?? '';
                 this.form.email = newValue?.email ?? '';
                 this.form.id = newValue?.id ?? null;
-                this.form.role_id = newValue?.roles[0].id ?? null;
+                this.form.role_id = this.rolesOptions.find(
+                    (role) => role.id === newValue?.roles[0]?.id
+                ) ?? null;
+                this.form.warehouse_id = this.warehouseOptions.find(
+                    (warehouse) => warehouse.id === newValue?.warehouse_id
+                ) ?? null;
+                this.form.truck_id = this.truckOptions.find(
+                    (truck) => truck.id === newValue?.truck_id
+                ) ?? null;
+                this.form.route_id = this.routeOptions.find(
+                    (route) => route.id === newValue?.route_id
+                ) ?? null;
+                this.form.company_id = this.companiesOptions.find(
+                    (company) => company.id === newValue?.company_id
+                ) ?? null;
+                this.form.type = this.userTypeOptions.find(
+                    (type) => type.type === newValue?.type
+                ) ?? null;
                 this.form.is_available = newValue?.is_available == 1 ? true : false ?? '';
 
             },

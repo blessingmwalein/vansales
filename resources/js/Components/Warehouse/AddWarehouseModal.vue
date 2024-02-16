@@ -96,7 +96,7 @@ export default {
         },
 
         create() {
-            this.form.post('/admin/warehouses', {
+            this.form.post('/company/warehouses', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -105,7 +105,7 @@ export default {
         },
 
         update() {
-            this.form.put(`/admin/warehouses/${this.warehouse.id}`, {
+            this.form.put(`/company/warehouses/${this.warehouse.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

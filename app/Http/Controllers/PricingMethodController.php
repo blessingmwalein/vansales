@@ -36,7 +36,7 @@ class PricingMethodController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|unique:pricing_methods,name',
+            'name' => 'required|string',
             'is_default' => 'nullable|boolean',
         ]);
 
@@ -66,7 +66,7 @@ class PricingMethodController extends Controller
     public function update(Request $request, PricingMethod $pricingMethod)
     {
         $data = $request->validate([
-            'name' => 'required|string|unique:pricing_methods,name,' . $pricingMethod->id,
+            'name' => 'required|string',
             'is_default' => 'nullable|boolean',
         ]);
 

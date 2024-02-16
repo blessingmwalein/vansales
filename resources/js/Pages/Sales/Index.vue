@@ -59,7 +59,7 @@ export default {
     },
     mounted() {
         this.updateOptions();
-      
+
     },
 
 
@@ -98,15 +98,15 @@ export default {
 
 
         openSingleSale(sale) {
-            this.$inertia.visit(`/admin/sales/${sale.id}`)
+            this.$inertia.visit(`/company/sales/${sale.id}`)
         },
 
-        
+
 
         submitSearch() {
 
             this.isLoading = true;
-            axios.post(`/admin/filter-sales`, {
+            axios.post(`/company/filter-sales`, {
                 customer: this.searchForm.customer,
                 order_number: this.searchForm.order_number,
                 loadsheet: this.searchForm.loadsheet,
@@ -396,7 +396,7 @@ export default {
                                                     :has_edit="false" @view="openSingleSale(sale)" />
                                             </td>
                                         </tr>
-                                      
+
                                     </tbody>
                                 </table>
                             </template>

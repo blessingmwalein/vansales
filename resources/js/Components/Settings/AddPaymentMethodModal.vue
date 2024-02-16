@@ -23,14 +23,14 @@
                 <div class="p-6 space-y-6">
                     <form action="#">
                         <div>
-                            <label for="email"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                            <input type="text" name="name" id="name"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                v-model="form.name">
+                            <label for="brand" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Choose
+                                Payment Methods</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="form.name" :options="paymentOptions" :multiple="false" track-by="id">
+                            </multiselect>
                             <InputError class="mt-2" :message="form.errors.name" />
                         </div>
-
                         <div>
                             <label class="mt-2 relative inline-flex items-center mb-4 cursor-pointer">
                                 <input type="checkbox" value="" v-model="form.is_default" class="sr-only peer" checked>
@@ -57,9 +57,10 @@
 import InputError from '@/Components/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 import { Modal } from 'flowbite';
+import Multiselect from 'vue-multiselect'
 
 export default {
-    components: { InputError },
+    components: { InputError, Multiselect },
     props: ['paymentMethod'],
     mounted() {
 
@@ -73,7 +74,12 @@ export default {
 
                 is_default: this.paymentMethod?.is_default || false,
 
-            })
+            }),
+            paymentOptions: [
+                'Cash',
+                'Bank Transfer',
+                'Mobile'
+            ]
         }
     },
 
@@ -88,7 +94,7 @@ export default {
         },
 
         create() {
-            this.form.post('/admin/payment-methods', {
+            this.form.post('/company/payment-methods', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -97,7 +103,7 @@ export default {
         },
 
         update() {
-            this.form.put(`/admin/payment-methods/${this.paymentMethod.id}`, {
+            this.form.put(`/company/payment-methods/${this.paymentMethod.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -120,3 +126,4 @@ export default {
     },
 }
 </script>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

@@ -41,7 +41,7 @@ class ProductCategoryController extends Controller
     {
 
         $data = $request->validate([
-            'name' => 'required|unique:product_categories,name',
+            'name' => 'required',
             'description' => 'nullable',
         ]);
 

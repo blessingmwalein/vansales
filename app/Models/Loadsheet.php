@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\CompanyScope;
+
 
 class Loadsheet extends Model
 {
-    use HasFactory;
+    use HasFactory, CompanyScope;
     protected $guarded;
 
     // protected $with = ['user'];
@@ -16,6 +18,7 @@ class Loadsheet extends Model
         parent::boot();
         static::creating(function ($loadSheet) {
             $loadSheet->loadsheet_number = $loadSheet->generateLoadSheetNumber();
+            $loadSheet->company_id = auth()->user()->company_id;
         });
     }
 

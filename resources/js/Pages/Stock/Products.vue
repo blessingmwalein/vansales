@@ -113,7 +113,7 @@ export default {
         },
 
         deleteProduct() {
-            this.$inertia.delete(`/admin/products/${this.selectedProduct.id}`, {
+            this.$inertia.delete(`/company/products/${this.selectedProduct.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -140,11 +140,11 @@ export default {
             this.deleteModal.show();
         },
         openSingleProduct(product) {
-            this.$inertia.visit(`/admin/products/${product.id}`)
+            this.$inertia.visit(`/company/products/${product.id}`)
         },
 
         submitSearch() {
-            // this.$inertia.post(`/admin/products-search`, {
+            // this.$inertia.post(`/company/products-search`, {
             //     search: this.search
             // },
             //     {
@@ -156,7 +156,7 @@ export default {
             //     });
             //use axios
             this.isLoading = true;
-            axios.post(`/admin/products-search`, {
+            axios.post(`/company/products-search`, {
                 code: this.searchForm.code,
                 description: this.searchForm.description,
                 from: this.searchForm.date_range ? this.searchForm.date_range[0] : null,

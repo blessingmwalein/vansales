@@ -179,7 +179,7 @@ export default {
     methods: {
         searchCustomer(value, loading) {
             axios
-                .post(`/admin/customers-search`, {
+                .post(`/company/customers-search`, {
                     search: value
                 })
                 .then((response) => {
@@ -234,7 +234,7 @@ export default {
                 return customer.customer_id;
             })
 
-            this.form.post('/admin/add-customer-stops', {
+            this.form.post('/company/add-customer-stops', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.selectedCustomers = [];

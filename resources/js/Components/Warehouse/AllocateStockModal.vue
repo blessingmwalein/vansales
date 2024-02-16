@@ -142,7 +142,7 @@ export default {
     methods: {
         searchProducts(value, loading) {
             axios
-                .post(`/admin/products-search`, {
+                .post(`/company/products-search`, {
                     search: value
                 })
                 .then((response) => {
@@ -193,7 +193,7 @@ export default {
 
         submit() {
             this.form.products = this.selectedProducts;
-            this.form.post('/admin/allocate-stock', {
+            this.form.post('/company/allocate-stock', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.selectedProducts = [];

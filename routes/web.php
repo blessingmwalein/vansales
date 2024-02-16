@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeliverySheetController;
 use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\LoadsheetController;
 use App\Http\Controllers\PaymentMethodController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\ProductPricingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\SaleOrderController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TaxController;
 use App\Http\Controllers\TruckController;
 use App\Http\Controllers\UnitMeasureController;
@@ -53,19 +56,29 @@ Route::middleware([
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
-
-//route prefix for admin
-Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->group(function () {
-    Route::get('/profile', [UserController::class, 'profile'])->name('admin.profile');
-
-    //users
+Route::prefix('admin')->middleware(['auth:sanctum', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
     Route::resource('/users', UserController::class);
+    Route::resource('/companies', CompanyController::class);
+    Route::post('/companies-search', [CompanyController::class, 'filter'])->name('companies.search');
+
+    Route::resource('/subscriptions', SubscriptionController::class);
     Route::post('/search-users', [UserController::class, 'filter'])->name('users.search');
 
     Route::resource('/roles', RoleController::class);
     Route::resource('/permissions', PermissionController::class);
     Route::post('/assign-role-permission', [PermissionController::class, 'assignRolePermission'])->name('assignRolePermission');
+    Route::post('/remove-role-permission', [PermissionController::class, 'removeRolePermission'])->name('removeRolePermission');
+});
 
+//route prefix for admin
+Route::prefix('company')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->group(function () {
+    Route::resource('/employees', UserController::class);
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/profile', [UserController::class, 'profile'])->name('admin.profile');
+    //users
 
     //product category routes
     Route::resource('/product-categories', ProductCategoryController::class);
@@ -94,6 +107,18 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->gro
 
     //loadsheet routes
     Route::resource('/loadsheets', LoadsheetController::class);
+
+
+    //deliveries routes
+    Route::resource('/deliveries', DeliverySheetController::class)->except(['show']);
+    Route::get('/deliveries/{deliverySheet}', [DeliverySheetController::class, 'show']);
+    Route::post('filter-delivery-sheets', [DeliverySheetController::class, 'filter']);
+    Route::post('add-delivery', [DeliverySheetController::class, 'addDelivery']);
+    Route::post('confirm-delivery-sheet', [DeliverySheetController::class, 'confirmDeliverySheet']);
+    Route::post('complete-delivery-sheet', [DeliverySheetController::class, 'completeDeliverySheet']);
+    Route::post('start-delivery-sheet', [DeliverySheetController::class, 'startDeliverySheet']);
+
+
     Route::post('/loadsheets-search', [LoadsheetController::class, 'searchByLoadsheetNumber'])->name('loadsheet.search');
     Route::post('/filter-loaadsheets-status', [LoadsheetController::class, 'filterByStatus'])->name('loadsheet.filter');
     Route::post('/filter-loadsheets-date', [LoadsheetController::class, 'searchByDateRange'])->name('loadsheet.date');
@@ -150,6 +175,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->gro
     //setting routes
     Route::resource('/settings/general-settings', GeneralSettingController::class);
     Route::post('/settings/update-general-settings', [GeneralSettingController::class, 'updateGeneralSettings']);
+    Route::post('/settings/set-default-general-settings', [GeneralSettingController::class, 'setDefaultSettingsForCompany']);
 });
 
 Route::get('/unauthorizes', function () {

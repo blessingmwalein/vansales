@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\CompanyScope;
+
 
 class Warehouse extends Model
 {
-    use HasFactory;
+    use HasFactory, CompanyScope;
 
     protected $guarded;
 
@@ -16,6 +18,7 @@ class Warehouse extends Model
         parent::boot();
         static::creating(function ($warehouse) {
             $warehouse->code = $warehouse->generateCode();
+            $warehouse->company_id = auth()->user()->company_id;
         });
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\CompanyRepositoryInterface;
 use App\Interfaces\GeneralSettingRepositoryInterface;
 use App\Interfaces\RouteRepositoryInterface;
 use App\Interfaces\TruckRepositoryInterface;
@@ -19,19 +20,22 @@ class UserController extends Controller
     private WarehouseRepositoryInterface $warehouseRepository;
     private TruckRepositoryInterface $truckRepository;
     private RouteRepositoryInterface $routeRepository;
+    private CompanyRepositoryInterface $companyRepository;
 
     public function __construct(
         UserRepositoryInterface $userRepository,
         GeneralSettingRepositoryInterface $generalSettingRepository,
         WarehouseRepositoryInterface $warehouseRepository,
         TruckRepositoryInterface $truckRepository,
-        RouteRepositoryInterface $routeRepository
+        RouteRepositoryInterface $routeRepository,
+        CompanyRepositoryInterface $companyRepository
     ) {
         $this->userRepository = $userRepository;
         $this->generalSettingRepository = $generalSettingRepository;
         $this->warehouseRepository = $warehouseRepository;
         $this->truckRepository = $truckRepository;
         $this->routeRepository = $routeRepository;
+        $this->companyRepository = $companyRepository;
     }
 
     /**
@@ -39,13 +43,15 @@ class UserController extends Controller
      */
     public function index()
     {
+        $loggedInUser = auth()->user();
         return Inertia::render('User/Index', [
             'users' => $this->userRepository->getAllUsersPaginated(10),
-            'roles' => Role::all(),
+            'roles' => $loggedInUser->type == 'External' ? Role::where('name', '!=', 'admin')->get() : Role::all(),
             'settings' => $this->generalSettingRepository->all(),
             'warehouses' => $this->warehouseRepository->all(),
             'trucks' => $this->truckRepository->all(),
             'routes' => $this->routeRepository->all(),
+            'companies' => $this->companyRepository->getAllCompanies(),
         ]);
     }
 
@@ -68,11 +74,14 @@ class UserController extends Controller
             'phone_number' => 'required:unique:users,phone_number',
             'email' => 'required|unique:users,email',
             'password' => 'required|confirmed',
+            'type' => 'required',
             'warehouse_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Warehouse') ? 'required' : 'nullable',
             'route_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Routes') ? 'required' : 'nullable',
             'truck_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Trucks') ? 'required' : 'nullable',
             'address' => 'required',
+            'company_id' => 'nullable',
         ]);
+
         $roleData = $request->validate([
             'role_id' => 'required',
         ]);
@@ -116,6 +125,8 @@ class UserController extends Controller
             'route_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Routes') ? 'required' : 'nullable',
             'truck_id' => $this->generalSettingRepository->checkIfSettingIsActivated('Trucks') ? 'required' : 'nullable',
             'address' => 'required',
+            'company_id' => 'nullable',
+            'type' => 'required',
         ]);
 
         $this->userRepository->updateUser($data, $user->id);
@@ -202,7 +213,6 @@ class UserController extends Controller
             'old_password' => 'required',
             'password' => 'required|confirmed',
         ]);
-
         $user = $this->userRepository->changePassword($data);
         if ($user) {
             return $this->response('Password changed successfully', $user);

@@ -35,11 +35,11 @@ class BulkSyncSalesOrders implements ShouldQueue
                 'customer_id' => $salesOrderData['customer_id'] == 0 ? null : $salesOrderData['customer_id'],
                 'loadsheet_id' => $salesOrderData['loadsheet_id'],
                 'status' => $salesOrderData['status'],
-                'payment_method' => $salesOrderData['payment_method'],
-                'currency_id' => $salesOrderData['currency_id'],
-                'discount' => $salesOrderData['discount'],
-                'tax' => $salesOrderData['tax'],
-                'total' => $salesOrderData['total'],
+                // 'payment_method' => $salesOrderData['payment_method'],
+                // 'currency_id' => $salesOrderData['currency_id'],
+                'discount' => json_encode($salesOrderData['discount']),
+                'tax' => json_encode($salesOrderData['tax']),
+                // 'total' => $salesOrderData['total'],
                 'totals' => json_encode($salesOrderData['totals']),
             ]);
 
@@ -55,12 +55,12 @@ class BulkSyncSalesOrders implements ShouldQueue
                 $createdSalesOrder->salesOrderDetails()->create([
                     'stock_id' => $salesOrderDetail['stock_id'],
                     'quantity' => $salesOrderDetail['quantity'],
-                    'total_price' => $salesOrderDetail['total_price'],
+                    // 'total_price' => $salesOrderDetail['total_price'],
                     'is_synced' => true,
                 ]);
 
                 // Increment total items synced
-                $createdSalesOrder->increment('total_items_synced');
+                // $createdSalesOrder->increment('total_items_synced');
             }
         }
     }

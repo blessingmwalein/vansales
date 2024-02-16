@@ -6,6 +6,7 @@ use App\Exports\LoadSheetDetailsExport;
 use App\Exports\LoadSheetSummaryExport;
 use App\Http\Resources\LoadsheetDetailResource;
 use App\Http\Resources\LoadSheetResource;
+use App\Http\Resources\LoadSheetSaleResource;
 use App\Http\Resources\LoadSheetSaleSummaryResource;
 use App\Http\Resources\SaleOderResource;
 use App\Interfaces\GeneralSettingRepositoryInterface;
@@ -129,8 +130,9 @@ class LoadsheetController extends Controller
             'users' => $users,
             'allDrivers' => $allDrivers,
             'allTrucks' => $this->truckRepository->all(),
-            'salesOrderDetails' => LoadSheetSaleSummaryResource::collection($loadsheet->getSalesOrderDetails()),
-            'summary' => $this->loadSheetRepository->getLoadSheetSummary($loadsheet->id),
+            'summary' => LoadSheetSaleSummaryResource::collection($loadsheet->getSalesOrderDetails()),
+            // 'summary' => $this->loadSheetRepository->getLoadSheetSummary($loadsheet->id),
+            'invoices' => LoadSheetSaleResource::collection($loadsheet->sales),
             'settings' => $this->generalSettingRepository->all(),
         ]);
     }

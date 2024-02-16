@@ -56,7 +56,7 @@ export default {
             this.viewRoleModal.hide();
         },
         deleteCategory() {
-            this.$inertia.delete(`/admin/product-categories/${this.selectedProductCategory.id}`, {
+            this.$inertia.delete(`/company/product-categories/${this.selectedProductCategory.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -83,7 +83,7 @@ export default {
             this.deleteModal.show();
         },
         openSingleWarehouse(productCategory) {
-            this.$inertia.visit(`/admin/productCategories/${productCategory.id}`)
+            this.$inertia.visit(`/company/productCategories/${productCategory.id}`)
         }
     },
 

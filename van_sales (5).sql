@@ -1049,7 +1049,6 @@ ALTER TABLE `customers`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `customers_email_unique` (`email`),
   ADD UNIQUE KEY `customers_phone_number_unique` (`phone_number`),
-  ADD UNIQUE KEY `customers_address_unique` (`address`) USING HASH,
   ADD KEY `customers_route_id_foreign` (`route_id`);
 
 --
@@ -1509,10 +1508,10 @@ ALTER TABLE `products`
 --
 -- Constraints for table `product_pricings`
 --
-ALTER TABLE `product_pricings`
-  ADD CONSTRAINT `product_pricings_currency_id_foreign` FOREIGN KEY (`currency_id`) REFERENCES `currencies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `product_pricings_pricing_method_id_foreign` FOREIGN KEY (`pricing_method_id`) REFERENCES `pricing_methods` (`id`),
-  ADD CONSTRAINT `product_pricings_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+-- ALTER TABLE `product_pricings`
+--   ADD CONSTRAINT `product_pricings_currency_id_foreign` FOREIGN KEY (`currency_id`) REFERENCES `currencies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+--   ADD CONSTRAINT `product_pricings_pricing_method_id_foreign` FOREIGN KEY (`pricing_method_id`) REFERENCES `pricing_methods` (`id`),
+--   ADD CONSTRAINT `product_pricings_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `role_has_permissions`

@@ -102,7 +102,7 @@ export default {
         },
 
         deleteCurrency() {
-            this.$inertia.delete(`/admin/currencies/${this.selectedCurrency.id}`, {
+            this.$inertia.delete(`/company/currencies/${this.selectedCurrency.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteCurrencyModal();
@@ -110,7 +110,7 @@ export default {
             });
         },
         deletePricingMethod() {
-            this.$inertia.delete(`/admin/pricing-methods/${this.selectedPricingMethod.id}`, {
+            this.$inertia.delete(`/company/pricing-methods/${this.selectedPricingMethod.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeletePricingMethodModal();
@@ -118,7 +118,7 @@ export default {
             });
         },
         deletePaymentMethod() {
-            this.$inertia.delete(`/admin/payment-methods/${this.selectedPaymentMethod.id}`, {
+            this.$inertia.delete(`/company/payment-methods/${this.selectedPaymentMethod.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeletePricingMethodModal();
@@ -565,7 +565,8 @@ export default {
             </div>
         </div>
 
-        <AddCurrencyModal :paymentMethods="paymentMethods.data" :currency="selectedCurrency" @save="closeAddCurrencyModal()" />
+        <AddCurrencyModal :paymentMethods="paymentMethods.data" :currency="selectedCurrency"
+            @save="closeAddCurrencyModal()" />
         <AddPricingMethodModal :pricingMethod="selectedPricingMethod" @save="closeAddPricingMethodModal()" />
         <AddPaymentMethodModal :paymentMethod="selectedPaymentMethod" @save="closeAddPaymentMethodModal()" />
         <ConfirmDeleteDialog @cancel="closeDeletePricingMethodModal" @yes="deletePricingMethod" :type="'pricing-method'" />

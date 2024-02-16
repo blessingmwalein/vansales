@@ -83,7 +83,7 @@ export default {
         },
 
         create() {
-            this.form.post('/admin/taxs', {
+            this.form.post('/company/taxs', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -92,7 +92,7 @@ export default {
         },
 
         update() {
-            this.form.put(`/admin/taxs/${this.tax.id}`, {
+            this.form.put(`/company/taxs/${this.tax.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

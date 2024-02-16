@@ -74,7 +74,7 @@ export default {
         },
 
         create() {
-            this.form.post('/admin/unit-measures', {
+            this.form.post('/company/unit-measures', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -83,7 +83,7 @@ export default {
         },
 
         update() {
-            this.form.put(`/admin/unit-measures/${this.unitOfMeasure.id}`, {
+            this.form.put(`/company/unit-measures/${this.unitOfMeasure.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

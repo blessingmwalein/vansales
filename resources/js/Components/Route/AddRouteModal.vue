@@ -133,7 +133,7 @@ export default {
         },
 
         create() {
-            this.form.post('/admin/routes', {
+            this.form.post('/company/routes', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -149,7 +149,7 @@ export default {
         },
 
         update() {
-            this.form.post(`/admin/routes/${this.route.id}`, {
+            this.form.post(`/company/routes/${this.route.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

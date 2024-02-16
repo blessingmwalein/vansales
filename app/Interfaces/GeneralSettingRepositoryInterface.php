@@ -16,8 +16,10 @@ interface GeneralSettingRepositoryInterface
 
     public function getPaginated($perPage = 10);
 
-    //create function to updateGeneralSettings 
+    //create function to updateGeneralSettings
     public function updateGeneralSettings(array $data);
 
     public function checkIfSettingIsActivated($settingType);
+
+    public function setDefaultSettingsForCompany($companyId);
 }

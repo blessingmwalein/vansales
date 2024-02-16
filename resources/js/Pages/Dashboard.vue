@@ -120,18 +120,18 @@ export default {
                     enabled: false
                 },
             },
-            series: [
-                {
-                    name: 'Revenue',
-                    data: this.formartSales(),
-                    color: '#1A56DB'
-                },
-                // {
-                //     name: 'Revenue (previous period)',
-                //     data: [6556, 6725, 6424, 6356, 6586, 6756, 6616],
-                //     color: '#FDBA8C'
-                // }
-            ],
+            // series: [
+            //     {
+            //         name: 'Revenue',
+            //         data: this.formartSales(),
+            //         color: '#1A56DB'
+            //     },
+            //     // {
+            //     //     name: 'Revenue (previous period)',
+            //     //     data: [6556, 6725, 6424, 6356, 6586, 6756, 6616],
+            //     //     color: '#FDBA8C'
+            //     // }
+            // ],
 
             newProductsOptions: {
                 colors: ['#1A56DB', '#FDBA8C'],
@@ -306,7 +306,7 @@ export default {
             this.sales.forEach(sale => {
                 salesListByMonth[sale.month - 1] = sale.total
             });
-           
+
             return salesListByMonth
 
         },
@@ -326,9 +326,8 @@ export default {
 
 <template>
     <MainLayout>
-        <div class="px-4 pt-6">
+        <!-- <div class="px-4 pt-6">
             <div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-                <!-- Main widget -->
                 <div
                     class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                     <div class="flex items-center justify-between mb-4">
@@ -339,7 +338,6 @@ export default {
                         </div>
                         <div
                             class="flex items-center justify-end flex-1 text-base font-medium text-green-500 dark:text-green-400">
-                            <!-- 12.5% -->
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"
                                     d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
@@ -350,7 +348,6 @@ export default {
 
                     <apexchart type="area" :options="options" :series="series"></apexchart>
 
-                    <!-- Card Footer -->
                     <div
                         class="flex items-center justify-between pt-3 mt-4 border-t border-gray-200 sm:pt-6 dark:border-gray-700">
                         <div>
@@ -362,7 +359,6 @@ export default {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7"></path>
                                 </svg></button>
-                            <!-- Dropdown menu -->
                             <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
                                 id="weekly-sales-dropdown">
                                 <div class="px-4 py-3" role="none">
@@ -417,7 +413,6 @@ export default {
                         </div>
                     </div>
                 </div>
-                <!--Tabs widget -->
                 <div
                     class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                     <h3 class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white">Statistics this
@@ -457,15 +452,15 @@ export default {
                     </ul>
                     <div id="fullWidthTabContent" class="border-t border-gray-200 dark:border-gray-600">
                         <div class=" pt-4" id="products-tab" role="tabpanel">
-                            <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-                                <li class="py-3 sm:py-4" v-for="product in topSoldProducts.data">
+                            <ul  role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <li class="py-3 sm:py-4" v-for="product in topSoldProducts?.data">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center min-w-0">
                                             <img class="flex-shrink-0 w-10 h-10"
-                                                :src="`/storage/${product.stock.product.image}`" alt="imac image">
+                                                :src="`/storage/${product?.stock?.product?.image}`" alt="imac image">
                                             <div class="ml-3">
                                                 <p class="font-medium text-gray-900 truncate dark:text-white">
-                                                    {{ product.stock.product.description }}
+                                                    {{ product?.stock?.product?.description }}
                                                 </p>
                                                 <div
                                                     class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
@@ -482,7 +477,7 @@ export default {
                                         </div>
                                         <div
                                             class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            ${{ product.total_price }}
+                                            ${{ product?.total_price }}
                                         </div>
                                     </div>
                                 </li>
@@ -589,7 +584,6 @@ export default {
                             </ul>
                         </div>
                     </div>
-                    <!-- Card Footer -->
                     <div
                         class="flex items-center justify-between pt-3 mt-5 border-t border-gray-200 sm:pt-6 dark:border-gray-700">
                         <div>
@@ -601,7 +595,6 @@ export default {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7"></path>
                                 </svg></button>
-                            <!-- Dropdown menu -->
                             <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
                                 id="stats-dropdown">
                                 <div class="px-4 py-3" role="none">
@@ -671,7 +664,6 @@ export default {
                                         d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
                                     </path>
                                 </svg>
-                                <!-- 12.5% -->
                             </span>
                             Since last month
                         </p>
@@ -692,7 +684,6 @@ export default {
                                         d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
                                     </path>
                                 </svg>
-                                <!-- 3,4% -->
                             </span>
                             Since last month
                         </p>
@@ -702,7 +693,7 @@ export default {
                 </div>
 
             </div>
-        </div>
+        </div> -->
     </MainLayout>
 </template>
 <style></style>

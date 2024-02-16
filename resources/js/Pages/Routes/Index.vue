@@ -56,7 +56,7 @@ export default {
         },
 
         deleteRoute() {
-            this.$inertia.delete(`/admin/routes/${this.selectedRoute.id}`, {
+            this.$inertia.delete(`/company/routes/${this.selectedRoute.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -83,7 +83,7 @@ export default {
             this.deleteModal.show();
         },
         submitSearch() {
-            // this.$inertia.post(`/admin/products-search`, {
+            // this.$inertia.post(`/company/products-search`, {
             //     search: this.search
             // },
             //     {
@@ -94,7 +94,7 @@ export default {
             //         }
             //     });
             //use axios
-            axios.post(`/admin/routes-search`, {
+            axios.post(`/company/routes-search`, {
                 search: this.search
             })
                 .then((response) => {
@@ -106,7 +106,7 @@ export default {
                 });
         },
         openSingleRoute(route) {
-            this.$inertia.visit(`/admin/routes/${route.id}`)
+            this.$inertia.visit(`/company/routes/${route.id}`)
         },
 
     },

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\CompanyScope;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, CompanyScope;
     protected $guarded;
 
     protected $casts = [
@@ -21,8 +22,11 @@ class Product extends Model
         parent::boot();
         static::creating(function ($product) {
             $product->code = $product->generateCode();
+            $product->company_id = auth()->user()->company_id;
         });
     }
+
+
 
     public function category()
     {

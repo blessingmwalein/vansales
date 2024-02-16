@@ -75,7 +75,7 @@ export default {
     methods: {
         submitForm() {
             //update form
-            this.form.post('/admin/update-loadsheet-details', {
+            this.form.post('/company/update-loadsheet-details', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+// use App\Traits\CompanyScope;
 
 class SaleOrder extends Model
 {
@@ -13,6 +14,14 @@ class SaleOrder extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:00',
     ];
+
+    // protected static function boot()
+    // {
+    //     parent::boot();
+    //     static::creating(function ($model) {
+    //         $model->company_id = auth()->user()->company_id;
+    //     });
+    // }
 
     public function salesOrderDetails()
     {

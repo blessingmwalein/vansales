@@ -78,7 +78,7 @@ export default {
         },
 
         deleteUnitMeasure() {
-            this.$inertia.delete(`/admin/unit-measures/${this.selectedUnitofMeasure.id}`, {
+            this.$inertia.delete(`/company/unit-measures/${this.selectedUnitofMeasure.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -86,7 +86,7 @@ export default {
             });
         },
         deleteTax() {
-            this.$inertia.delete(`/admin/taxs/${this.selectedTax.id}`, {
+            this.$inertia.delete(`/company/taxs/${this.selectedTax.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteTaxModal();

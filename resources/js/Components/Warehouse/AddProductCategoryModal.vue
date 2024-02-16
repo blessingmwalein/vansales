@@ -83,7 +83,7 @@ export default {
         },
 
         create() {
-            this.form.post('/admin/product-categories', {
+            this.form.post('/company/product-categories', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -92,7 +92,7 @@ export default {
         },
 
         update() {
-            this.form.put(`/admin/product-categories/${this.productCategory.id}`, {
+            this.form.put(`/company/product-categories/${this.productCategory.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');

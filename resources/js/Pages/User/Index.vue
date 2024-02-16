@@ -25,7 +25,7 @@ export default {
         Multiselect
     },
 
-    props: ['users', 'roles', 'settings', 'warehouses', 'routes', 'trucks'],
+    props: ['users', 'roles', 'settings', 'warehouses', 'routes', 'trucks', 'companies'],
     data() {
         return {
             user_data: this.users,
@@ -394,7 +394,7 @@ export default {
                 :next_page_url="user_data.next_page_url" :prev_page_url="user_data.prev_page_url" />
         </div>
 
-        <AddUserModal :user="selectedUser" :warehouses="warehouses" :trucks="trucks" :routes="routes" :settings="settings"
+        <AddUserModal :companies="companies" :user="selectedUser" :warehouses="warehouses" :trucks="trucks" :routes="routes" :settings="settings"
             @save="closeAddUserModal()" :roles="roles" />
         <ConfirmDeleteDialog @cancel="closeDeleteModal" @yes="deleteUser" :type="'user'" />
         <!-- <ViewRoleModal :user="selectedUser" @close="closeViewRoleModal()" :permissions_data="permissions_data"

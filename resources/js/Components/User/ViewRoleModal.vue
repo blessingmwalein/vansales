@@ -28,7 +28,7 @@
                             <span
                                 class="h-auto max-w-full inline-flex items-center px-2 py-1 mr-2 text-sm font-medium text-blue-800 bg-blue-100 rounded dark:bg-blue-900 dark:text-blue-300">
                                 {{ permission.name }}
-                                <button type="button"
+                                <button type="button" @click="confirmRemovePermission($event, permission)"
                                     class="inline-flex items-center p-1 ml-2 text-sm text-blue-400 bg-transparent rounded-sm hover:bg-blue-200 hover:text-blue-900 dark:hover:bg-blue-800 dark:hover:text-blue-300"
                                     data-dismiss-target="#badge-dismiss-default" aria-label="Remove">
 
@@ -63,25 +63,34 @@
                 </div>
             </div>
         </div>
+        <ConfirmDeleteDialog @cancel="closeRemovePermissionModal" @yes="removePermission" :type="'permission'" />
+
     </div>
 </template>
 <script>
 import InputError from '@/Components/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 import { Modal } from 'flowbite';
+import ConfirmDeleteDialog from '@/Components/ConfirmDeleteDialog.vue';
+
 
 export default {
-    components: { InputError },
+    components: { InputError, ConfirmDeleteDialog },
     props: ['role', 'permissions_data'],
     mounted() {
-
+        const $removePermissionModalEl = document.getElementById('delete-permission-modal');
+        this.removePermissionModal = new Modal($removePermissionModalEl);
     },
     data() {
         return {
             form: useForm({
                 permission_id: null,
                 role_id: this.role?.id ?? null,
-            })
+            }),
+
+            selectedPermission: null,
+            removePermissionModal: null,
+
         }
     },
 
@@ -94,6 +103,33 @@ export default {
                 }
             });
         },
+
+        removePermission(permission) {
+            this.form.post('/admin/remove-role-permission', {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // this.$emit('save');
+                    this.closeRemovePermissionDialog();
+                }
+            });
+        },
+        closeRemovePermissionDialog() {
+            this.removePermissionModal.hide();
+        },
+        closeViewRoleModal() {
+            this.viewRoleModal.hide();
+        },
+
+        closeRemovePermissionModal() {
+            this.removePermissionModal.hide();
+        },
+
+        confirmRemovePermission(event, permission) {
+            // this.selectedPermission = permission;
+
+            this.form.permission_id = permission.id;
+            this.removePermissionModal.show();
+        }
     },
 
     watch: {

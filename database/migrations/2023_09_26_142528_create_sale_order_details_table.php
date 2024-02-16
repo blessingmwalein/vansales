@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('stock_id')->constrained('stocks');
             $table->float('quantity');
             $table->float('total_price');
+            $table->foreignId('currency_id')->nullable()->constrained('currencies');
             $table->boolean('is_synced')->default(false);
             $table->timestamps();
         });

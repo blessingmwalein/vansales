@@ -204,7 +204,7 @@ export default {
             formData.append("products_template", this.file);
             formData.append('isSave', isSave);
 
-            axios.post('/admin/upload-excel-products', formData, {
+            axios.post('/company/upload-excel-products', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -220,7 +220,7 @@ export default {
         },
         saveFile() {
             console.log(this.form.products_template);
-            this.form.post('/admin/save-excel-products', {
+            this.form.post('/company/save-excel-products', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.file = null;
@@ -251,7 +251,7 @@ export default {
             var formData = new FormData();
 
             formData.append("products_template", this.file);
-            axios.post('/admin/save-excel-products', formData, {
+            axios.post('/company/save-excel-products', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

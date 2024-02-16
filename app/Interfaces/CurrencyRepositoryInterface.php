@@ -6,7 +6,7 @@ interface CurrencyRepositoryInterface
 {
     public function all();
 
-    public function create(array $data);
+    public function create(array $data, $paymentMethods = []);
 
     public function update(array $data, $id);
 

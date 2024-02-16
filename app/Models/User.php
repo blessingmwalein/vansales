@@ -10,6 +10,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use App\Traits\CompanyScope;
+
+
 
 class User extends Authenticatable
 {
@@ -19,24 +22,14 @@ class User extends Authenticatable
     use Notifiable;
     use TwoFactorAuthenticatable;
     use HasRoles;
+    use CompanyScope;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'first_name',
-        'last_name',
-        'phone_number',
-        'email',
-        'password',
-        'is_available',
-        'warehouse_id',
-        'route_id',
-        'truck_id',
-        'address'
-    ];
+    protected $guarded;
 
     /**
      * The attributes that should be hidden for serialization.
@@ -69,13 +62,17 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
-    protected $with = ['warehouse', 'route', 'truck'];
+    protected $with = ['warehouse', 'route', 'truck', 'company', 'subscription'];
 
     protected array $guard_name = ['sanctum', 'web'];
 
     public function loadsheets()
     {
         return $this->hasMany(Loadsheet::class, 'user_id');
+    }
+    public function deliverySheets()
+    {
+        return $this->hasMany(DeliverySheet::class, 'user_id');
     }
 
     //get is user has open loadsheets if status is not complete
@@ -93,7 +90,6 @@ class User extends Authenticatable
     {
         return Currency::where('is_default', true)->first();
     }
-
 
     //function to check if user has role admin
     public function isAdmin()
@@ -120,5 +116,16 @@ class User extends Authenticatable
     public function truck()
     {
         return $this->belongsTo(Truck::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    //create function to get user company subscription
+    public function subscription()
+    {
+        return $this->hasOne(CompanySubscription::class, 'company_id', 'company_id');
     }
 }

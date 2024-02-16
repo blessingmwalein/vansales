@@ -57,7 +57,7 @@
                             Apps
                         </div>
                         <div class="grid grid-cols-3 gap-4 p-4">
-                            <Link :href="'/samin/sales'"
+                            <Link :href="'/company/sales'"
                                 class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -67,7 +67,7 @@
                             </svg>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">Sales</div>
                             </Link>
-                            <Link :href="'/admin/users'"
+                            <Link :href="'/company/users'"
                                 class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -77,7 +77,7 @@
                             </svg>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">Users</div>
                             </Link>
-                            <Link :href="'/admin/loadsheets'"
+                            <Link :href="'/company/loadsheets'"
                                 class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -87,7 +87,7 @@
                             </svg>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">Loadsheets</div>
                             </Link>
-                            <Link :href="'/admin/profile'"
+                            <Link :href="'/company/profile'"
                                 class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -97,7 +97,7 @@
                             </svg>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">Profile</div>
                             </Link>
-                            <Link :href="'/admin/tilities'"
+                            <Link :href="'/company/tilities'"
                                 class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -107,7 +107,7 @@
                             </svg>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">Utilities</div>
                             </Link>
-                            <Link :href="'/admin/products'"
+                            <Link :href="'/company/products'"
                                 class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -118,7 +118,7 @@
                             </svg>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">Products</div>
                             </Link>
-                            <Link :href="'/admin/customers'"
+                            <Link :href="'/company/customers'"
                                 class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -131,7 +131,7 @@
                             </svg>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">Customers</div>
                             </Link>
-                            <Link :href="'/admin/warehouses'"
+                            <Link :href="'/company/warehouses'"
                                 class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -175,10 +175,25 @@
                                 <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
                                     {{ user.email }}
                                 </p>
+                                <p v-if="user.company">
+                                    {{ user.company?.name }}
+                                </p>
+                                <p v-if="user.company">
+                                    <span
+                                        class="bg-pink-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-pink-900 dark:text-pink-300">
+                                        <strong> {{ user.subscription?.period }} {{ user.subscription?.subscription?.name }}
+                                        </strong> </span>
+                                </p>
                             </div>
                             <ul class="py-1" role="none">
                                 <li>
-                                    <Link href="#"
+
+                                    <Link href="/company/settings/product-settings" v-if="!defaultCurrency"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                                        role="menuitem">Currency : <span
+                                        class="bg-pink-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-pink-900 dark:text-pink-300">
+                                        <strong> Set Default Currency</strong> </span></Link>
+                                    <Link href="#" v-else
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                                         role="menuitem">Currency : <span
                                         class="bg-pink-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-pink-900 dark:text-pink-300">
@@ -190,7 +205,7 @@
                                         role="menuitem">Dashboard</Link>
                                 </li>
                                 <li>
-                                    <Link :href="'/admin/profile'"
+                                    <Link :href="'/company/profile'"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                                         role="menuitem">Profile</Link>
                                 </li>

@@ -22,15 +22,23 @@
                 <!-- Modal body -->
                 <div class="p-6 space-y-6">
                     <form action="#">
-                        <div>
+                        <!-- <div>
                             <label for="email"
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
                             <input type="text" name="name" id="name"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 v-model="form.name">
                             <InputError class="mt-2" :message="form.errors.name" />
+                        </div> -->
+                        <div>
+                            <label for="brand" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Choose
+                                Pricing Type</label>
+                            <multiselect
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white   dark:border-gray-600"
+                                v-model="form.name" :options="pricingTypeOptions" :multiple="false" track-by="id">
+                            </multiselect>
+                            <InputError class="mt-2" :message="form.errors.name" />
                         </div>
-
                         <div>
                             <label class="mt-2 relative inline-flex items-center mb-4 cursor-pointer">
                                 <input type="checkbox" value="" v-model="form.is_default" class="sr-only peer" checked>
@@ -57,9 +65,11 @@
 import InputError from '@/Components/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 import { Modal } from 'flowbite';
+import Multiselect from 'vue-multiselect'
+
 
 export default {
-    components: { InputError },
+    components: { InputError,Multiselect },
     props: ['pricingMethod'],
     mounted() {
 
@@ -73,7 +83,9 @@ export default {
 
                 is_default: this.pricingMethod?.is_default || false,
 
-            })
+            }),
+            pricingTypeOptions: ['Fixed Price Per Currency', 'Exchange Rate'],
+
         }
     },
 
@@ -88,7 +100,7 @@ export default {
         },
 
         create() {
-            this.form.post('/admin/pricing-methods', {
+            this.form.post('/company/pricing-methods', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -97,7 +109,7 @@ export default {
         },
 
         update() {
-            this.form.put(`/admin/pricing-methods/${this.pricingMethod.id}`, {
+            this.form.put(`/company/pricing-methods/${this.pricingMethod.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -120,3 +132,4 @@ export default {
     },
 }
 </script>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

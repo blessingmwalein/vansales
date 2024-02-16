@@ -94,7 +94,7 @@ export default {
             this.viewRoleModal.hide();
         },
         deleteRole() {
-            this.$inertia.delete(`/admin/users/warehouses/${this.selectedStock.id}`, {
+            this.$inertia.delete(`/company/users/warehouses/${this.selectedStock.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -122,7 +122,7 @@ export default {
             this.deleteModal.show();
         },
         openSingleProduct(product) {
-            this.$inertia.visit(`/admin/products/${product.id}`)
+            this.$inertia.visit(`/company/products/${product.id}`)
         },
     },
 

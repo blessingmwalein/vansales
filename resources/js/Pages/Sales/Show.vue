@@ -72,7 +72,7 @@ export default {
         },
 
         openSingleProduct(product) {
-            this.$inertia.visit(`/admin/products/${product.id}`)
+            this.$inertia.visit(`/company/products/${product.id}`)
         },
 
         calcumatePayments() {

@@ -236,7 +236,7 @@ export default {
             this.form.hasMoreThanOnePrices = this.hasMoreThanOnePrices();
             this.form.currency_id = this.defaultCurrency.id;
             this.form.pricing_method_id = this.defaultPricingMethod.id;
-            this.form.post('/admin/products', {
+            this.form.post('/company/products', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -248,7 +248,7 @@ export default {
             this.form.hasMoreThanOnePrices = this.hasMoreThanOnePrices();
             this.form.currency_id = this.defaultCurrency.id;
             this.form.pricing_method_id = this.defaultPricingMethod.id;
-            this.form.post(`/admin/update-product/${this.product.id}`, {
+            this.form.post(`/company/update-product/${this.product.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
@@ -285,7 +285,7 @@ export default {
             const currencies = this.$page.props?.currencies;
             if (this.hasMoreThanOnePrices()) {
                 this.form.prices = currencies.map(currency => {
-                    const price = prices.find(price => price.currency_id == currency.id);
+                    const price = prices?.find(price => price.currency_id == currency.id);
                     return {
                         currency_id: currency.id,
                         retail_price: price?.retail_price || 0,
@@ -305,7 +305,7 @@ export default {
             }
         },
         hasMoreThanOnePrices() {
-            return !this.defaultPricingMethod.name.includes('Exchange Rate');
+            return !this.defaultPricingMethod?.name.includes('Exchange Rate');
         },
     },
 

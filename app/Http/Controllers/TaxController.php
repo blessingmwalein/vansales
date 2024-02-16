@@ -38,7 +38,7 @@ class TaxController extends Controller
     {
 
         $data = $request->validate([
-            'name' => 'required|unique:taxes,name',
+            'name' => 'required',
             'rate' => 'required|numeric',
         ]);
 

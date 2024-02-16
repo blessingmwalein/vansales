@@ -99,4 +99,19 @@ class GeneralSettingController extends Controller
 
         return redirect()->back()->with('success', 'General settings updated successfully');
     }
+
+    public function setDefaultSettingsForCompany(Request $request)
+    {
+
+        $companyId = $request->company_id;
+
+        // dd($companyId);
+
+        if (!$companyId) {
+            return redirect()->back()->with('error', 'Company id is required');
+        }
+        $this->generalSettingRepository->setDefaultSettingsForCompany($companyId);
+
+        return redirect()->back()->with('success', 'Default settings set successfully');
+    }
 }

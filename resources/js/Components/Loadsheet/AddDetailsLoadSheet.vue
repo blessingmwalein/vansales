@@ -150,7 +150,7 @@ export default {
     methods: {
         searchProducts(value, loading) {
             axios
-                .post(`/admin/products-search-warehouse`, {
+                .post(`/company/products-search-warehouse`, {
                     id: this.loadsheet.warehouse.id,
                     search: value
                 })
@@ -207,7 +207,7 @@ export default {
         submit() {
             this.form.details = this.selectedProducts;
 
-            this.form.post('/admin/add-loadsheet-details', {
+            this.form.post('/company/add-loadsheet-details', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.selectedProducts = [];

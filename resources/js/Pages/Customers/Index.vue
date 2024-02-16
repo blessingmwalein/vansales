@@ -77,7 +77,7 @@ export default {
         },
 
         deleteCustomer() {
-            this.$inertia.delete(`/admin/customers/${this.selectedCustomer.id}`, {
+            this.$inertia.delete(`/company/customers/${this.selectedCustomer.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeDeleteModal();
@@ -105,7 +105,7 @@ export default {
         },
         submitSearch() {
             this.isLoading = true;
-            axios.post(`/admin/customers-search`, {
+            axios.post(`/company/customers-search`, {
                 name: this.searchForm.name,
                 routes: this.searchForm.routes ? this.searchForm.routes.map(route => route.id) : [],
                 phone_number: this.searchForm.phone_number,
@@ -172,9 +172,9 @@ export default {
                             </svg>
                             Add Customer
                         </button>
-                        <Link type="button" href="/admin/customers-map"
+                        <Link type="button" href="/company/customers-map"
                             class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                            <i class=" w-5 h-5 mr-2 -ml-1 bi bi-geo-alt" 
+                            <i class=" w-5 h-5 mr-2 -ml-1 bi bi-geo-alt"
                                 ></i>
                             View Customer Map
                     </Link>

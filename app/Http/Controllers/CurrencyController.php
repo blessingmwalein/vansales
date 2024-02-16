@@ -55,15 +55,18 @@ class CurrencyController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|unique:currencies,name',
-            'code' => 'required|string|unique:currencies,code',
-            'symbol' => 'nullable|string|unique:currencies,symbol',
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'symbol' => 'nullable|string',
             'exchange_rate' => 'required|numeric',
             'is_default' => 'required|boolean',
+        ]);
+
+        $methods = $request->validate([
             'payment_methods' => 'nullable|array',
         ]);
 
-        $this->currencyRepository->create($data);
+        $this->currencyRepository->create($data, $methods);
         return redirect()->back()->with('success', 'Currency created successfully');
     }
 
@@ -89,9 +92,9 @@ class CurrencyController extends Controller
     public function update(Request $request, Currency $currency)
     {
         $data = $request->validate([
-            'name' => 'required|string|unique:currencies,name,' . $currency->id,
-            'code' => 'required|string|unique:currencies,code,' . $currency->id,
-            'symbol' => 'nullable|string|unique:currencies,symbol,' . $currency->id,
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'symbol' => 'nullable|string',
             'exchange_rate' => 'required|numeric',
             'is_default' => 'required|boolean',
             'payment_methods' => 'nullable|array',
@@ -112,6 +115,6 @@ class CurrencyController extends Controller
 
     public function getCurrencies()
     {
-        return $this->response('Currencies',$this->currencyRepository->all());
+        return $this->response('Currencies', $this->currencyRepository->all());
     }
 }

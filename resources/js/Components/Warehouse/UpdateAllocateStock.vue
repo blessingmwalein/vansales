@@ -79,7 +79,7 @@ export default {
             this.form.products[0].value = this.stock.product.id;
             this.form.products[0].productCode = this.stock.product.code;
             this.form.products[0].productName = this.stock.product.description;
-            this.form.post('/admin/allocate-stock', {
+            this.form.post('/company/allocate-stock', {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.$emit('save');
