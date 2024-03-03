@@ -5,7 +5,10 @@ namespace App\Interfaces;
 interface CompanyRepositoryInterface
 {
 
-    public function getAllCompanies();
+    public function getAllCompanies($from = null, $to = null);
+
+    public function getEmployees($from = null, $to = null);
+
 
     public function getAllCompaniesPaginated($page);
 

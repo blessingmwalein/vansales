@@ -22,7 +22,7 @@ class GeneralSettingController extends Controller
     public function index()
     {
         return Inertia::render('Settings/General', [
-            'generalSettings' => $this->generalSettingRepository->all(),
+            'generalSettings' => $this->generalSettingRepository->getAllCompanyGeneralSettings(auth()->user()->company_id),
         ]);
     }
 

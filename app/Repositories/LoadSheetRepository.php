@@ -8,8 +8,7 @@ use App\Interfaces\LoadSheetRepositoryInterface;
 use App\Interfaces\PricingMethodRepositoryInterface;
 use App\Models\CustomerStop;
 use App\Models\Loadsheet;
-use App\Models\LoadSheetDetail;
-use App\Models\SaleOrder;
+use App\Models\AllocationItem;
 use App\Models\Stock;
 use App\Models\Truck;
 use App\Models\User;
@@ -214,7 +213,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
     public function updateLoadSheetDetail($detail_id, $data)
     {
 
-        $record = LoadSheetDetail::find($detail_id);
+        $record = AllocationItem::find($detail_id);
         $update = $this->updateStock($record->stock_id, $record->load_sheet_id, $data['quantity'], false);
         $this->createLoadSheetHistory($record->load_sheet_id, 'Stock Updated', 'Stock Updated');
         return true;
@@ -222,7 +221,7 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
 
     public function deleteLoadSheetDetail($detail_id)
     {
-        $record = LoadSheetDetail::find($detail_id);
+        $record = AllocationItem::find($detail_id);
         $this->addStockToWarehouse($record->loadsheet->warehouse_id, $record->stock_id, $record->quantity);
         $record->delete();
         $loadsheet = Loadsheet::find($record->load_sheet_id);
@@ -230,14 +229,14 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
         return true;
     }
 
-    public function updateStock($stock_id, $load_sheet_id, $quantity, $incerement = false)
+    public function updateStock($stock_id, $load_sheet_id, $quantity, $increment = false)
     {
-        $detail = LoadSheetDetail::where('load_sheet_id', $load_sheet_id)->where('stock_id', $stock_id)->first();
+        $detail = AllocationItem::where('loadsheet_id', $load_sheet_id)->where('stock_id', $stock_id)->first();
 
         $loadsheet = Loadsheet::find($load_sheet_id);
         // dd($stock_id, $load_sheet_id, $quantity, $isNew, $stock);
         if ($detail) {
-            if ($incerement) {
+            if ($increment) {
                 $this->removeStockFromWarehouse($loadsheet->warehouse_id, $stock_id, $quantity);
             } else {
                 if ($quantity > $detail->quantity) {
@@ -246,14 +245,14 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
                     $this->addStockToWarehouse($loadsheet->warehouse_id, $stock_id, $detail->quantity - $quantity);
                 }
             }
-            $detail->quantity = $incerement ?  $quantity + $detail->quantity : $quantity;
+            $detail->quantity = $increment ?  $quantity + $detail->quantity : $quantity;
             $detail->save();
         } else {
             $this->removeStockFromWarehouse($loadsheet->warehouse_id, $stock_id, $quantity);
-            LoadSheetDetail::create([
+            AllocationItem::create([
                 'stock_id' => $stock_id,
                 'quantity' => $quantity,
-                'load_sheet_id' => $load_sheet_id
+                'loadsheet_id' => $load_sheet_id
             ]);
         }
 
@@ -335,37 +334,5 @@ class LoadSheetRepository implements LoadSheetRepositoryInterface
         $driver->is_available = false;
         $driver->save();
         return true;
-    }
-
-    public function getLoadSheetSummary($load_sheet_id)
-    {
-
-        //get loadsheet total allocated quantity
-        $loadsheet = Loadsheet::find($load_sheet_id);
-        $totalAllocatedQuantity = $loadsheet->details()->sum('quantity');
-
-        //get loadsheet total inload quantity from sales order details through sales orders
-        $totalSoldQty = $loadsheet->orderDetails()->sum('quantity');
-
-        $totalSales = $loadsheet->orderDetails()->sum('total_price');
-
-        return [
-            'total_allocated_quantity' => $totalAllocatedQuantity,
-            'total_sold_quantity' => $totalSoldQty,
-            'total_sales' => $totalSales,
-        ];
-    }
-
-    //get loadsheet summary grouped by currency
-    public function getPaymentsBreakDown($load_sheet_id)
-    {
-        // $loadsheet = Loadsheet::find($load_sheet_id);
-
-        return SaleOrder::whereHas('loadsheet', function ($query) use ($load_sheet_id) {
-            $query->where('id', $load_sheet_id);
-        })
-        ->selectRaw("json_unquote(json_extract(totals, '$.*')) as currency, sum(cast(json_unquote(json_extract(totals, json_unquote(json_extract(totals, '$.*')))) as decimal(10,2))) as total")
-        ->groupBy('currency')
-        ->get();
     }
 }

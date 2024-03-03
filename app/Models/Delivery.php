@@ -32,9 +32,9 @@ class Delivery extends Model
         return $this->hasMany(LoadsheetHistory::class, 'loadsheet_id');
     }
 
-    public function items()
+    public function allocationItems()
     {
-        return $this->hasMany(DeliveryItem::class, 'delivery_id');
+        return $this->hasMany(AllocationItem::class, 'delivery_id');
     }
 
     public function deliverySheet()
@@ -49,6 +49,6 @@ class Delivery extends Model
 
     public function invoice()
     {
-        return $this->belongsTo(DeliveryInvoice::class, 'delivery_id', 'id');
+        return $this->belongsTo(Invoice::class, 'delivery_id', 'id');
     }
 }

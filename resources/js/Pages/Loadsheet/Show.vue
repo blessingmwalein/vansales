@@ -40,7 +40,7 @@ export default {
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
         },
     },
-    props: ['paymentsBreakdown', 'loadsheet', 'details', 'trucks', 'settings', 'summary', 'invoices', 'summary', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks', 'sales'],
+    props: ['paymentsBreakdown', 'loadsheet', 'allocationItems', 'trucks', 'settings', 'summary', 'invoices', 'summary', 'warehouses', 'routes', 'users', 'allDrivers', 'allTrucks'],
     data() {
         return {
             selectedDetail: null,
@@ -50,7 +50,7 @@ export default {
             editSheetModal: null,
             deleteModal: null,
             deleteCustomerStopModal: null,
-            activeTab: 'details',
+            activeTab: 'allocationItems',
             selectedDetail: null,
             isShowLoadSheet: false,
             isShowEditSheet: false,
@@ -75,7 +75,7 @@ export default {
         this.showCompleteSheet()
         // this.setCanRemoveStock()
         this.getPaymentBreakDowns();
-        const $targetEl = document.getElementById('add-details-loadsheet-modal');
+        const $targetEl = document.getElementById('add-allocationItems-modal');
         this.addLoadSheetDetail = new Modal($targetEl);
 
         const $targetElConfirm = document.getElementById('confirm-loadsheet-modal');
@@ -105,6 +105,9 @@ export default {
     },
 
     methods: {
+        navigateSingleInvoice(invoice) {
+            this.$inertia.visit(`/company/invoices/${invoice.id}`)
+        },
         openAddCustomerStopModal() {
             this.addCustomerModal.show()
         },
@@ -163,15 +166,15 @@ export default {
         },
         toggleTab(id) {
             this.activeTab = id;
-            if (id == 'details') {
-                document.getElementById('details').classList.remove('hidden');
+            if (id == 'allocationItems') {
+                document.getElementById('allocationItems').classList.remove('hidden');
                 document.getElementById('history').classList.add('hidden');
                 document.getElementById('customers').classList.add('hidden');
                 document.getElementById('summary').classList.add('hidden');
                 document.getElementById('invoices').classList.add('hidden');
 
             } else if (id == 'history') {
-                document.getElementById('details').classList.add('hidden');
+                document.getElementById('allocationItems').classList.add('hidden');
                 document.getElementById('customers').classList.add('hidden');
                 document.getElementById('summary').classList.add('hidden');
                 document.getElementById('invoices').classList.add('hidden');
@@ -179,7 +182,7 @@ export default {
 
                 document.getElementById('history').classList.remove('hidden');
             } else if (id == 'customers') {
-                document.getElementById('details').classList.add('hidden');
+                document.getElementById('allocationItems').classList.add('hidden');
                 document.getElementById('history').classList.add('hidden');
                 document.getElementById('summary').classList.add('hidden');
                 document.getElementById('customers').classList.remove('hidden');
@@ -187,7 +190,7 @@ export default {
 
             }
             else if (id == 'summary') {
-                document.getElementById('details').classList.add('hidden');
+                document.getElementById('allocationItems').classList.add('hidden');
                 document.getElementById('history').classList.add('hidden');
                 document.getElementById('customers').classList.add('hidden');
                 document.getElementById('summary').classList.remove('hidden');
@@ -195,7 +198,7 @@ export default {
 
             }
             else if (id == 'invoices') {
-                document.getElementById('details').classList.add('hidden');
+                document.getElementById('allocationItems').classList.add('hidden');
                 document.getElementById('history').classList.add('hidden');
                 document.getElementById('customers').classList.add('hidden');
                 document.getElementById('summary').classList.add('hidden');
@@ -413,7 +416,7 @@ export default {
 
         exportLoadSheetDetails() {
             const loadSheetInfor = document.getElementById('load-sheet-infor');
-            const loadSheetDetails = document.getElementById('details');
+            const loadSheetDetails = document.getElementById('allocationItems');
             const container = document.createElement('div');
 
             // Append the content of each element to the container
@@ -423,7 +426,7 @@ export default {
             // Export the container to a PDF
             html2pdf(container, {
                 margin: 0,
-                filename: `${`loadsheet-${this.loadsheet.data.loadsheet_number}-details`}.pdf`,
+                filename: `${`loadsheet-${this.loadsheet.data.loadsheet_number}-allocationItems`}.pdf`,
                 image: { type: 'jpeg', quality: 1 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', orientation: 'landscape' }
@@ -462,7 +465,7 @@ export default {
             //create download link from its get admin/download-loadsheet-summary?loadsheet_id=8 and click it
             // this.$inertia.get(`/company/download-loadsheet-summary?loadsheet_id=${this.loadsheet.data.id}`)
 
-            window.open(`/company/download-loadsheet-details?loadsheet_id=${this.loadsheet.data.id}`, '_blank');
+            window.open(`/company/download-loadsheet-allocationItems?loadsheet_id=${this.loadsheet.data.id}`, '_blank');
 
         }
     },
@@ -627,7 +630,7 @@ export default {
                             </li>
                         </ul>
                     </div>
-                    <div class="flex">
+                    <div class="flex" v-if="loadsheet.data.status ==='Completed'">
                         <ul
                             className="mb-4 w-full text-xm font-normal text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <h4 class="text-lg p-3 font-semibold text-gray-900 border-b dark:text-white">Payments Breakdown
@@ -766,7 +769,7 @@ export default {
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
                 <li class="mr-2">
                     <button class="inline-block p-4  rounded-t-lg text-base font-semibold" type="button"
-                        :class="{ 'activeTab': activeTab == 'details' }" @click="toggleTab('details')">
+                        :class="{ 'activeTab': activeTab == 'allocationItems' }" @click="toggleTab('allocationItems')">
                         Items</button>
                 </li>
                 <li class="mr-2">
@@ -793,7 +796,7 @@ export default {
             </ul>
         </div>
         <div>
-            <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="details">
+            <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="allocationItems">
                 <button type="button" @click="exportLoadSheetDetails()"
                     class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
                     <!-- <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
@@ -820,7 +823,7 @@ export default {
                     <div class="overflow-x-auto">
                         <div class="inline-block min-w-full align-middle">
                             <div class="overflow-hidden shadow">
-                                <TableLayout :hasData="details.data.length > 0 ? true : false">
+                                <TableLayout :hasData="allocationItems.data.length > 0 ? true : false">
                                     <template v-slot:table>
                                         <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
                                             <thead class="bg-gray-100 dark:bg-gray-700">
@@ -860,7 +863,7 @@ export default {
                                                 class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
 
                                                 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                    v-for="detail in details.data">
+                                                    v-for="detail in allocationItems.data">
 
                                                     <td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
 
@@ -894,18 +897,18 @@ export default {
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {{ detail.default_price?.currency?.symbol }}{{
-                                                            detail.default_price.retail_price }}
+                                                        {{ detail.defaultPrice?.currency?.symbol }}{{
+                                                            detail.defaultPrice.retail_price }}
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {{ detail.default_price?.currency?.symbol }}{{
-                                                            detail.default_price.wholesale_price }}
+                                                        {{ detail.defaultPrice?.currency?.symbol }}{{
+                                                            detail.defaultPrice.wholesale_price }}
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                         {{
-                                                            detail.default_price.discount }}%
+                                                            detail.defaultPrice.discount }}%
                                                     </td>
 
                                                     <td class="p-4 space-x-2 whitespace-nowrap">
@@ -937,11 +940,11 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div v-if="loadsheet.data.length > 0"
+                <!-- <div v-if="allocationItems.data.length > 0"
                     class="sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 sm:flex sm:justify-between dark:bg-gray-800 dark:border-gray-700">
-                    <Pagination :from="loadsheet.meta.from" :to="loadsheet.meta.to" :total="loadsheet.meta.total"
-                        :next_page_url="loadsheet.links.next" :prev_page_url="loadsheet.links.prev" />
-                </div>
+                    <Pagination :from="allocationItems.meta.from" :to="allocationItems.meta.to" :total="allocationItems.meta.total"
+                        :next_page_url="allocationItems.links.next" :prev_page_url="allocationItems.links.prev" />
+                </div> -->
 
             </div>
             <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="history">
@@ -1080,15 +1083,15 @@ export default {
 
                                                     <td
                                                         class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                                                        {{ customer.customer.name }}</td>
+                                                        {{ customer?.customer?.name }}</td>
                                                     <td
                                                         class="flex p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                         <span
                                                             class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
-                                                            {{ customer.customer.email }}
+                                                            {{ customer?.customer?.email }}
 
                                                         </span>
-                                                        <CopyButton @click="copyToClipboard(customer.customer.email)" />
+                                                        <CopyButton @click="copyToClipboard(customer?.customer?.email)" />
                                                     </td>
                                                     <td
                                                         class=" p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -1096,15 +1099,15 @@ export default {
                                                         <div class="flex">
                                                             <span
                                                                 class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
-                                                                {{ customer.customer.phone_number }}
+                                                                {{ customer?.customer?.phone_number }}
 
                                                             </span>
-                                                            <CopyButton @click="copyToClipboard(customer.phone_number)" />
+                                                            <CopyButton @click="copyToClipboard(customer?.phone_number)" />
                                                         </div>
                                                     </td>
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {{ customer.customer.address }}</td>
+                                                        {{ customer?.customer?.address }}</td>
 
 
                                                     <td class="p-4 space-x-2 whitespace-nowrap">
@@ -1276,18 +1279,6 @@ export default {
             </div>
 
             <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="invoices">
-                <!-- <button type="button" @click="exportDeliverySheetDetails()"
-                    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
-
-                    <i class="bi bi-download w-5 h-5 mr-2 -ml-1"></i>
-                    Export PDf
-                </button>
-                <button type="button" @click="downloadDeliverySheetDeatils()"
-                    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 rounded-lg dark:focus:ring-yellow-900 text-sm px-5 py-2.5 mr-2 mb-2">
-
-                    <i class="bi bi-download w-5 h-5 mr-2 -ml-1"></i>
-                    Export Excel
-                </button> -->
                 <div class="flex flex-col">
                     <div class="overflow-x-auto">
                         <div class="inline-block min-w-full align-middle">
@@ -1341,7 +1332,7 @@ export default {
                                             <tbody
                                                 class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
 
-                                                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                <tr @click="navigateSingleInvoice(detail)" class="hover:bg-gray-100 dark:hover:bg-gray-700  cursor-pointer"
                                                     v-for="detail in invoices.data">
 
                                                     <td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
@@ -1370,7 +1361,7 @@ export default {
                                                             class="mt-1 flex text-sm font-normal text-gray-500 dark:text-gray-400">
                                                             <span
                                                                 class="flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300 ">
-                                                                {{ detail.order_number }}
+                                                                {{ detail.invoice_number }}
 
                                                             </span>
                                                             <CopyButton @click="copyToClipboard(detail.order_number)" />
@@ -1414,30 +1405,17 @@ export default {
                                             </tbody>
                                         </table>
                                     </template>
-                                    <template v-slot:action-button>
-                                        <button @click="openAddDeliverySheetModal()"
-                                            class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600 dark:hover:bg-blue-500 dark:bg-blue-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-
-                                            <span>Add Items</span>
-                                        </button>
-                                    </template>
                                 </TableLayout>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- <div v-if="deliverySheet.data.length > 0"
+                <div v-if="invoices.data.length > 0"
                     class="sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 sm:flex sm:justify-between dark:bg-gray-800 dark:border-gray-700">
-                    <Pagination :from="deliverySheet.meta.from" :to="deliverySheet.meta.to"
-                        :total="deliverySheet.meta.total" :next_page_url="deliverySheet.links.next"
-                        :prev_page_url="deliverySheet.links.prev" />
-                </div> -->
-
+                    <Pagination :from="invoices.meta.from" :to="invoices.meta.to"
+                        :total="invoices.meta.total" :next_page_url="invoices.links.next"
+                        :prev_page_url="invoices.links.prev" />
+                </div>
             </div>
         </div>
         <AddDetailsLoadSheet @save="closeAddStockModal" @close="closeAddStockModal" :loadsheet="loadsheet.data" />

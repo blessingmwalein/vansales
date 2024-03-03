@@ -53,9 +53,9 @@ class Loadsheet extends Model
         return $this->hasMany(LoadsheetHistory::class, 'loadsheet_id');
     }
 
-    public function details()
+    public function allocationItems()
     {
-        return $this->hasMany(LoadSheetDetail::class, 'load_sheet_id');
+        return $this->hasMany(AllocationItem::class, 'loadsheet_id');
     }
 
     public function warehouse()
@@ -85,31 +85,22 @@ class Loadsheet extends Model
         return $this->hasMany(CustomerStop::class, 'loadsheet_id');
     }
 
-    public function sales()
+    public function invoices()
     {
-        return $this->hasMany(SaleOrder::class, 'loadsheet_id');
+        return $this->hasMany(Invoice::class, 'loadsheet_id');
     }
 
-    //get all sales order details do  not repeat details with same stock id
-    public function getSalesOrderDetails()
+    public function getInvoiceItems()
     {
-        $details = [];
-        foreach ($this->sales as $sale) {
-            foreach ($sale->salesOrderDetails as $detail) {
-                $details[] = $detail;
+        $items = [];
+        foreach ($this->invoices as $invoice) {
+            foreach ($invoice->items as $item) {
+                $items[] = $item;
             }
         }
-        return collect($details)->unique('stock_id')->values()->all();
+        return collect($items)->unique('stock_id')->values()->all();
     }
 
-    public function orderDetails()
-    {
-        $details = [];
-        foreach ($this->sales as $sale) {
-            foreach ($sale->salesOrderDetails as $detail) {
-                $details[] = $detail;
-            }
-        }
-        return collect($details);
-    }
+    //get all sales order allocationItems do  not repeat allocationItems with same stock id
+
 }

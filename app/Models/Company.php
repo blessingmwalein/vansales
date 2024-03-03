@@ -25,4 +25,6 @@ class Company extends Model
     {
         return $this->hasMany(GeneralSetting::class, 'company_id', 'id');
     }
+
+
 }

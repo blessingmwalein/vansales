@@ -10,6 +10,7 @@ import ViewDeliveryModal from '@/Components/DeliverySheet/ViewDeliveryModal.vue'
 import MainLayout from '@/Layouts/MainLayout.vue';
 import globalMixin from "@/Mixins/global.js";
 import UserCircleAvartar from '@/Components/UserCircleAvartar.vue';
+import ViewInvoiceModal from '@/Components/Common/ViewInvoiceModal.vue';
 import AddDeliverySheetModal from '@/Components/DeliverySheet/AddDeliverySheetModal.vue';
 import ConfirmDeliverySheetModal from '@/Components/DeliverySheet/ConfirmDeliverySheetModal.vue';
 import AddDeliveryModal from '@/Components/DeliverySheet/AddDeliveryModal.vue';
@@ -32,7 +33,8 @@ export default {
         AddDeliveryModal,
         ViewDeliveryModal,
         ConfirmDeliverySheetModal,
-        ConvertObject
+        ConvertObject,
+        ViewInvoiceModal
         // AddCustomerStopModal,
     },
     mixins: [globalMixin],
@@ -69,6 +71,8 @@ export default {
             invoiceTotals: [],
             invoiceDiscounts: [],
             invoiceTaxes: [],
+            selectedInvoice: null,
+            viewInvoiceModal: null,
         }
     },
     mounted() {
@@ -98,6 +102,9 @@ export default {
         const $deleteModalEl = document.getElementById('delete-deliverySheet-modal');
         this.deleteModal = new Modal($deleteModalEl);
 
+        const $targetElInvoice = document.getElementById('view-invoice-modal');
+        this.viewInvoiceModal = new Modal($targetElInvoice);
+
     },
     filters: {
         formatField(value) {
@@ -107,6 +114,9 @@ export default {
     },
 
     methods: {
+        navigateSingleInvoice(invoice) {
+            this.$inertia.visit(`/company/invoices/${invoice.id}`)
+        },
         getStatusBackGroundColor(status) {
             //switch case
             switch (status) {
@@ -196,6 +206,17 @@ export default {
         },
         openAddDeliveryModal() {
             this.addDeliveryModal.show()
+        },
+
+        openInvoiceModal(invoice) {
+            console.log(invoice)
+            this.selectedInvoice = invoice;
+            this.viewInvoiceModal.show()
+        },
+
+        closeInvoiceModal() {
+            this.selectedInvoice = null;
+            this.viewInvoiceModal.hide()
         },
         closeAddDeliveryModal() {
             this.addDeliveryModal.hide()
@@ -352,7 +373,6 @@ export default {
                         }
                     });
             }
-
         },
 
         setCanRemoveStock() {
@@ -492,7 +512,7 @@ export default {
                             </li>
                         </ul>
 
-                        <ul
+                        <ul v-if="deliverySheet.data.status === 'Completed'"
                             className="mb-4 w-full text-xm font-normal text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <h4 class="text-lg p-3 font-semibold text-gray-900 border-b dark:text-white">Payments Breakdown
                             </h4>
@@ -751,7 +771,7 @@ export default {
                                                     <td
                                                         class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                         {{
-                                                            detail.items.length }}
+                                                            detail?.items?.length }}
                                                     </td>
 
 
@@ -857,7 +877,8 @@ export default {
                                             <tbody
                                                 class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
 
-                                                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                <tr @click="navigateSingleInvoice(detail)"
+                                                    class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                                                     v-for="detail in invoices.data">
 
                                                     <td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
@@ -1156,4 +1177,5 @@ export default {
 <style scoped>
 .activeTab {
     border-bottom: 4px solid #2563EB;
-}</style>
+}
+</style>

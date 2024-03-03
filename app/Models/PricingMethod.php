@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\CompanyScope;
 
 
+
 class PricingMethod extends Model
 {
     use HasFactory, CompanyScope;

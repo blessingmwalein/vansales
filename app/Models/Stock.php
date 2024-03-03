@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\CompanyScope;
+// use App\Traits\CompanyScope;
 
 
 class Stock extends Model
 {
-    use HasFactory, CompanyScope;
+    use HasFactory;
     protected $guarded;
 
     protected $with = ['product'];

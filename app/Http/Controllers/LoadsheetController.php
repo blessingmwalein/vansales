@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Exports\LoadSheetDetailsExport;
 use App\Exports\LoadSheetSummaryExport;
-use App\Http\Resources\LoadsheetDetailResource;
+use App\Http\Resources\InvoiceResource;
+use App\Http\Resources\InvoiceSummaryResource;
+use App\Http\Resources\AllocationItemResource;
 use App\Http\Resources\LoadSheetResource;
 use App\Http\Resources\LoadSheetSaleResource;
 use App\Http\Resources\LoadSheetSaleSummaryResource;
@@ -14,6 +16,7 @@ use App\Interfaces\LoadSheetRepositoryInterface;
 use App\Interfaces\RouteRepositoryInterface;
 use App\Interfaces\TruckRepositoryInterface;
 use App\Interfaces\WarehouseRepositoryInterface;
+use App\Models\AllocationItem;
 use App\Models\Loadsheet;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -122,17 +125,16 @@ class LoadsheetController extends Controller
 
         return Inertia::render('Loadsheet/Show', [
             'loadsheet' => new LoadSheetResource($loadsheet),
-            'details' => LoadsheetDetailResource::collection($loadsheet->details()->latest()->get()),
-            'sales' => SaleOderResource::collection($loadsheet->sales()->latest()->get()),
+            'allocationItems' => AllocationItemResource::collection($loadsheet->allocationItems()->latest()->get()),
             'trucks' => $this->truckRepository->getAvailableTrucks(),
             'warehouses' => $this->warehouseRepository->all(),
             'routes' => $this->routeRepository->all(),
             'users' => $users,
             'allDrivers' => $allDrivers,
             'allTrucks' => $this->truckRepository->all(),
-            'summary' => LoadSheetSaleSummaryResource::collection($loadsheet->getSalesOrderDetails()),
+            'summary' => InvoiceSummaryResource::collection($loadsheet->getInvoiceItems()),
             // 'summary' => $this->loadSheetRepository->getLoadSheetSummary($loadsheet->id),
-            'invoices' => LoadSheetSaleResource::collection($loadsheet->sales),
+            'invoices' => InvoiceResource::collection($loadsheet->invoices()->paginate(10)),
             'settings' => $this->generalSettingRepository->all(),
         ]);
     }

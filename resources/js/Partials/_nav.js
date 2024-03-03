@@ -12,6 +12,14 @@ const NavItems = [
         ]
     },
     {
+        name: 'Dashboard',
+        icon: 'bi bi-pie-chart-fill',
+        feature: 'admin_dashboard',
+        route: '/admin/dashboard',
+        children: [
+        ]
+    },
+    {
         name: 'Companies',
         icon: 'bi bi-buildings',
         feature: 'company_management',
@@ -152,6 +160,15 @@ const NavItems = [
         icon: 'bi bi-layout-text-sidebar-reverse',
         feature: 'delivery_management',
         route: '/company/deliveries',
+        children: [
+
+        ]
+    },
+    {
+        name: 'Branches',
+        icon: 'bi bi-layout-text-sidebar-reverse',
+        feature: 'branch_management',
+        route: '/company/branches',
         children: [
 
         ]

@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliverySheetController;
 use App\Http\Controllers\GeneralSettingController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LoadsheetController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PermissionController;
@@ -53,7 +55,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -93,7 +95,7 @@ Route::prefix('company')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->g
     Route::get('/utilities', [UnitMeasureController::class, 'index'])->name('utilities.index');
 
     Route::resource('/products', ProductController::class)->except(['update']);
-    Route::resource('/sales', SaleOrderController::class)->except(['update', 'show']);
+    Route::get('/sales', [InvoiceController::class,'index']);
     Route::get('/sales/{saleOrder}', [SaleOrderController::class, 'show']);
     //truck routes
     Route::resource('/trucks', TruckController::class);
@@ -101,6 +103,12 @@ Route::prefix('company')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->g
     //customer routes
     Route::resource('/customers', CustomerController::class);
     Route::get('/customers-map', [CustomerController::class, 'map']);
+
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
+
+    //branch routes
+    Route::resource('/branches', BranchController::class);
+
 
     //route routes
     Route::resource('/routes', RouteController::class);
@@ -118,7 +126,6 @@ Route::prefix('company')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->g
     Route::post('complete-delivery-sheet', [DeliverySheetController::class, 'completeDeliverySheet']);
     Route::post('start-delivery-sheet', [DeliverySheetController::class, 'startDeliverySheet']);
 
-
     Route::post('/loadsheets-search', [LoadsheetController::class, 'searchByLoadsheetNumber'])->name('loadsheet.search');
     Route::post('/filter-loaadsheets-status', [LoadsheetController::class, 'filterByStatus'])->name('loadsheet.filter');
     Route::post('/filter-loadsheets-date', [LoadsheetController::class, 'searchByDateRange'])->name('loadsheet.date');
@@ -127,8 +134,8 @@ Route::prefix('company')->middleware(['auth:sanctum', 'verified', 'isAdmin'])->g
     Route::get('/download-loadsheet-summary', [LoadsheetController::class, 'downloadLoadSheetSummary']);
     Route::get('/download-loadsheet-details', [LoadsheetController::class, 'downloadLoadSheetDetails']);
 
-    Route::post('/filter-sales', [SaleOrderController::class, 'filter'])->name('sales.filter');
-    Route::get('/filter-sales', [SaleOrderController::class, 'index']);
+    Route::post('/filter-invoices', [InvoiceController::class, 'filter'])->name('invoices.filter');
+    Route::get('/filter-invoices', [InvoiceController::class, 'index']);
 
     Route::post('/confirm-loadsheet', [LoadsheetController::class, 'confirmLoadSheet'])->name('loadsheet.confirmLoadSheet');
     Route::post('/add-loadsheet-details', [LoadsheetController::class, 'addLoadSheetDetail'])->name('loadsheet.addLoadSheetDetail');

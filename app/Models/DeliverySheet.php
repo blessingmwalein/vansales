@@ -12,6 +12,15 @@ class DeliverySheet extends Model
     use HasFactory, CompanyScope;
     protected $guarded;
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($loadSheet) {
+            $loadSheet->delivery_sheet_number = $loadSheet->generateDeliverySheetNumber();
+            $loadSheet->company_id = auth()->user()->company_id;
+        });
+    }
+
 
     public function setStatus($status)
     {
@@ -26,7 +35,7 @@ class DeliverySheet extends Model
 
     public function invoices()
     {
-        return $this->hasMany(DeliveryInvoice::class, 'delivery_sheet_id', 'id');
+        return $this->hasMany(Invoice::class, 'delivery_sheet_id');
     }
 
     public function deliveries()
@@ -65,5 +74,18 @@ class DeliverySheet extends Model
             }
         }
         return collect($items)->unique('stock_id')->values()->all();
+    }
+
+    public function generateDeliverySheetNumber()
+    {
+        //gen company name from env
+        $prefix = env('DELIVERYSHEET_PREFIX');
+        $lastRecord = DeliverySheet::latest()->first();
+        if (!$lastRecord) {
+            return $prefix . '0001';
+        }
+        $lastRecordId = $lastRecord->id;
+        $code = $prefix . str_pad($lastRecordId + 1, 4, '0', STR_PAD_LEFT);
+        return $code;
     }
 }

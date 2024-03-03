@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use App\Traits\CompanyScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\CompanyScope;
+
 
 class Currency extends Model
 {

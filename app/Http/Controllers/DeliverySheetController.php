@@ -6,6 +6,8 @@ use App\Http\Resources\DeliverInvoiceResource;
 use App\Http\Resources\DeliveryResource;
 use App\Http\Resources\DeliverySheetResource;
 use App\Http\Resources\DeliverySheetSummaryResource;
+use App\Http\Resources\InvoiceResource;
+use App\Http\Resources\InvoiceSummaryResource;
 use App\Models\DeliverySheet;
 use Illuminate\Http\Request;
 use App\Interfaces\GeneralSettingRepositoryInterface;
@@ -112,10 +114,12 @@ class DeliverySheetController extends Controller
 
         //get details with latest created at
 
+        // dd(InvoiceResource::collection($deliverySheet->invoices));
+
         return Inertia::render('Delivery/Show', [
             'deliverySheet' => new DeliverySheetResource($deliverySheet),
             'trucks' => $this->truckRepository->getAvailableTrucks(),
-            'invoices' => DeliverInvoiceResource::collection($deliverySheet->invoices),
+            'invoices' => InvoiceResource::collection($deliverySheet->invoices),
             'warehouses' => $this->warehouseRepository->all(),
             'routes' => $this->routeRepository->all(),
             'users' => $users,
@@ -123,7 +127,7 @@ class DeliverySheetController extends Controller
             'allTrucks' => $this->truckRepository->all(),
             'settings' => $this->generalSettingRepository->all(),
             'deliveries' => DeliveryResource::collection($deliverySheet->deliveries),
-            'summary' => DeliverySheetSummaryResource::collection($deliverySheet->getInvoiceItems()),
+            'summary' => InvoiceSummaryResource::collection($deliverySheet->getInvoiceItems()),
         ]);
     }
 

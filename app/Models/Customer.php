@@ -12,7 +12,6 @@ class Customer extends Model
     use HasFactory, CompanyScope;
     protected $guarded;
 
-
     protected static function boot()
     {
         parent::boot();

@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\SaleOderDetailResource;
+use App\Interfaces\CompanyRepositoryInterface;
+use App\Interfaces\InvoiceRepositoryInterface;
+use App\Interfaces\SubscriptionRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\Product;
 use App\Models\SaleOrder;
 use App\Models\SaleOrderDetail;
@@ -14,6 +18,22 @@ use Symfony\Component\HttpKernel\HttpCache\Ssi;
 
 class DashboardController extends Controller
 {
+    private CompanyRepositoryInterface  $companyRepository;
+    private SubscriptionRepositoryInterface $subscriptionRepository;
+    private UserRepositoryInterface $userRepository;
+    private InvoiceRepositoryInterface $invoiceRepository;
+
+    public function __construct(
+        CompanyRepositoryInterface $companyRepository,
+        SubscriptionRepositoryInterface $subscriptionRepository,
+        UserRepositoryInterface $userRepository,
+        InvoiceRepositoryInterface $invoiceRepository
+    ) {
+        $this->companyRepository = $companyRepository;
+        $this->subscriptionRepository = $subscriptionRepository;
+        $this->userRepository = $userRepository;
+        $this->invoiceRepository = $invoiceRepository;
+    }
     public function index()
     {
         // $topProducts = SaleOrderDetail::select('stock_id')
@@ -53,6 +73,23 @@ class DashboardController extends Controller
 
         return Inertia::render(
             'Dashboard',
+            [
+                'employees' => $this->companyRepository->getEmployees()->count(),
+                'newEmployees' => $this->companyRepository->getEmployees(
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth()
+                )->count(),
+                'totalEarnings' => $this->invoiceRepository->companyTotalIncome(),
+                'totalEarningsThisMonth' => $this->invoiceRepository->companyTotalIncome(
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth()
+                ),
+                'totalInvoices' => $this->invoiceRepository->companyInvoices()->count(),
+                'newInvoices' => $this->invoiceRepository->companyInvoices(
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth()
+                )->count(),
+            ]
             // [
             //     'topSoldProducts' => SaleOderDetailResource::collection($topProducts),
             //     'newUsers' => $newUsers,
@@ -68,7 +105,21 @@ class DashboardController extends Controller
     public function admin()
     {
         return Inertia::render(
-            'AdminDashboard'
+            'AdminDashboard',
+            [
+                'companies' => $this->companyRepository->getAllCompanies()->count(),
+                'newCompanies' => $this->companyRepository->getAllCompanies(
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth()
+                )->count(),
+                'subscriptions' => $this->subscriptionRepository->all()->count(),
+                'companySubscriptions' => $this->subscriptionRepository->getCompanySubscriptions()->count(),
+                'users' => $this->userRepository->getAllAdminUsers()->count(),
+                'newUsers' => $this->userRepository->getAllAdminUsers(
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth()
+                )->count(),
+            ]
         );
     }
 }

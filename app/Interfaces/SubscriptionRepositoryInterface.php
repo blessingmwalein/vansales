@@ -5,6 +5,7 @@ namespace App\Interfaces;
 interface SubscriptionRepositoryInterface
 {
     public function all();
+    public function getCompanySubscriptions();
 
     public function create(array $data);
 

@@ -14,6 +14,22 @@ class UserRepository implements UserRepositoryInterface
         return User::all();
     }
 
+    public function getAllAdminUsers(
+        $from = null,
+        $to = null
+    ) {
+
+        $query = User::query();
+
+        if ($from && $to) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+        return $query->whereHas('roles', function ($query) {
+            $query->where('name', 'admin');
+        })->get();
+    }
+
+
     public function getAllUsersPaginated($page = 10)
     {
         return User::latest()->with('roles')->paginate($page);
@@ -32,11 +48,9 @@ class UserRepository implements UserRepositoryInterface
     {
         $user = User::find($id);
 
-        // if (!$user) {
-        //     // Handle the case where the user with the given ID is not found.
-        //     // You may want to return an error response or perform some other action.
-        //     return null;
-        // }
+        $userRole = $data['role_id'];
+
+        unset($data['role_id']);
 
         // Check if the password is set and not empty.
         if (isset($data['password']) && !empty($data['password'])) {
@@ -45,9 +59,7 @@ class UserRepository implements UserRepositoryInterface
             // If the password is not provided in the input data, don't update it.
             unset($data['password']);
         }
-
         $user->update($data);
-
         return $user;
     }
 
@@ -94,6 +106,8 @@ class UserRepository implements UserRepositoryInterface
     public function login(array $data)
     {
         $user = User::where('email', $data['email'])->first();
+
+
         if ($user) {
             if (auth()->attempt($data)) {
                 return $user;

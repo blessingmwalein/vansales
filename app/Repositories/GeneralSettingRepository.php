@@ -13,6 +13,11 @@ class GeneralSettingRepository implements GeneralSettingRepositoryInterface
         return GeneralSetting::all();
     }
 
+    public function getAllCompanyGeneralSettings($companyId){
+        return GeneralSetting::where('company_id', $companyId)->get();
+    }
+
+
     public function create(array $data)
     {
         return GeneralSetting::create($data);

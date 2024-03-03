@@ -408,7 +408,7 @@ export default {
 
                                                 <div class="text-sm font-normal text-gray-500 dark:text-gray-400">
                                                     <div class="text-base font-semibold text-gray-900 dark:text-white">
-                                                        Driver: {{ loadsheet.user.first_name }} {{ loadsheet.user.last_name
+                                                        {{ loadsheet.user.first_name }} {{ loadsheet.user.last_name
                                                         }}</div>
 
                                                     <div

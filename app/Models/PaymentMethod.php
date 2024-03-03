@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\CompanyScope;
 
 
+
 class PaymentMethod extends Model
 {
     use HasFactory, CompanyScope;
+
+
 
     protected $guarded;
 

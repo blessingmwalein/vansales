@@ -4,8 +4,11 @@ namespace App\Interfaces;
 
 interface UserRepositoryInterface
 {
-    
+
     public function getAllUsers();
+
+    public function getAllAdminUsers($from = null, $to = null);
+
 
     public function getAllUsersPaginated($page);
 

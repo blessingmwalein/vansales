@@ -25,7 +25,7 @@ class LoadSheetResource extends JsonResource
             'user' => $this->user,
             'warehouse' => $this->warehouse,
             'history' => $this->history,
-            'details' => LoadsheetDetailResource::collection($this->details),
+            'allocationItems' => AllocationItemResource::collection($this->allocationItems),
             'route' => $this->route,
             'customer_stops' => $this->customerStops,
             'start_date_time' => $this->start_date_time->format('Y-m-d H:00'),

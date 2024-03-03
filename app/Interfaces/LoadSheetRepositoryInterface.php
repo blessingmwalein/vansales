@@ -47,9 +47,5 @@ interface LoadSheetRepositoryInterface
 
     public function createLoadSheetHistory($loadsheet_id, $status, $description);
 
-    public function getLoadSheetSummary($loadsheet_id);
-    public function getPaymentsBreakDown($loadsheet_id);
-    public function removeStockFromWarehouse($warehouse_id, $stock_id, $quantity);
-    public function addStockToWarehouse($warehouse_id, $stock_id, $quantity);
 
 }

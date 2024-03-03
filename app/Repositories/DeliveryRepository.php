@@ -5,14 +5,14 @@ namespace App\Repositories;
 use App\Interfaces\CustomerRepositoryInterface;
 use App\Interfaces\GeneralSettingRepositoryInterface;
 use App\Interfaces\DeliveryRepositoryInterface;
-use App\Interfaces\LoadSheetRepositoryInterface;
+use App\Interfaces\AllocationItemRepositoryInterface;
 use App\Interfaces\PricingMethodRepositoryInterface;
 use App\Models\CustomerStop;
 use App\Models\Delivery;
 use App\Models\DeliveryHistory;
 use App\Models\DeliveryInvoice;
 use App\Models\DeliveryInvoiceItem;
-use App\Models\DeliveryItem;
+use App\Models\AllocationItem;
 use App\Models\DeliverySheet;
 use App\Models\LoadSheetDetail;
 use App\Models\SaleOrder;
@@ -25,18 +25,18 @@ class DeliveryRepository implements DeliveryRepositoryInterface
     private GeneralSettingRepositoryInterface $generalSettingRepository;
     private CustomerRepositoryInterface $customerRepository;
     private PricingMethodRepositoryInterface $pricingMethodRepository;
-    private LoadSheetRepositoryInterface $loadSheetRepositoryInterface;
+    private AllocationItemRepositoryInterface $allocationItem;
 
     public function __construct(
         GeneralSettingRepositoryInterface $generalSettingRepository,
         CustomerRepositoryInterface $customerRepository,
         PricingMethodRepositoryInterface $pricingMethodRepository,
-        LoadSheetRepositoryInterface $loadSheetRepositoryInterface
+        AllocationItemRepositoryInterface $allocationItem
     ) {
         $this->generalSettingRepository = $generalSettingRepository;
         $this->customerRepository = $customerRepository;
         $this->pricingMethodRepository = $pricingMethodRepository;
-        $this->loadSheetRepositoryInterface = $loadSheetRepositoryInterface;
+        $this->allocationItem = $allocationItem;
     }
 
     public function all()
@@ -205,7 +205,7 @@ class DeliveryRepository implements DeliveryRepositoryInterface
 
     public function updateStock($stock_id, $delivery_id, $quantity, $increment = false)
     {
-        $detail = DeliveryItem::where('delivery_id', $delivery_id)->where('stock_id', $stock_id)->first();
+        $detail = AllocationItem::where('delivery_id', $delivery_id)->where('stock_id', $stock_id)->first();
 
         $delivery = Delivery::find($delivery_id);
 
@@ -215,19 +215,19 @@ class DeliveryRepository implements DeliveryRepositoryInterface
         // dd($stock_id, $delivery_sheet_id, $quantity, $isNew, $stock);
         if ($detail) {
             if ($increment) {
-                $this->loadSheetRepositoryInterface->removeStockFromWarehouse($sheet->warehouse_id, $stock_id, $quantity);
+                $this->allocationItem->removeStockFromWarehouse($sheet->warehouse_id, $stock_id, $quantity);
             } else {
                 if ($quantity > $detail->quantity) {
-                    $this->loadSheetRepositoryInterface->removeStockFromWarehouse($sheet->warehouse_id, $stock_id, $quantity - $detail->quantity);
+                    $this->allocationItem->removeStockFromWarehouse($sheet->warehouse_id, $stock_id, $quantity - $detail->quantity);
                 } else {
-                    $this->loadSheetRepositoryInterface->addStockToWarehouse($delivery->warehouse_id, $stock_id, $detail->quantity - $quantity);
+                    $this->allocationItem->addStockToWarehouse($delivery->warehouse_id, $stock_id, $detail->quantity - $quantity);
                 }
             }
             $detail->quantity = $increment ?  $quantity + $detail->quantity : $quantity;
             $detail->save();
         } else {
-            $this->loadSheetRepositoryInterface->removeStockFromWarehouse($sheet->warehouse_id, $stock_id, $quantity);
-            DeliveryItem::create([
+            $this->allocationItem->removeStockFromWarehouse($sheet->warehouse_id, $stock_id, $quantity);
+            AllocationItem::create([
                 'stock_id' => $stock_id,
                 'quantity' => $quantity,
                 'delivery_id' => $delivery_id
@@ -243,66 +243,6 @@ class DeliveryRepository implements DeliveryRepositoryInterface
         return DeliverySheet::where('status', $status)->where('user_id', $driver->id)->get();
     }
 
-    public function syncInvoices($id, array $invoices)
-    {
-        $delivery = Delivery::find($id);
-
-        foreach ($invoices as $key => $invoice) {
-            // dd($invoice);
-            if ($this->isSyncedInvoice($invoice['invoice_number'])) {
-                continue;
-            }
-
-            $newInvoice = DeliveryInvoice::create([
-                'delivery_id' => $delivery->id,
-                'delivery_sheet_id' => $delivery->delivery_sheet_id,
-                'invoice_number' => $invoice['invoice_number'],
-                'status' => $invoice['status'],
-                'totals' => json_encode($invoice['totals']),
-                'tax' => json_encode($invoice['tax']),
-                'discount' => json_encode($invoice['discount']),
-            ]);
-
-            $invoiceItems = $invoice['items'];
-
-            foreach ($invoiceItems as $key => $item) {
-                if ($this->isInvoiceItemSynced($invoice['invoice_number'], $item['stock_id'])) {
-                    continue;
-                }
-                DeliveryInvoiceItem::create([
-                    'stock_id' => $item['stock_id'],
-                    'quantity' => $item['quantity'],
-                    "delivery_invoice_id" => $newInvoice->id,
-                    // 'total_price' => $item['total_price'],
-                    // 'currency_id' => $item['currency_id'],
-                    'is_synced' => true,
-                ]);
-            }
-        }
-
-        return true;
-    }
-
-    public function isSyncedInvoice($invoiceNumber)
-    {
-        $invoice = DeliveryInvoice::where('invoice_number', $invoiceNumber)->first();
-        if ($invoice) {
-            return true;
-        }
-        return false;
-    }
-
-    public function isInvoiceItemSynced($invoiceNumber, $stockId)
-    {
-        $invoice = DeliveryInvoice::where('invoice_number', $invoiceNumber)->first();
-        if ($invoice) {
-            $invoiceItem = $invoice->items()->where('stock_id', $stockId)->first();
-            if ($invoiceItem) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public function getLoadSheetSummary($id)
     {

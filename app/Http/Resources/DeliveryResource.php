@@ -19,7 +19,7 @@ class DeliveryResource extends JsonResource
             'status' => $this->status,
             'customer' => $this->customer,
             'delivery_sheet' => $this->deliverySheet,
-            'items' => DeliveryItemResource::collection($this->items),
+            'allocationItems' => AllocationItemResource::collection($this->allocationItems),
             'created_at' => $this->created_at->format('Y-m-d H:00'),
         ];
     }

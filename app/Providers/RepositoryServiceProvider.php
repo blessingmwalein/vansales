@@ -16,9 +16,11 @@ use App\Interfaces\PaymentMethodRepositoryInterface;
 use App\Interfaces\ProductPricingRepositoryInterface;
 use App\Interfaces\GeneralSettingRepositoryInterface;
 use App\Interfaces\DeliveryRepositoryInterface;
-use App\Interfaces\SaleOrderRepositoryInterface;
+use App\Interfaces\InvoiceRepositoryInterface;
+use App\Interfaces\AllocationItemRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\CompanyRepositoryInterface;
+use App\Interfaces\BranchRepositoryInterface;
 use App\Interfaces\SubscriptionRepositoryInterface;
 use App\Models\Subscription;
 use App\Repositories\ProductCategoryRepository;
@@ -34,11 +36,13 @@ use App\Repositories\PricingMethodRepository;
 use App\Repositories\PaymentMethodRepository;
 use App\Repositories\ProductPricingRepository;
 use App\Repositories\GeneralSettingRepository;
-use App\Repositories\SaleOrderRepository;
+use App\Repositories\AllocationItemRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\CompanyRepository;
 use App\Repositories\DeliveryRepository;
 use App\Repositories\SubscriptionRepository;
+use App\Repositories\BranchRepository;
+use App\Repositories\InvoiceRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -64,8 +68,10 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(CompanyRepositoryInterface::class, CompanyRepository::class);
         $this->app->bind(SubscriptionRepositoryInterface::class, SubscriptionRepository::class);
-        $this->app->bind(SaleOrderRepositoryInterface::class, SaleOrderRepository::class);
+        $this->app->bind(AllocationItemRepositoryInterface::class, AllocationItemRepository::class);
         $this->app->bind(DeliveryRepositoryInterface::class, DeliveryRepository::class);
+        $this->app->bind(BranchRepositoryInterface::class, BranchRepository::class);
+        $this->app->bind(InvoiceRepositoryInterface::class, InvoiceRepository::class);
     }
 
     /**

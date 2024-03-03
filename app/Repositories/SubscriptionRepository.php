@@ -14,6 +14,11 @@ class SubscriptionRepository implements SubscriptionRepositoryInterface
         return Subscription::all();
     }
 
+    public function getCompanySubscriptions()
+    {
+        return CompanySubscription::all();
+    }
+
     public function create(array $data)
     {
         $data['features'] = json_encode($data['features']);

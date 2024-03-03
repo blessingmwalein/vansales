@@ -6,6 +6,8 @@ interface GeneralSettingRepositoryInterface
 {
     public function all();
 
+    public function getAllCompanyGeneralSettings($companyId);
+
     public function create(array $data);
 
     public function update(array $data, $id);

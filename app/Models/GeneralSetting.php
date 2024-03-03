@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\CompanyScope;
 
 
 class GeneralSetting extends Model
 {
-    use HasFactory, CompanyScope;
+    use HasFactory;
 
     protected $guarded;
 

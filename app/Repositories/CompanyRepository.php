@@ -9,7 +9,9 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SubscriptionRepositoryInterface;
 use App\Models\Company;
 use App\Models\CompanySubscription;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use PHPUnit\TextUI\Output\NullPrinter;
 use Spatie\Permission\Models\Role;
 
 class CompanyRepository implements CompanyRepositoryInterface
@@ -28,9 +30,26 @@ class CompanyRepository implements CompanyRepositoryInterface
         $this->subscriptionRepository = $subscriptionRepositoryInterface;
         $this->generalSettingsRepository = $generalSettingsRepository;
     }
-    public function getAllCompanies()
+    public function getAllCompanies($from = null, $to = null)
     {
-        return Company::all();
+        $query = Company::query();
+
+        if ($from && $to) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+        return $query->get();
+    }
+
+    public function getEmployees($from = null, $to = null)
+    {
+        $query = User::query();
+        if ($from && $to) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+        return $query->where(
+            'company_id',
+            auth()->user()->company_id
+        )->get();
     }
 
     public function getAllCompaniesPaginated($page = 10)

@@ -27,8 +27,6 @@ interface DeliveryRepositoryInterface
     //get delivery sheet by status
     public function getDeliverySheetsByStatus($status);
 
-    public function syncInvoices($id, array $invoices);
-
     public function getLoadSheetSummary($id);
 
     // public function getDeliveryInvoices(array $data);
