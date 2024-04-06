@@ -38,6 +38,8 @@ class ProductRepository implements ProductRepositoryInterface
         if ($data['hasMoreThanOnePrices']) {
             foreach ($data['prices'] as $productPrice) {
                 $productPrice['product_id'] = $product->id;
+                //revove currency_name from array
+                unset($productPrice['currency_name']);
                 $this->productPricingRepository->create($productPrice);
             }
         } else {

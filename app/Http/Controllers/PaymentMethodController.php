@@ -8,11 +8,11 @@ use App\Interfaces\PaymentMethodRepositoryInterface;
 
 class PaymentMethodController extends Controller
 {
-    private PaymentMethodRepositoryInterface $pricingMethodRepository;
+    private PaymentMethodRepositoryInterface $paymentMethodRepository;
 
-    public function __construct(PaymentMethodRepositoryInterface $pricingMethodRepository)
+    public function __construct(PaymentMethodRepositoryInterface $paymentMethodRepository)
     {
-        $this->pricingMethodRepository = $pricingMethodRepository;
+        $this->paymentMethodRepository = $paymentMethodRepository;
     }
     /**
      * Display a listing of the resource.
@@ -40,14 +40,14 @@ class PaymentMethodController extends Controller
             'is_default' => 'nullable|boolean',
         ]);
 
-        $this->pricingMethodRepository->create($data);
+        $this->paymentMethodRepository->create($data);
         return redirect()->back()->with('success', 'Pricing method created successfully');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(PaymentMethod $pricingMethod)
+    public function show(PaymentMethod $paymentMethod)
     {
         //
     }
@@ -55,7 +55,7 @@ class PaymentMethodController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(PaymentMethod $pricingMethod)
+    public function edit(PaymentMethod $paymentMethod)
     {
         //
     }
@@ -63,23 +63,25 @@ class PaymentMethodController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PaymentMethod $pricingMethod)
+    public function update(Request $request, PaymentMethod $paymentMethod)
     {
+
         $data = $request->validate([
             'name' => 'required|string',
             'is_default' => 'nullable|boolean',
+
         ]);
 
-        $this->pricingMethodRepository->update($data, $pricingMethod->id);
+        $this->paymentMethodRepository->update($data, $request->id);
         return redirect()->back()->with('success', 'Pricing method updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PaymentMethod $pricingMethod)
+    public function destroy(PaymentMethod $paymentMethod)
     {
-        $this->pricingMethodRepository->delete($pricingMethod->id);
+        $this->paymentMethodRepository->delete($paymentMethod->id);
 
         return redirect()->back()->with('success', 'Pricing method deleted successfully');
     }
@@ -87,6 +89,6 @@ class PaymentMethodController extends Controller
     public function getPaymentMethods(Request $request)
     {
 
-        return $this->response('Payment Methods', $this->pricingMethodRepository->all());
+        return $this->response('Payment Methods', $this->paymentMethodRepository->all());
     }
 }

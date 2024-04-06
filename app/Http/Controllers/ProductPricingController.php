@@ -46,6 +46,7 @@ class ProductPricingController extends Controller
             'is_default' => 'required|boolean',
         ]);
 
+        
         $this->productPricingRepository->create($data);
         return redirect()->back()->with('success', 'Product pricing created successfully');
     }

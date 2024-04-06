@@ -14,6 +14,7 @@ class ProductPricingRepository implements ProductPricingRepositoryInterface
 
     public function create(array $data)
     {
+        //
         return ProductPricing::create($data);
     }
 

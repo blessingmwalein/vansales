@@ -53,6 +53,7 @@ class PaymentMethodRepository implements PaymentMethodRepositoryInterface
     public function changeDefaultPaymentMethod($id)
     {
         $pricingMethod = PaymentMethod::find($id);
+
         $pricingMethod->is_default = true;
         $pricingMethod->save();
 

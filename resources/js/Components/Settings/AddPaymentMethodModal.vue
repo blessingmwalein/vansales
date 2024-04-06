@@ -103,6 +103,9 @@ export default {
         },
 
         update() {
+            console.log(this.paymentMethod);
+
+            // return;
             this.form.put(`/company/payment-methods/${this.paymentMethod.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
