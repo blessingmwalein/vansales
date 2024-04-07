@@ -19,7 +19,8 @@ class PricingMethodController extends Controller
      */
     public function index()
     {
-        //
+        $pricingMethods = $this->pricingMethodRepository->all();
+        return $this->response('Pricing methods retrieved successfully', $pricingMethods);
     }
 
     /**

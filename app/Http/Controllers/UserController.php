@@ -164,6 +164,15 @@ class UserController extends Controller
     //mobile functions
 
     //driver login
+     /**
+     * @OA\Get(
+     *     path="/api/data.json",
+     *     @OA\Response(
+     *         response="200",
+     *         description="The data"
+     *     )
+     * )
+     */
     public function login(Request $request)
     {
         $data = $request->validate([

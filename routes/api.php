@@ -7,6 +7,7 @@ use App\Http\Controllers\DeliverySheetController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LoadsheetController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\PricingMethodController;
 use App\Http\Controllers\SaleOrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -54,4 +55,5 @@ Route::prefix('driver')->middleware(['auth:sanctum', 'verified'])->group(functio
 
     Route::get('currencies', [CurrencyController::class, 'getCurrencies']);
     Route::get('payment-methods', [PaymentMethodController::class, 'getPaymentMethods']);
+    Route::get('pricing-methods', [PricingMethodController::class, 'index']);
 });
