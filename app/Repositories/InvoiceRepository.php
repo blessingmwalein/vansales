@@ -167,7 +167,15 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         foreach ($invoices as $key => $invoice) {
             $items  = $invoice->items;
             foreach ($items as $key => $item) {
-                $total += $item->stock->product->getDefaultPrice()->retail_price * $item->quantity;
+                if ($item->stock && $item->stock->product && $item->stock->product->getDefaultPrice()) {
+                    $total += $item->stock->product->getDefaultPrice()->retail_price * $item->quantity;
+                } else {
+                    // Handle the case where any part of the chain is null
+                    // For example, set $total to 0 or display an error message
+                    $total = 0;
+                    // echo "Error: Unable to calculate total due to missing data.";
+                }
+                // $total += $item->stock->product->getDefaultPrice()->retail_price * $item->quantity;
             }
         }
         return $total;

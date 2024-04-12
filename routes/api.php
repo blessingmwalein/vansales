@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DeliveryInvoiceController;
@@ -50,6 +51,8 @@ Route::prefix('driver')->middleware(['auth:sanctum', 'verified'])->group(functio
     Route::post('complete-delivery-sheet', [DeliverySheetController::class, 'completeDeliverySheet'])->name('loadsheet.completeDeliverySheet');
 
     Route::get('delivery-sheets', [DeliverySheetController::class, 'getDeliverySheetByStatus']);
+
+    Route::get('branch-stocks', [BranchController::class, 'getBranchStocks']);
 
     Route::post('syc-invoices', [InvoiceController::class, 'syncInvoices']);
 

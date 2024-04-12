@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BranchResource;
 use App\Http\Resources\InvoiceResource;
 use App\Http\Resources\StockResource;
 use App\Interfaces\BranchRepositoryInterface;
@@ -114,5 +115,14 @@ class BranchController extends Controller
     {
         $this->branchRepository->delete($branch->id);
         return redirect()->back()->with('success', 'Branch Deleted.');
+    }
+
+    public function getBranchStocks(Request $request)
+    {
+
+        $user = auth()->user();
+
+        $branch = $this->branchRepository->getUserBranch($user->id);
+        return $this->response('Branch Stocks', BranchResource::collection($branch));
     }
 }

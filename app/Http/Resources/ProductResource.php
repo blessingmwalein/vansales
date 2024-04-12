@@ -33,7 +33,7 @@ class ProductResource extends JsonResource
             // get created_at in format: 2021-01-01 00:00
             'created_at' => $this->created_at->format('Y-m-d H:i'),
 
-            'pricies' => $this->prices,
+            'prices' => $this->prices,
 
             'default_price' => $this->getDefaultPrice(),
             // 'created_at' => $this->created_at,

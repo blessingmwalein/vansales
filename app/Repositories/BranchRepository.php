@@ -76,4 +76,9 @@ class BranchRepository implements BranchRepositoryInterface
         $branch = $this->show($branchId);
         return $this->warehouseRepositoryInterface->getAllocatedStock($branch->warehouse_id);
     }
+
+    public function getUserBranch($userId)
+    {
+        return Branch::where('user_id', $userId)->get();
+    }
 }
